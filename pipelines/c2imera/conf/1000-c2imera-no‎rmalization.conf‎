@@ -1,0 +1,73 @@
+filter {
+  # =============================================================================
+  # STAGE 1A: THE GATEKEEPER (Noise Reduction)
+  # =============================================================================
+
+  # Grouping drops for better scannability and performance
+  if [message] =~ /^docker stats/ or 
+     [message] =~ /^disk stats output:/ or
+     [message] =~ /^\d+ \[.*(memory|disk)\]/ or 
+     [message] =~ /^\s+at / or
+     [message] =~ /^\(OID:-\)\s*$/ or
+     [message] =~ /^[\d\.]+[MG] [\d\.]+[MG]/ or
+     [message] =~ /^ecs-/ or
+     [message] =~ /^crond:/ or
+     [message] =~ /^formatted data:/ or
+     [message] =~ /(Heartbeat:|\[JVM|\[Memory|GC stats:|C3P0 stats:|JVM Thread Count:)/ or
+     [message] =~ /HTTP\/\d\.\d/ or 
+     [message] =~ /(getWorkspaceConfigurationValue|stream-thread)/ or
+     [message] =~ "UserConfigDataAccessLayer" { 
+
+    drop { id => "1000-c2imera-gatekeeper" } 
+  }
+
+  # =============================================================================
+  # SECURITY: Password Redaction
+  # =============================================================================
+  if [message] =~ /"password"/ or [message] =~ /PASSWORD/ {
+    mutate { 
+      id => "1000-c2imera-password-redaction"
+      gsub => [ 
+        "message", '"password"\s*:\s*"[^"]*"', '"password":"[REDACTED]"', 
+        "message", 'PASSWORD\s*=\s*"[^"]*"', 'PASSWORD="[REDACTED]"' 
+      ] 
+    }
+  }
+
+  # Preserve the message before parsing as per ECS standards
+  mutate { 
+    replace => { "[event][original]" => "%{message}" } 
+    id => "1000-c2imera-preserve-original-message"
+  }
+
+  # =============================================================================
+  # STAGE 1B: TRAFFIC CONTROL (Lane Routing)
+  # =============================================================================
+
+  # Priority 1: Java & Legacy (17-digit Timestamp)
+  if [message] =~ /^\d{17}\s+[\w\.]+\s+(INFO|WARNING|FINE|ERROR|DEBUG)/ {
+    mutate { 
+      add_field => { "[@metadata][log_lane]" => "java_lane" } 
+      id => "1000-c2imera-route-to-java"
+    }
+  } 
+  else if [message] =~ /^\d{17}\s+(INFO|WARNING|ERROR):/ {
+    mutate { 
+      add_field => { "[@metadata][log_lane]" => "legacy_lane" } 
+      id => "1000-c2imera-route-to-legacy"
+    }
+  }
+  # Priority 2: Audit & Syslog
+  else if [message] =~ /^[A-Z][a-z]{2}\s+\d+/ or [message] =~ /\bmsg=audit\(/ or [message] =~ /type=[A-Z_]+/ {
+    mutate { 
+      add_field => { "[@metadata][log_lane]" => "audit_lane" } 
+      id => "1000-c2imera-route-to-audit"
+    }
+  } 
+  else {
+    mutate { 
+      add_field => { "[@metadata][log_lane]" => "unknown" } 
+      id => "1000-c2imera-route-to-unknown"
+    }
+  }
+}
