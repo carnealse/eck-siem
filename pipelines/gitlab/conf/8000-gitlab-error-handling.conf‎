@@ -1,0 +1,9 @@
+filter {
+  # error handling #
+  if "_jsonparsefailure" in [tags] {
+    mutate {
+      add_tag => ["_jsonparsefailure"]
+      add_field => { "[error][message]" => "error parsing json" }
+    }
+  }
+}
