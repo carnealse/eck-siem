@@ -1,0 +1,41 @@
+filter {
+  # set the timestamp from occurredAt add_field #
+  if [occurredAt] {
+    date {
+      match => ["[occurredAt]", "ISO8601"]
+      id => "2000-meraki-date-occurredAt"
+    }
+  }
+  # convert epochs to something nicer to read if they exist #
+  if [alertData][minFirstSeen] or [alertData][maxLastSeen] {
+    date {
+      match => ["[alertData][minFirstSeen]", UNIX]
+      target => "[alertData][minFirstSeen]"
+      id => "2000-meraki-date-minFirstSeen"
+    }
+    date {
+      match => ["[alertData][maxLastSeen]", UNIX]
+      target => "[alertData][maxLastSeen]"
+      id => "2000-meraki-date-maxLastSeen"
+    }
+  }
+  # prestage meraki top level/objects and nested fields
+  mutate {
+    rename => {
+      "[alertData]"             => "[meraki][alert_data]"
+      "[alertTypeId]"           => "[meraki][alert_type][id]"
+      "[alertType]"             => "[meraki][alert_type][type]"
+      "[device]"                => "[meraki][device]"
+      "[destinations]"          => "[meraki][destinations]"
+    }
+    id => "2000-meraki-prestage-renames"
+  }
+  if [meraki][alert_data][changes][removeNodes] {
+    mutate {
+      rename => {
+        "[meraki][alert_data][changes][removeNodes]"  => "[meraki][alert_data][changes][remove_nodes]"
+      }
+      id => "2000-meraki-rename-remove-nodes"
+    }
+  }
+}
