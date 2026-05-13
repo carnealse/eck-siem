@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: gitlab-pipeline
+    files:
+      - conf/0000-gitlab-input.conf
+      - conf/1000-gitlab-normalization.conf
+      - conf/2000-gitlab-conversion-script.conf
+      - conf/2001-gitlab-main-parse.conf
+      - conf/3000-gitlab-ecs-mapping.conf
+      - conf/6000-gitlab-cleanup.conf
+      - conf/8000-gitlab-error-handling.conf
+      - conf/9000-gitlab-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: gitlab-pipeline
+          configMap:
+            name: gitlab-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: gitlab-pipeline
+          mountPath: /usr/share/logstash/conf.d/gitlab
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: gitlab-pipeline
+          mountPath: /usr/share/logstash/conf.d/gitlab
