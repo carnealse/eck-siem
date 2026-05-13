@@ -1,0 +1,6 @@
+input {
+  pipeline {
+    address => "meraki"
+    id => "0000-meraki-input"
+  }
+}
