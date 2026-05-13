@@ -1,0 +1,28 @@
+filter {
+# field clean up
+  mutate {
+    remove_field => ["[message]","[timestamp]","[temp]"]
+    id => "6000-netskope-cleanup"
+  }
+
+# recursively set empty fields to null
+  ruby {
+    id => "6000-netskope-nullify-ruby"
+    code => "
+      def recursively_nullify_empty_fields(obj)
+        case obj
+        when Hash
+          obj.each { |key, value| obj[key] = recursively_nullify_empty_fields(value) }
+        when Array
+          obj.map! { |item| recursively_nullify_empty_fields(item) }
+        else
+          obj.nil? || obj == '' ? 'null' : obj
+        end
+      end
+
+      event.to_hash.each do |key, value|
+        event.set(key, recursively_nullify_empty_fields(value))
+      end
+    "
+  }
+}
