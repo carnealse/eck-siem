@@ -1,0 +1,201 @@
+# Note: all non nodePorts and targetports are placeholders below
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: logstash
+spec:
+  count: 1 # placeholder, this is controlled by autoscaler
+  # version: 9.3.0
+  # image: 125463138321.dkr.ecr.us-gov-west-1.amazonaws.com/logstash/logstash:9.3.0
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+    logs:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+  elasticsearchRefs:
+    - name: elasticsearch
+      clusterName: elasticsearch
+      namespace: siem
+  config:  # settings from logstash.yml go here
+    api.enabled: true
+    config.reload.automatic: true
+    config.reload.interval: 10s
+    log.format: json
+    # log.level: debug
+  pipelinesRef:
+    secretName: logstash-pipeline-yml
+  volumeClaimTemplates:
+    - metadata:
+        name: logstash-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+        storageClassName: gp3t
+  podTemplate:
+    spec:
+      initContainers:
+        - name: logstash-pipeline-precheck
+          # this needs to be patched in
+          # image: logstash
+          command: ["/usr/share/logstash/bin/logstash"]
+          args:
+            - "--path.settings=/usr/share/logstash/config"
+            - "--config.test_and_exit=true"
+          env:
+            - name: ELASTICSEARCH_ES_HOSTS
+              value: https://elasticsearch-es-http.siem.svc:9200 
+            - name: ELASTICSEARCH_ES_USER
+              value: siem-logstash-siem-elasticsearch-logstash-user
+            - name: ES_PLUGIN_USER
+              value: elastic
+            - name: ES_PLUGIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: elastic
+                  name: elasticsearch-es-elastic-user
+            - name: ELASTICSEARCH_ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: siem-logstash-siem-elasticsearch-logstash-user
+                  name: logstash-siem-elasticsearch-logstash-user
+            - name: ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY
+              value: /mnt/elastic-internal/elasticsearch-association/siem/elasticsearch/certs/ca.crt
+          volumeMounts:
+            - name: elastic-internal-logstash-pipeline
+              mountPath: /mnt/elastic-internal/logstash-pipeline
+      containers:
+      - name: logstash
+        env:
+          - name: ES_PLUGIN_USER
+            value: elastic
+          - name: ES_PLUGIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: elasticsearch-es-elastic-user
+                key: elastic
+          - name: LS_JAVA_OPTS
+            value: "-Xms8g -Xmx8g" # Fixed heap size of 8Gb, Elastic recommends 4-8Gb and not changing it at runtime
+        resources:
+          limits:
+            memory: 12Gi
+          requests:
+            cpu:   2000m
+            memory: 10Gi # leave headroom for non-heap memory
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 9600
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 9600
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: logstash-certs-server
+          mountPath: /usr/share/logstash/certs
+          readOnly: true
+      - name: metricbeat
+        imagePullPolicy: Always
+        # image: 125463138321.dkr.ecr.us-gov-west-1.amazonaws.com/beats/metricbeat:9.3.0
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: "50m"
+          limits:
+            memory: 500Mi
+      - name: filebeat
+        imagePullPolicy: Always
+        # image: 125463138321.dkr.ecr.us-gov-west-1.amazonaws.com/beats/filebeat:9.3.0
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: "50m"
+          limits:
+            memory: 500Mi
+      volumes:
+      - name: logstash-certs-server
+        secret:
+          secretName: logstash-certs-server
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            logstash.k8s.elastic.co/statefulset-name: logstash-ls
+  services:
+    - name: http
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 8080
+              name: "http"
+              protocol: TCP
+              targetPort: 8080
+              nodePort: 12345
+      tls: # TLS terminated at the ALB
+        selfSignedCertificate:
+          disabled: true
+    - name: ingest
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 5044
+              name: "ingest"
+              protocol: TCP
+              targetPort: 5044
+              nodePort: 54321
+      tls:
+        certificate:
+          secretName: logstash-certs-server
+        selfSignedCertificate:
+          disabled: true
+    - name: esaudit
+      service:
+        spec:
+          type: ClusterIP
+          ports:
+            - port: 5030
+              name: "esaudit"
+              protocol: TCP
+              targetPort: 1234
+      tls:
+        certificate:
+          secretName: logstash-certs-server
+        selfSignedCertificate:
+          disabled: true
+    - name: api
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 9600
+              name: "api"
+              protocol: TCP
+              targetPort: 9600
+              nodePort: 54312
+      tls:
+        certificate:
+          secretName: logstash-certs-server
+        selfSignedCertificate:
+          disabled: true
