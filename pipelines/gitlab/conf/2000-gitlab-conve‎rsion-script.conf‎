@@ -1,12 +1,12 @@
 filter {
-  # Convert to Object if a string comes thru for custom_message
   if [gitlab][details][custom_message] {
     ruby {
+      id => "2000-gitlab-custom-message-conversion"
       code => '
         if event.get("[gitlab][details][custom_message]").is_a?(String)
-         action = event.get("[gitlab][details][custom_message]")
-         event.remove("[gitlab][details][custom_message]")
-         event.set("[gitlab][details][custom_message][action]", action)
+          action = event.get("[gitlab][details][custom_message]")
+          event.remove("[gitlab][details][custom_message]")
+          event.set("[gitlab][details][custom_message][action]", action)
         end
       '
     }
