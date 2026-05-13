@@ -1,0 +1,128 @@
+filter {
+  ### START JSON ONLY PROCESSING ###
+  if [isJson] == "true" {
+
+    # process the json
+    json {
+      id => "json_process"
+      source => "message"
+    }
+
+    # initial renames to ECS
+    mutate {
+      id => "initial_renames"
+      rename => {
+        "[context]"                              => "[nexus][context]"
+        "[domain]"                               => "[nexus][domain]"
+        "[initiator]"                            => "[nexus][initiator]"
+        "[nodeId]"                               => "[nexus][node][id]"
+        "[thread]"                               => "[process][thread][name]"
+        "[type]"                                 => "[event][action]"
+        "[attributes][.created]"                 => "[nexus][attributes][created]"
+        "[attributes][.exposed]"                 => "[nexus][attributes][exposed]"
+        "[attributes][.id]"                      => "[nexus][attributes][id]"
+        "[attributes][.logState]"                => "[nexus][attributes][log_state]"
+        "[attributes][.message]"                 => "[nexus][attributes][message]"
+        "[attributes][.name]"                    => "[nexus][attributes][name]"
+        "[attributes][.recoverable]"             => "[nexus][attributes][recoverable]"
+        "[attributes][.typeId]"                  => "[nexus][attributes][type][id]"
+        "[attributes][.typeName]"                => "[nexus][attributes][type][name]"
+        "[attributes][.updated]"                 => "[nexus][attributes][updated]"
+        "[attributes][.visible]"                 => "[nexus][attributes][visible]"
+        "[attributes][currentState]"             => "[nexus][attributes][current_state]"
+        "[attributes][failureReasons]"           => "[nexus][attributes][failure_reasons]"
+        "[attributes][lastRunState]"             => "[nexus][attributes][last_run_state][status]"
+        "[attributes][lastRunState.endState]"    => "[nexus][attributes][last_run_state][end_state]"
+        "[attributes][lastRunState.runDuration]" => "[nexus][attributes][last_run_state][run][duration]"
+        "[attributes][lastRunState.runStarted]"  => "[nexus][attributes][last_run_state][run][started]"
+        "[attributes][path]"                     => "[url][path]"
+        "[attributes][remoteIp]"                 => "[client][ip]"
+        "[attributes][schedule]"                 => "[nexus][attributes][schedule]"
+        "[attributes][userAgent]"                => "[user][agent][original]"
+        "[attributes][userId]"                   => "[user][id]"
+        "[attributes][wasSuccessful]"            => "[nexus][attributes][was_successful]"
+      }
+    }
+  }
+  ### END JSON ONLY PROCESSING ###
+
+  ### START HEALTHCHECKER AND SERVICE ONLY PROCESSING ###
+  if [isJson] == "false" {
+
+    # convert the message to a string
+    mutate {
+      convert => { "message" => "string" }
+      id => "2000-nexus-convert-string"
+    }
+
+    # strip quotes from the message before dissect
+    mutate {
+      gsub => [ "message", '"', "" ]
+      id => "2000-nexus-gsub-quotes"
+    }
+
+    # strip unseen leading and trailing spaces
+    mutate {
+      strip => ["message"]
+      id => "2000-nexus-strip-whitespace"
+    }
+
+    if !("HealthChecker" in [message]) {
+
+      # attempt service dissect only if service- token is present
+      if ("service-" in [message]) {
+        dissect {
+          mapping => {
+            "message" => "%{[client][ip]} %{[nexus][unknown]} service-%{[nexus][service_type]} [%{[event][start]}] %{[http][request][method]} %{[url][path]} %{[tls][protocol]} %{[http][response][status_code]} %{[http][request][body][bytes]} %{[http][response][body][bytes]} %{[event][duration]} %{[observer][type]} [%{[http][request][id]}]"
+          }
+          tag_on_failure => ["_dissectonefailure"]
+          id => "2000-nexus-dissect-service"
+        }
+        if !("_dissectonefailure" in [tags]) {
+          mutate {
+            add_tag => ["nexus-service"]
+            id => "2000-nexus-tag-service"
+          }
+        }
+      } else {
+        # no service-token, force fallthrough to non-service dissect
+        mutate {
+          add_tag => ["_dissectonefailure"]
+          id => "2000-nexus-tag-force-nonservice"
+        }
+      }
+
+      # non-service dissect (runs on service dissect failure OR forced fallthrough)
+      if "_dissectonefailure" in [tags] {
+        dissect {
+          mapping => {
+            "message" => "%{[client][ip]} %{[nexus][unknown]} %{[user][email]} [%{[event][start]}] %{[http][request][method]} %{[url][path]} %{[tls][protocol]} %{[http][response][status_code]} %{[http][request][body][bytes]} %{[http][response][body][bytes]} %{[event][duration]} %{[observer][type]} [%{[http][request][id]}]"
+          }
+          tag_on_failure => ["_dissecttwofailure"]
+          id => "2000-nexus-dissect-nonservice"
+        }
+        if !("_dissecttwofailure" in [tags]) {
+          mutate {
+            add_tag => ["nexus-nonservice"]
+            id => "2000-nexus-tag-nonservice"
+          }
+          # clean up placeholder dash captured in email field for unauthenticated requests
+          if [user][email] == "-" {
+            mutate {
+              remove_field => ["[user][email]"]
+              id => "2000-nexus-remove-empty-email"
+            }
+          }
+        }
+      }
+    }
+
+    if ("HealthChecker" in [message]) {
+      mutate {
+        add_tag => ["nexus-healthchecker"]
+        id => "2000-nexus-tag-healthchecker"
+      }
+    }
+  }
+  ### END HEALTHCHECKER AND SERVICE ONLY PROCESSING ###
+}
