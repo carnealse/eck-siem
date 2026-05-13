@@ -1,0 +1,236 @@
+filter {
+if [@metadata][log_lane] == "java_lane" {
+
+    # 1. Generic Java Header (Priority List)
+    grok { 
+      match => { 
+        "message" => [
+          # Pattern 1: Message + OID (Priority)
+          "^%{DATA:raw_ts}\s+%{JAVACLASS:[log][logger]}\s+(?:%{LOGLEVEL:[log][level]}|FINE|FINER|FINEST)\s+\[%{DATA:[process][thread][name]}\]\s+-\s+%{GREEDYDATA:app_message} \(OID:%{DATA:[trace][id]}\)\s*$",
+          # Pattern 2: Message Only (Fallback)
+          "^%{DATA:raw_ts}\s+%{JAVACLASS:[log][logger]}\s+(?:%{LOGLEVEL:[log][level]}|FINE|FINER|FINEST)\s+\[%{DATA:[process][thread][name]}\]\s+-\s+%{GREEDYDATA:app_message}\s*$"
+        ]
+      } 
+    }
+    date { match => [ "raw_ts", "yyyyMMddHHmmssSSS" ] target => "@timestamp" }
+
+    # Topic 1: aws.SsmConfiguration
+    if [log][logger] == "aws.SsmConfiguration" {
+      grok { match => { "app_message" => "%{DATA:ssm_action}: \[%{DATA:ssm_content}\]" } }
+      if [ssm_action] == "Finished reload" {
+        kv { source => "ssm_content" target => "[temp_ssm]" field_split => ", " value_split => " = " remove_char_key => "\"" remove_char_value => "\"" }
+        mutate {
+          rename => {
+            "[temp_ssm][EMAIL_FROM]"                  => "[email][from][address]"
+            "[temp_ssm][PLATFORM]"                    => "[service][environment]"
+            "[temp_ssm][FILE_UPLOAD_DIRECTORY]"       => "[file][directory]"
+            "[temp_ssm][FILE_UPLOAD_SIZE_LIMIT]"      => "[file][size]" 
+            "[temp_ssm][DB_DIALECT]"                  => "[c2imera][ssm][db][dialect]"
+            "[temp_ssm][DB_DRIVER]"                   => "[c2imera][ssm][db][driver]"
+            "[temp_ssm][DB_PASSWORD]"                 => "[c2imera][ssm][db][password]"
+            "[temp_ssm][DB_FILEPASSWORD]"             => "[c2imera][ssm][db][file_password]"
+            "[temp_ssm][DB_BACKUP_DELAY_MINUTES]"     => "[c2imera][ssm][db][backup][delay_minutes]"
+            "[temp_ssm][DB_BACKUP_START_TIME_MINUTE]" => "[c2imera][ssm][db][backup][start_minute]"
+            "[temp_ssm][DB_BACKUP_START_TIME_HOUR]"   => "[c2imera][ssm][db][backup][start_hour]"
+            "[temp_ssm][DB_BACKUP_ENABLE]"            => "[c2imera][ssm][db][backup][enable]"
+            "[temp_ssm][SYNC_ROLE]"                   => "[c2imera][ssm][sync][role]"
+            "[temp_ssm][SYNC_ADDRESS]"                => "[c2imera][ssm][sync][address]"
+            "[temp_ssm][SYNC_USERNAME]"               => "[c2imera][ssm][sync][username]"
+            "[temp_ssm][SYNC_PASSWORD]"               => "[c2imera][ssm][sync][password]"
+            "[temp_ssm][SYNC_ID_PREFIX]"              => "[c2imera][ssm][sync][id_prefix]"
+            "[temp_ssm][KmeKA_BOOTSTRAP_SERVERS]"     => "[c2imera][ssm][kmeka][bootstrap_servers]"
+            "[temp_ssm][KmeKA_USERNAME]"              => "[c2imera][ssm][kmeka][username]"
+            "[temp_ssm][KmeKA_PASSWORD]"              => "[c2imera][ssm][kmeka][password]"
+            "[temp_ssm][KmeKA_CACHE_DB_PASSWORD]"     => "[c2imera][ssm][kmeka][cache_db_password]"
+            "[temp_ssm][EMAIL_SMS]"                   => "[c2imera][ssm][email][sms]"
+            "[temp_ssm][CRITICAL_CONTACT]"            => "[c2imera][ssm][contact][critical]"
+            "[temp_ssm][NORMAL_CONTACT]"              => "[c2imera][ssm][contact][normal]"
+            "[temp_ssm][IMPROVEMENTS_CONTACT]"        => "[c2imera][ssm][contact][improvements]"
+            "[temp_ssm][DEFAULT_ADMIN_USERNAME]"      => "[c2imera][ssm][admin][default_username]"
+            "[temp_ssm][DEFAULT_ADMIN_EDIPI]"         => "[c2imera][ssm][admin][default_edipi]"
+            "[temp_ssm][CROSS_DOMAIN_USERNAME]"       => "[c2imera][ssm][cross_domain][username]"
+            "[temp_ssm][CROSS_DOMAIN_PASSWORD]"       => "[c2imera][ssm][cross_domain][password]"
+            "[temp_ssm][REACT_BETA]"                  => "[c2imera][ssm][react][beta]"
+            "[temp_ssm][REACT_BETA_CANDIDATES]"       => "[c2imera][ssm][react][beta_candidates]"
+            "[temp_ssm][CLASSIFICATION_LEVEL]"        => "[c2imera][ssm][classification_level]"
+            "[temp_ssm][DATA_DIRECTORY]"              => "[c2imera][ssm][data_directory]"
+            "[temp_ssm][COMMUNICATION_BANNER]"        => "[c2imera][ssm][communication_banner]"
+            "[temp_ssm][OPENAPI_THROTTLE_comLIS]"     => "[c2imera][ssm][openapi][throttle_comlis]"
+            "[temp_ssm][MONOLITH_LOGIN_RATE_LIMIT]"   => "[c2imera][ssm][monolith][login_rate_limit]"
+          }
+        }
+      }
+      else if [ssm_action] == "Reload starting" {
+        mutate { split => { "ssm_content" => ", " } }
+        mutate { rename => { "ssm_content" => "[c2imera][ssm][reloaded_parameters]" } }
+      }
+    }
+
+    # Topic 2: util.Auditor
+    else if [log][logger] == "util.Auditor" {
+      if [app_message] =~ /^AUDIT: HEADER =/ {
+        grok { match => { "app_message" => "AUDIT: HEADER = %{DATA:header_key}: %{GREEDYDATA:header_value}" } }
+        if [header_key] == "User-Agent" {
+          mutate { rename => { "header_value" => "[user_agent][original]" } }
+          useragent { source => "[user_agent][original]" target => "user_agent" ecs_compatibility => "v8" }
+        }
+        else if [header_key] == "Referer" {
+          mutate { rename => { "header_value" => "[http][request][referrer]" } }
+        }
+        else {
+          mutate { add_field => { "[http][request][headers][%{header_key}]" => "%{header_value}" } }
+        }
+        mutate { remove_field => ["header_key", "header_value"] }
+      }
+      else if [app_message] =~ /^AUDIT: username =/ {
+        grok { match => { "app_message" => "AUDIT: username = %{DATA:[user][name]}\.\s+%{GREEDYDATA:[event][action]}" } }
+
+        if [event][action] =~ /^(SUCCESS|FAILURE),/ {
+          grok { match => { "[event][action]" => "%{WORD:[event][outcome]},\s+%{GREEDYDATA:[event][reason]}" } }
+          mutate { 
+            lowercase => [ "[event][outcome]" ] 
+            replace => { "[event][action]" => "audit-check" }
+          }
+        }
+        else if [event][action] =~ /^PII:/ {
+          grok { match => { "[event][action]" => "PII:\s+%{GREEDYDATA:[event][reason]}" } }
+          mutate { replace => { "[event][action]" => "pii-access" } }
+        }
+      }
+    }
+
+    # Topic 3: restauth.CertStoreJwsFunction
+    else if [log][logger] == "restauth.CertStoreJwsFunction" {
+      if [app_message] =~ /^Using trusted user:RestUser/ {
+        grok { match => { "app_message" => "Using trusted user:RestUser%{DATA:user_info} roles:" } }
+      }
+    }
+
+    # Topic 4: rest.OperationIdFilter
+    else if [log][logger] == "rest.OperationIdFilter" {
+      if [app_message] =~ /^Request path/ {
+        mutate { copy => { "[app_message]" => "[event][reason]" } }
+        grok { match => { "app_message" => "Request path \"%{DATA:[url][path]}\" did not provide %{DATA:[c2imera][op_filter][missing_header]} header value" } }
+      }
+    }
+
+    # Topic 5: servlets.ServerClientSyncServlet
+    else if [log][logger] == "servlets.ServerClientSyncServlet" {
+      if [app_message] =~ /Ping received/ {
+        grok { match => { "app_message" => "Ping received %{DATA:ping_json} code: %{INT:[c2imera][sync][response_code]}" } }
+        if [ping_json] {
+          ruby { code => 'val = event.get("[ping_json]"); if val then event.set("[ping_json]", val.downcase) end' }
+        }
+        json { source => "ping_json" target => "[c2imera][sync][ping_data]" }
+        mutate { remove_field => ["ping_json"] }
+      }
+      else {
+        grok {
+          match => {
+            "app_message" => [
+              "^Activating sync for type: %{GREEDYDATA:[c2imera][sync][type]}(\s+)?$",
+              "^Deactivating sync for type: %{GREEDYDATA:[c2imera][sync][type]}(\s+)?$",
+              "^SYNC_PING_RATE: %{INT:[c2imera][sync][ping_rate]}(\s+)?$",
+              "^SYNC_BATCH_SIZE: %{INT:[c2imera][sync][batch_size]}(\s+)?$",
+              "^SYNC_PREFIX: %{DATA:[c2imera][sync][prefix]}(\s+)?$",
+              "^SYNC_USERNAME: %{DATA:[c2imera][sync][username]}(\s+)?$",
+              "^SYNC_ADDRESS: %{DATA:[c2imera][sync][address]}(\s+)?$",
+              "^SYNC_ROLE: %{DATA:[c2imera][sync][role]}(\s+)?$",
+              "^PING CONNECTION STATUS: %{DATA:[c2imera][sync][ping_connection_status]}(\s+)?$",
+              "^REPORTER: %{DATA:[_temp][reporter]}: %{DATA:[_temp_reporter_status]}(\s+)?$",
+              "^Sync url: %{DATA:[c2imera][sync][url]}(\s+)?$",
+              "^isSyncTurnedOnFor: %{GREEDYDATA:[event][reason]}(\s+)?$",
+              "^SYNC_HEARTBEAT: %{GREEDYDATA:[c2imera][sync][heartbeat_message]}(\s+)?$"
+            ]
+          }
+        }
+        if [_temp][reporter] {
+          ruby {
+            code => '
+              reporter = event.get("[_temp][reporter]")
+              status   = event.get("[_temp_reporter_status]")
+              if reporter && status
+                reporter = reporter.gsub(/([a-z\d])([A-Z])/, "\\1_\\2")
+                reporter = reporter.gsub(" ", "_").downcase
+                field_path = "[c2imera][sync][reporter][#{reporter}]"
+                event.set(field_path, status)
+              end
+            '
+          }
+          mutate { remove_field => ["[_temp]", "[_temp_reporter_status]"] }
+        }
+        if [c2imera][sync][type] { mutate { strip => ["[c2imera][sync][type]"] } }
+        if [app_message] =~ /^Activating/ { mutate { add_field => { "[event][action]" => "sync-activated" } } }
+        else if [app_message] =~ /^Deactivating/ { mutate { add_field => { "[event][action]" => "sync-deactivated" } } }
+      }
+    }
+
+    # Topic 6: sync.LastSyncTimeTool
+    else if [log][logger] == "sync.LastSyncTimeTool" {
+      if [app_message] =~ /^Loading last sync time/ {
+        grok { match => { "app_message" => "^Loading last sync time for type: %{DATA:[c2imera][sync][type]}(\s+)?$" } }
+        mutate { add_field => { "[event][action]" => "loading-last-sync-time" } }
+      }
+    }
+
+    # Topic 7: query.Uc2QueryUtils
+    else if [log][logger] == "query.Uc2QueryUtils" {
+      if [app_message] =~ /^Querying by Last Updated/ {
+        grok { match => { "app_message" => "^Querying by Last Updated; %{DATA:[c2imera][query][method]}; Time: %{DATA:[c2imera][query][time_string]} Operator: %{DATA:[c2imera][query][operator]} Batch: %{INT:[c2imera][query][batch_size]} Offset: %{INT:[c2imera][query][offset]}$" } }
+        mutate { add_field => { "[event][action]" => "query-last-updated" } }
+      }
+    }
+
+    # Topic 8: RequestTimer
+    else if [log][logger] == "RequestTimer" {
+      if [app_message] =~ /^Request/ {
+        grok { 
+          match => { 
+            "app_message" => [
+              # Pattern 1: Completed (Existing)
+              "^Request %{WORD:[http][request][method]} \"%{DATA:[url][path]}\" completed in %{INT:[c2imera][request_timer][duration_ms]} ms\. Sent from %{DATA:[c2imera][request_timer][source_ips]}\s+\"%{DATA}\"",
+              # Pattern 2: Started (New)
+              "^Request %{WORD:[http][request][method]} \"%{DATA:[url][path]}\" started\. Sent from %{DATA:[c2imera][request_timer][source_ips]}\s+\"%{DATA}\""
+            ]
+          } 
+        }
+
+        # Set specific actions to distinguish start vs complete
+        if [app_message] =~ / started\./ {
+           mutate { add_field => { "[event][action]" => "request-timer-started" } }
+        } else {
+           mutate { add_field => { "[event][action]" => "request-timer-completed" } }
+        }
+
+        # Only convert duration if it exists (Started logs won't have it)
+        if [c2imera][request_timer][duration_ms] {
+          mutate { convert => { "[c2imera][request_timer][duration_ms]" => "integer" } }
+        }
+      }
+    }
+
+    # Topic 9: rest.DataObjectRestServiceWrapper
+    else if [log][logger] == "rest.DataObjectRestServiceWrapper" {
+      if [app_message] =~ /^getDataObjectsByDataObjectQuery/ {
+        grok { match => { "app_message" => "getDataObjectsByDataObjectQuery: DataObjectQuery with %{INT:[c2imera][data_object][filter_count]} Filters:%{GREEDYDATA:[c2imera][data_object][query]} \(SANITIZED\)" } }
+        mutate { add_field => { "[event][action]" => "data-object-query" } }
+      }
+    }
+
+    # Topic 10: rest.SyncDeterminatorTool
+    else if [log][logger] == "rest.SyncDeterminatorTool" {
+      if [app_message] =~ /^SYNCDETERMINATORTOOL:/ {
+        grok { match => { "app_message" => "SYNCDETERMINATORTOOL: %{GREEDYDATA:[c2imera][sync_determinator]}" } }
+      }
+      mutate { strip => ["[c2imera][sync_determinator]"] }
+    }
+
+    # Topic 11: internal.UserServiceInternal
+    else if [log][logger] == "internal.UserServiceInternal" {
+      if [app_message] =~ /^Adding user:/ {
+        grok { match => { "app_message" => "Adding user: <%{DATA:[user][name]}>" } }
+        mutate { add_field => { "[event][action]" => "user-added" } }
+      }
+    }
+  }
+}
