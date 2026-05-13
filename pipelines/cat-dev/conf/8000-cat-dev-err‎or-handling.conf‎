@@ -1,0 +1,37 @@
+filter {
+  # Catch known failure tags
+  if "_jsonparsefailure" in [tags] or "_rubyexception" in [tags] or "_mutate_error" in [tags] or "ruby_exception" in [tags] {
+    mutate {
+      add_tag => ["pipeline_processing_error"]
+      add_field => { 
+        "[error][event_status]"     => "processing_failure" 
+        "[error][source_pipeline]"  => "cat-dev"
+      }
+    }
+  }
+
+  # Add an explicit error message field if one doesn't exist
+  if "pipeline_processing_error" in [tags] and ![error][message] {
+    mutate {
+      add_field => { "[error][message]" => "cat-dev generic pipeline processing failure" }
+    }
+  }
+
+  # Routing
+  if "pipeline_processing_error" in [tags] {
+    mutate {
+      add_field => { "[@metadata][routing_path]" => "error_index" }
+    }
+  } else {
+    mutate {
+      add_field => { "[@metadata][routing_path]" => "standard_index" }
+    }
+  }
+
+  mutate {
+    add_field => {
+      "[debug][routing_path]" => "%{[@metadata][routing_path]}"
+      "[debug][event_Status]" => "%{[error][event_status]}"
+    }
+  }
+}
