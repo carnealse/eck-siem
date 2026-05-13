@@ -1,0 +1,13 @@
+filter {
+# let's address messages in string format #
+
+  if [_temp][format] == "string" {
+  # make a _temp field to store the message token count #
+    ruby {
+      id => "ruby_token_count"
+      code =>'
+        event.set("[_temp][message_token_count]", event.get("message").split(" ").length)
+      '
+    }
+  }
+}
