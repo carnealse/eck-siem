@@ -1,4 +1,5 @@
 filter {
+  # convert to object if a string comes through for custom_message
   if [gitlab][details][custom_message] {
     ruby {
       id => "2000-gitlab-custom-message-conversion"
