@@ -1,0 +1,19 @@
+filter {
+# json failure handling
+  if "_jsonparsefailure" in [tags] {
+    mutate {
+      add_field => { "[error][message]" => "json parsing failed" }
+      add_tag   => ["filter_error"]
+      id => "8000-netskope_v2-json-error"
+    }
+  }
+
+# ruby failure handling
+  if "_rubyfailure" in [tags] {
+    mutate {
+      add_field => { "[error][message]" => "ruby script failed" }
+      add_tag   => ["ruby_error"]
+      id => "8000-netskope_v2-ruby-error"
+    }
+  }
+}
