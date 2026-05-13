@@ -1,0 +1,6 @@
+input {
+  pipeline {
+    address => "logstash-https"
+    id => "0000-logstash_https-input"
+  }
+}
