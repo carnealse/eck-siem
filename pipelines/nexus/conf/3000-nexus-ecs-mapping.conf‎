@@ -1,0 +1,24 @@
+filter {
+  if [isJson] == "true" {
+    # place @timestamp as the time the event was ingested.
+    mutate {
+      id => "add_event_ingested"
+      add_field => {
+        "[event][ingested]" => "%{@timestamp}"
+      }
+    }
+
+    # set the @timestamp to the earliest extracted timestamp in the message
+    date {
+      id => "set_timestamp"
+      match  => ["[timestamp]", "ISO8601"]
+      target => "@timestamp"
+    }
+
+    # update tags
+    mutate {
+      add_tag => ["nexus-main"]
+      id => "3000-nexus-tag-main"
+    }
+  }
+}
