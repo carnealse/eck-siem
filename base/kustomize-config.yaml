@@ -1,0 +1,15 @@
+# By default, Kustomize doesn't know anything about Logstash custom resources,
+# this config tells it where to look within a Logstash definition for Secret
+# and ConfigMap resource names.  This allows it to substitute the hashed names
+# we generate into the Logstash definition; we use the hashes because any change
+# to the pipeline contents change the spec of the Logstash, which then prompts
+# a restart of the StatefulSet
+nameReference:
+- kind: Secret
+  fieldSpecs:
+  - path: spec/pipelinesRef/secretName
+    kind: Logstash
+- kind: ConfigMap
+  fieldSpecs:
+  - path: spec/podTemplate/spec/volumes/configMap/name
+    kind: Logstash
