@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: error-handling-pipeline
+    files:
+      - conf/0000-error-handling-input.conf
+      - conf/2000-error-handling-tagging.conf
+      - conf/9000-error-handling-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: error-handling-pipeline
+          configMap:
+            name: error-handling-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: error-handling-pipeline
+          mountPath: /usr/share/logstash/conf.d/error-handling
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: error-handling-pipeline
+          mountPath: /usr/share/logstash/conf.d/error-handling
