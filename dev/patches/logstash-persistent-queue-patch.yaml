@@ -1,0 +1,10 @@
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: logstash
+spec:
+  config:
+    # enable persistent queue
+    queue.type: persisted
+    path.queue: /usr/share/logstash/data/queue
+    queue.max_bytes: 10gb
