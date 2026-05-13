@@ -1,0 +1,68 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: siem
+resources:
+  - ../base
+  - logstash-hpa.yaml
+components:
+  - ../pipelines/aws-waf
+  - ../pipelines/c2imera
+  - ../pipelines/cat-dev
+  - ../pipelines/clamav
+  - ../pipelines/distributor
+  - ../pipelines/es-audit-logs
+  - ../pipelines/error-handling
+  - ../pipelines/fallback
+  - ../pipelines/gitlab
+  - ../pipelines/google-workspaces
+  - ../pipelines/logstash-https
+  - ../pipelines/meraki
+  - ../pipelines/netskope
+  - ../pipelines/nexus
+  - ../pipelines/nexusfw
+  - ../pipelines/return
+  - ../pipelines/sonarqube
+  - ../pipelines/tas-cef
+  - ../pipelines/tas-uaa
+  - ../pipelines/trufflehog
+  - ../pipelines/vpcflow
+  - ../certs
+secretGenerator:
+- name: logstash-pipeline-yml
+  files:
+  - pipelines.yml
+patches:
+  - patch: |-
+      - op: add
+        path: /spec/dnsNames/0
+        value: logstash-tcp.dev.yourlink
+    target:
+      kind: Certificate
+      name: logstash-certs-server
+  - patch: |-
+      - op: add
+        path: /data/url
+        value: https://argocd.dev.yourlink
+    target:
+      kind: ServiceAccount
+      name: "(argocd-application-controller|argocd-applicationset-controller|argocd-server)"
+  - path: patches/volumeClaimTemplate-patch.yaml
+    target:
+      kind: Logstash
+      name: logstash
+  - path: patches/elasticsearch-version-patch.yaml
+    target:
+      kind: Logstash
+      name: logstash
+  - path: patches/logstash-persistent-queue-patch.yaml
+    target: 
+      kind: Logstash
+      name: logstash
+  - path: patches/pod-run-user-patch.yaml
+    target: 
+      kind: Logstash
+      name: logstash
+  - path: patches/update-strategy-patch.yaml
+    target: 
+      kind: Logstash
+      name: logstash
