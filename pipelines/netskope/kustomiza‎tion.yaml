@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: netskope-pipeline
+    files:
+      - conf/0000-netskope-input.conf
+      - conf/1000-netskope-normalization.conf
+      - conf/3000-netskope-ecs-mapping.conf
+      - conf/6000-netskope-cleanup.conf
+      - conf/8000-netskope-error-handling.conf
+      - conf/9000-netskope-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: netskope-pipeline
+          configMap:
+            name: netskope-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: netskope-pipeline
+          mountPath: /usr/share/logstash/conf.d/netskope
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: netskope-pipeline
+          mountPath: /usr/share/logstash/conf.d/netskope
