@@ -1,0 +1,80 @@
+filter {
+  if [_temp][format] == "json" {
+    # rename the message field to event original #
+    # must sit before the message with level in it is parsed as it contains another message field #
+    mutate {
+      rename => { "message" => "[event][original]" }
+    }
+
+    # if the event original field contains level or _aws, then parse it as json #
+    if [event][original] =~ "level" or [event][original] =~ "_aws" {
+      json {
+        id => "json_processor"
+        source => "[event][original]"
+      }
+    }
+
+    # handle only the json events that have the _aws field #
+    if [_aws] {
+
+      date {
+        match => ["[_aws][Timestamp]", "UNIX_MS"]
+        target => "@timestamp"
+      }
+
+      mutate {
+        rename => {
+          "ColdStart"     => "[clam_av][coldstart]"
+          "function_name" => "[clam_av][function_name]"
+          "service"       => "[clam_av][service]"
+          "_aws"          => "[aws]"
+        }
+      }
+
+      mutate {
+        rename => {
+          "[aws][CloudWatchMetrics]"  => "[aws][cloudwatch_metrics]"
+        }
+      }
+
+      mutate {
+        remove_field => ["[aws][Timestamp]"]
+        add_tag  => ["aws"]
+      }
+    }
+
+    # handle only the json events that have the level field #
+    if [level] {
+      mutate {
+        rename => {
+          "message"               => "[clam_av][message]"
+          "function_name"         => "[clam_av][function][name]"
+          "function_memory_size"  => "[clam_av][function][memory_size]"
+          "location"              => "[clam_av][location]"
+          "service"               => "[clam_av][service]"
+          "function_arn"          => "[clam_av][function][arn]"
+          "xray_trace_id"         => "[trace][id]"
+          "cold_start"            => "[clam_av][cold_start]"
+          "function_request_id"   => "[event][id]"
+          "level"                 => "[log][level]"
+        }
+      }
+
+      mutate {
+        rename => {
+          "[clam_av][message][Records]" => "[clam_av][message][records]"
+        }
+      }
+
+      date {
+        match => ["[timestamp]", "ISO8601"]
+        target => "@timestamp"
+      }
+
+      mutate {
+        add_tag  => ["level"]
+        remove_field => ["timestamp"]
+      }
+    }
+  }
+}
