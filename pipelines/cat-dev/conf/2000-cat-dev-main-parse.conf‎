@@ -1,0 +1,129 @@
+filter {
+  ruby {
+    id => "2000-cat-dev-ruby"
+    init => 'require "json"; require "ipaddr"'
+    code => '
+      begin
+        temp_msg = event.get("[check_json]")
+        return unless temp_msg.is_a?(Hash)
+        changed = false
+
+        host_raw = temp_msg["host"]
+        if host_raw.is_a?(String)
+          host_value = host_raw.strip
+          unless host_value.empty?
+            is_ip = begin
+              IPAddr.new(host_value); true
+            rescue
+              false
+            end
+            if is_ip
+              temp_msg["host"] = { "ip" => host_value }
+            else
+              temp_msg["url"] ||= {}
+              temp_msg["url"]["domain"] = host_value
+              temp_msg.delete("host")
+            end
+            changed = true
+            event.tag("fixed_host")
+          end
+        end
+
+        event_raw = temp_msg["event"]
+        if event_raw.is_a?(String)
+          event_value = event_raw.strip
+          unless event_value.empty?
+            temp_msg["event"] = { "action" => event_value }
+            changed = true
+            event.tag("fixed_event")
+          end
+        end
+
+        error_raw = temp_msg["error"]
+        if error_raw.is_a?(String)
+          error_value = error_raw.strip
+          unless error_value.empty?
+            temp_msg["error"] = { "stack_trace" => error_value }
+            changed = true
+            event.tag("fixed_error")
+          end
+        end
+
+        comp_raw = temp_msg["component"]
+        if !comp_raw.nil? && !comp_raw.is_a?(Hash)
+          comp_str = comp_raw.to_s.strip
+          unless comp_str.empty?
+            temp_msg["component"] = { "name" => comp_str }
+            changed = true
+            event.tag("fixed_component")
+          end
+        end
+
+        process_raw = temp_msg["process"]
+        if !process_raw.nil? && !process_raw.is_a?(Hash)
+          process_str = process_raw.to_s.strip
+          unless process_str.empty?
+            temp_msg["process"] = { "name" => process_str }
+            changed = true
+            event.tag("fixed_process")
+          end
+        end
+
+        temp_msg["labels"] = {} unless temp_msg["labels"].is_a?(Hash)
+
+        tag_keys = temp_msg.keys.select { |k| k.is_a?(String) && k.start_with?("tags.") }
+        unless tag_keys.empty?
+          tag_keys.each do |k|
+            short = k.sub(/^tags\./, "")
+            temp_msg["labels"][short] = temp_msg.delete(k)
+          end
+          changed = true
+          event.tag("tags_flattened_moved")
+        end
+
+        if temp_msg["tags"].is_a?(Hash)
+          temp_msg["tags"].each { |kk, vv| temp_msg["labels"][kk.to_s] = vv }
+          temp_msg.delete("tags")
+          changed = true
+          event.tag("tags_hash_moved")
+        end
+
+        if temp_msg.key?("tags") && !temp_msg["tags"].is_a?(Array) && !temp_msg["tags"].is_a?(Hash)
+          val = temp_msg["tags"]
+          arr = [val.to_s].reject(&:empty?)
+          temp_msg["tags"] = arr
+          changed = true
+          event.tag("tags_scalar_to_array")
+        end
+
+        if changed
+          event.set("message", JSON.generate(temp_msg))
+          event.tag("fixed_output")
+        end
+
+        will_capture = false
+        if temp_msg.keys.any? { |k| k.is_a?(String) && k.start_with?("tags.") }
+          will_capture = true
+          event.tag("tags_flattened_residual")
+        end
+
+        if temp_msg.key?("tags") && !temp_msg["tags"].is_a?(Array)
+          will_capture = true
+          event.tag("tags_shape_bad")
+        end
+
+        if temp_msg["component"].is_a?(String)
+          will_capture = true
+          event.tag("component_not_fixed")
+        end
+
+        will_capture = true unless temp_msg["labels"].is_a?(Hash)
+        event.tag("capture") if will_capture
+
+      rescue => e
+        event.set("[error][message]", "Ruby filter exception: #{e.message}")
+        event.tag("ruby_exception")
+      end
+    '
+  }
+}
