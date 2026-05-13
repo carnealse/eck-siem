@@ -1,0 +1,5 @@
+- op: add
+  path: /spec/podTemplate/spec/securityContext
+  value:
+    runAsUser: 1000
+    runAsGroup: 12345
