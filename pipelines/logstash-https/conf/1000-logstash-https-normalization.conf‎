@@ -1,0 +1,40 @@
+filter {
+  # HTTP Header Legend:
+  # x_logstash_source = identifies the source of the data
+  # x_gitlab_streaming_token = shared secret, added by Gitlab audit logger
+  # check for the streaming token, drop event if it doesn't match
+  if [@metadata][input][http][request][headers][x_logstash_source] == "cat-gitlab-dev"
+    and [@metadata][input][http][request][headers][x_gitlab_event_streaming_token] == "YZPNVzMzwVKsiJThnax9Mr7C" {
+      mutate { 
+        add_field => { "[data_stream][dataset]" => "gitlab"} 
+        id => "1000-logstash_https-route-dev"
+      }
+      mutate { 
+        add_field => { "[data_stream][namespace]" => "cat.dev"} 
+        id => "1000-logstash_https-namespace-dev"
+      }
+  } else if [@metadata][input][http][request][headers][x_logstash_source] == "cat-gitlab-staging"
+    and [@metadata][input][http][request][headers][x_gitlab_event_streaming_token] == "rWVav4xUd56CZinYPSZmt7je" {
+      mutate { 
+        add_field => { "[data_stream][dataset]" => "gitlab"} 
+        id => "1000-logstash_https-route-staging"
+      }
+      mutate { 
+        add_field => { "[data_stream][namespace]" => "cat.staging"} 
+        id => "1000-logstash_https-namespace-staging"
+      }
+  } else if [@metadata][input][http][request][headers][x_logstash_source] == "cat-gitlab-prod"
+    # Not a typo; both staging and prod use the same streaming token
+    and [@metadata][input][http][request][headers][x_gitlab_event_streaming_token] == "rWVav4xUd56CZinYPSZmt7je" {
+      mutate { 
+        add_field => { "[data_stream][dataset]" => "gitlab"} 
+        id => "1000-logstash_https-route-prod"
+      }
+      mutate { 
+        add_field => { "[data_stream][namespace]" => "cat.prod"} 
+        id => "1000-logstash_https-namespace-prod"
+      }
+  } else {
+    drop { id => "1000-logstash_https-drop-unauthorized" }
+  }
+}
