@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: logstash-ls
+  namespace: siem
+spec:
+  minReplicas: 2
+  maxReplicas: 5
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 600
+    scaleUp:
+      stabilizationWindowSeconds: 60
+  metrics:
+  - containerResource:
+      name: cpu
+      container: logstash
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: ContainerResource
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: logstash-ls
