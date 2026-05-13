@@ -1,0 +1,53 @@
+filter {
+
+  fingerprint {
+    source => ["message"]
+    target => "[@metadata][fingerprint]"
+    method => "SHA256"
+  }
+
+  # Do not set data_stream_namespace here; that will be handled in the return pipeline
+  mutate {
+    add_field => {
+      "document_id" => "%{[@metadata][fingerprint]}"
+    }
+  }
+
+if [event][original] {
+    mutate {
+      remove_field => ["[event][original]"]
+    }
+}
+
+#added to set original message into event.original
+  mutate {
+    add_field => { "[event][original]" => "temp_value" }
+  }
+
+  mutate {
+    copy => { "message" => "[event][original]" }
+  }
+
+  mutate {
+    replace => {
+      "tags" => ["aws_waf", "logstash", "preserve_event_original"]
+    }
+  }
+
+  json {
+    id => "json_processor"
+    source => "message"
+  }
+
+  mutate {
+    rename => {
+      "[@timestamp]"  => "[event][created]"
+    }
+  }
+
+  date {
+    id => "timestamp_date_match"
+    match => ["timestamp", "UNIX_MS", "UNIX"]
+    target => "[@timestamp]"
+  }
+}
