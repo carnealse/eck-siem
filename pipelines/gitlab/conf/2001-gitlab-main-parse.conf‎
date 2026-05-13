@@ -1,19 +1,18 @@
 filter {
-  # rename message to event original - does not affect the conditional below #
   mutate {
     rename => { "message" => "[event][original]" }
   }
-
   if [gitlab][created_at] {
     date {
+      id => "2001-gitlab-date-created-at"
       match => ["[gitlab][created_at]", "UNIX_MS", "ISO8601", "UNIX"]
       target => "@timestamp"
       remove_field => ["[gitlab][created_at]"]
     }
   }
-
   if [gitlab][@timestamp] {
     date {
+      id => "2001-gitlab-date-timestamp"
       match => ["[gitlab][@timestamp]", "UNIX_MS", "ISO8601", "UNIX"]
       target => "@timestamp"
       remove_field => ["[gitlab][@timestamp]"]
