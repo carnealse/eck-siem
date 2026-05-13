@@ -1,0 +1,39 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: logstash-certs-server
+  namespace: siem
+spec:
+  # Secret names are always required.
+  secretName: logstash-certs-server
+
+  commonName: logstash-certs-server
+
+  dnsNames:
+    - logstash-ls-api.siem.svc
+    - logstash-ls-esaudit.siem.svc
+    - logstash-ls-ingest.siem.svc
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+    rotationPolicy: Always
+
+  duration: 8760h # 1y
+  renewBefore: 360h # 15d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  # Issuer references are always required.
+  issuerRef:
+    name: elastic-ca
+    kind: Issuer
+ 
