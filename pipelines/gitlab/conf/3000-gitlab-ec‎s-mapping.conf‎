@@ -1,0 +1,22 @@
+filter {
+  # Rename fields #
+  mutate {
+    id => "gitlab_field_renames"
+    rename => {
+      "[gitlab][entity_id]"             => "[gitlab][entity][id]"
+      "[gitlab][entity_type]"           => "[gitlab][entity][type]"
+      "[gitlab][entity_path]"           => "[gitlab][entity][path]"
+      "[gitlab][author_id]"             => "[user][id]"
+      "[gitlab][author_name]"           => "[user][name]"
+      "[gitlab][target_id]"             => "[gitlab][target][id]"
+      "[gitlab][target_type]"           => "[gitlab][target][type]"
+      "[gitlab][target_details]"        => "[gitlab][target][details]"
+      "[gitlab][ip_address]"            => "[source][ip]"
+    }
+  }
+
+  # add tag to ensure no pipelines remove event original
+  mutate {
+    add_tag => ["preserve_original_event"]
+  }
+}
