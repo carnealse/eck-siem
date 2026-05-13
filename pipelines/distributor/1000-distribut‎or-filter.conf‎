@@ -1,0 +1,6 @@
+filter {
+  # universal pre-routing logic
+  if "ls-http" in [tags] and [user_agent][original] == "ELB-HealthChecker/2.0" {
+    drop { }
+  }
+}
