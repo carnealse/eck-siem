@@ -1,0 +1,59 @@
+filter {
+  if [_temp][format] == "string" {
+
+    # handle misc messages first because what are these for anyway? #
+
+    if [message] =~ "UserWarning" or [message] =~ "self.flush_metrics" {
+      mutate {
+        rename => {
+          "[message]" => "[event][original]"
+        }
+        add_tag => [ "non_standard" ]
+      }
+    }
+
+    # check the message token count and parse the message accordingly if they are not json format #
+
+    if [_temp][message_token_count] == 3 and !([message] =~ "_aws") and !([message] =~ "level") {
+      grok {
+        id => "grok_processor_token_3"
+        match => {
+          "message" => "^%{DATA:[event][action]} RequestId: %{DATA:[event][id]}$"
+        }
+      }
+    }
+
+    if [_temp][message_token_count] == 5 and !([message] =~ "_aws") and !([message] =~ "level") {
+      grok {
+        id => "grok_processor_token_5"
+        match => {
+          "message" => "^%{DATA:[event][action]} RequestId: %{DATA:[event][id]} Version: %{DATA:[clam_av][version]}$"
+        }
+      }
+    }
+
+    if [_temp][message_token_count] == 19 and !([message] =~ "_aws") and !([message] =~ "level") {
+      grok {
+        id => "grok_processor_token_19"
+        match => {
+          "message" => "^%{DATA:[event][action]} RequestId: %{DATA:[event][id]}%{SPACE}Duration: %{DATA:[event][duration]:float} %{DATA}\s+Billed Duration: %{DATA:[clam_av][duration][billed]:int} %{DATA}%{SPACE}Memory Size: %{DATA:[clam_av][memory][size]:int} %{DATA:[clam_av][memory][size_unit]}%{SPACE}Max Memory Used: %{DATA:[clam_av][memory][max_used]:int} %{DATA:[clam_av][memory][max_used_unit]}$"
+        }
+      }
+    }
+
+    if [_temp][message_token_count] == 23 and !([message] =~ "_aws") and !([message] =~ "level"){
+      grok {
+        id => "grok_processor_token_23"
+        match => {
+          "message" => "^%{DATA:[event][action]} RequestId: %{DATA:[event][id]}%{SPACE}Duration: %{DATA:[event][duration]:float} %{DATA}\s+Billed Duration: %{DATA:[clam_av][duration][billed]:int} %{DATA}%{SPACE}Memory Size: %{DATA:[clam_av][memory][size]:int} %{DATA:[clam_av][memory][size_unit]}%{SPACE}Max Memory Used: %{DATA:[clam_av][memory][max_used]:int} %{DATA:[clam_av][memory][max_used_unit]}%{SPACE}Init Duration: %{DATA:[clam_av][duration][init]:float} %{GREEDYDATA:[clam_av][duration][init_unit]}$"
+        }
+      }
+    }
+
+  # rename message to event original - does not affect the conditional below #
+
+    mutate {
+      rename => { "message" => "[event][original]" }
+    }
+  }
+}
