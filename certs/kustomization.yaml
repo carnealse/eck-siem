@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - logstash-certs-agents.yaml
+  - logstash-certs-auditlog.yaml
+  - logstash-certs-cat-k8s.yaml
+  - logstash-certs-cat-nexus.yaml
+  - logstash-certs-example.yaml
+  - logstash-certs-server.yaml
