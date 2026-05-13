@@ -1,0 +1,15 @@
+- op: add
+  path: /spec/image
+  value: 1234567890.yourlink.amazonaws.com/logstash/logstash:9.3.0
+
+- op: add
+  path: /spec/version
+  value: 9.3.0
+
+- op: add
+  path: /spec/podTemplate/spec/containers/1/image
+  value: 1234567890.yourlink..amazonaws.com/beats/metricbeat:9.3.0
+
+- op: add
+  path: /spec/podTemplate/spec/containers/2/image
+  value: 1234567890.yourlink.amazonaws.com/beats/filebeat:9.3.0
