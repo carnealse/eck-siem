@@ -1,0 +1,9 @@
+filter {
+  if [message] =~ /^\s*\{.*\}\s*$/ {
+    json {
+      source => "message"
+      target => "check_json"
+      id => "1000-cat-dev-json"
+    }
+  }
+}
