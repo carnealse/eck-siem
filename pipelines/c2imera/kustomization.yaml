@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: c2imera-pipeline
+    files:
+      - conf/0000-c2imera-input.conf
+      - conf/1000-c2imera-normalization.conf
+      - conf/2000-c2imera-audit.conf
+      - conf/2001-c2imera-java.conf
+      - conf/2002-c2imera-legacy.conf
+      - conf/3000-c2imera-ecs-mapping.conf
+      - conf/6000-c2imera-cleanup.conf
+      - conf/9000-c2imera-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: c2imera-pipeline
+          configMap:
+            name: c2imera-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: c2imera-pipeline
+          mountPath: /usr/share/logstash/conf.d/c2imera
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: c2imera-pipeline
+          mountPath: /usr/share/logstash/conf.d/c2imera
