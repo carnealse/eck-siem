@@ -1,0 +1,7 @@
+filter {
+# !removed "message" field from the array to keep the original message
+  mutate {
+    id =>  "remove_fields"
+    remove_field => [ "[temp][headers]","[temp]","timestamp","[terminatingRuleMatchDetails]"]
+  }
+}
