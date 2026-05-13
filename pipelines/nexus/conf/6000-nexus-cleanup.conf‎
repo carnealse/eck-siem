@@ -1,0 +1,21 @@
+filter {
+  # update tags to keep event.original
+  mutate {
+    add_tag => ["preserve_original_event"]
+    id => "6000-nexus-tag-preserve"
+  }
+
+  # check if the dissect had failure on the service but not on the non-service pattern to clear the unecessary tag
+  if ("_dissectonefailure" in [tags]) and !("_dissecttwofailure" in [tags]) {
+    mutate {
+      remove_tag => ["_dissectonefailure"]
+      id => "6000-nexus-remove-dissect-tag"
+    }
+  }
+
+  # remove unecessary fields from long message
+  mutate {
+    id => "remove_fields"
+    remove_field => ["timestamp","message","isJson"]
+  }
+}
