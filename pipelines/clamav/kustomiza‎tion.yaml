@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: clamav-pipeline
+    files:
+      - conf/0000-clamav-input.conf
+      - conf/1000-clamav-normalization.conf
+      - conf/2000-clamav-ruby-logic.conf
+      - conf/2001-clamav-string-parse.conf
+      - conf/2002-clamav-json-parse.conf
+      - conf/4000-clamav-enrichment.conf
+      - conf/6000-clamav-cleanup.conf
+      - conf/8000-clamav-error-handling.conf
+      - conf/9000-clamav-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: clamav-pipeline
+          configMap:
+            name: clamav-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: clamav-pipeline
+          mountPath: /usr/share/logstash/conf.d/clamav
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: clamav-pipeline
+          mountPath: /usr/share/logstash/conf.d/clamav
