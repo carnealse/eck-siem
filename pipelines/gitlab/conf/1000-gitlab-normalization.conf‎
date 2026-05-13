@@ -1,0 +1,19 @@
+filter {
+  # Basic Housekeeping #
+  fingerprint {
+    source => "message"
+    target => "[@metadata][fingerprint]"
+    method => "SHA256"
+  }
+
+  mutate {
+    add_tag => ["logstash"]
+    add_field => {"[ecs][version]" => "8.0.0"}
+  }
+
+  json {
+    id => "gitlab_json_parse"
+    source => "message"
+    target => "gitlab"
+  }
+}
