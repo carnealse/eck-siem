@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: nexus-pipeline
+    files:
+      - conf/0000-nexus-input.conf
+      - conf/1000-nexus-normalization.conf
+      - conf/2000-nexus-main-parse.conf
+      - conf/3000-nexus-ecs-mapping.conf
+      - conf/6000-nexus-cleanup.conf
+      - conf/8000-nexus-error-handling.conf
+      - conf/9000-nexus-output.conf
+
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: nexus-pipeline
+          configMap:
+            name: nexus-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: nexus-pipeline
+          mountPath: /usr/share/logstash/conf.d/nexus
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: nexus-pipeline
+          mountPath: /usr/share/logstash/conf.d/nexus
