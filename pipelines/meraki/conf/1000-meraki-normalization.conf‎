@@ -1,0 +1,22 @@
+filter {
+  # Basic Housekeeping #
+  fingerprint {
+    id => "meraki_fingerprint"
+    source => "message"
+    target => "[@metadata][fingerprint]"
+    method => "SHA256"
+  }
+  mutate {
+    add_tag => ["logstash"]
+    id => "1000-meraki-initial-tags"
+  }
+  mutate {
+    copy => { "[message]" => "[event][original]" }
+    id => "1000-meraki-preserve-original"
+  }
+  # break out the json #
+  json {
+    id => "json_plugin"
+    source =>  "[message]"
+  }
+}
