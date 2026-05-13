@@ -1,0 +1,31 @@
+filter {
+  # Basic Housekeeping #
+
+  fingerprint {
+    id => "1000-clamav-fingerprint"
+    source => "message"
+    target => "[@metadata][fingerprint]"
+    method => "SHA256"
+  }
+
+  mutate {
+    add_tag => ["logstash"]
+    add_field => {"[ecs][version]" => "8.0.0"}
+  }
+
+  # check and tag json or string format #
+
+  if [message] =~ /^\{.*\}$/ {
+    mutate {
+      add_field => {
+        "[_temp][format]" => "json"
+      }
+    }
+  } else if !([message] =~ /^\{.*\}$/) {
+      mutate {
+        add_field => {
+          "[_temp][format]" => "string"
+        }
+      }
+    }
+}
