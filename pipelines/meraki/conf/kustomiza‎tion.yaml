@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: meraki-pipeline
+    files:
+      - conf/0000-meraki-input.conf
+      - conf/1000-meraki-normalization.conf
+      - conf/2000-meraki-main-parse.conf
+      - conf/3000-meraki-ecs-mapping.conf
+      - conf/6000-meraki-cleanup.conf
+      - conf/9000-meraki-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: meraki-pipeline
+          configMap:
+            name: meraki-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: meraki-pipeline
+          mountPath: /usr/share/logstash/conf.d/meraki
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: meraki-pipeline
+          mountPath: /usr/share/logstash/conf.d/meraki
