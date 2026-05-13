@@ -1,0 +1,34 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: logstash-certs-cat-nexus
+  namespace: siem
+spec:
+  # Secret names are always required.
+  secretName: logstash-certs-cat-nexus
+
+  commonName: logstash-certs-cat-nexus
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+    rotationPolicy: Always
+
+  duration: 8760h # 1y
+  renewBefore: 360h # 15d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  # Issuer references are always required.
+  issuerRef:
+    name: elastic-ca
+    kind: Issuer
+ 
