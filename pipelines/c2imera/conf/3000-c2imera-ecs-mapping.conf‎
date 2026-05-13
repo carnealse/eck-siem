@@ -1,0 +1,5 @@
+filter {
+  if [@metadata][log_lane] in ["java_lane", "legacy_lane"] {
+    mutate { add_field => { "[event][kind]" => "event" "[event][dataset]" => "c2imera" } }
+  }
+}
