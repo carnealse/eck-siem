@@ -1,0 +1,6 @@
+input {
+  pipeline {
+    address => "netskope"
+    id => "0000-netskope-input"
+  }
+}
