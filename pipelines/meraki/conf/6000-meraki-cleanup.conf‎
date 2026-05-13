@@ -1,0 +1,22 @@
+filter {
+#   # field clean up removes top level objects emptied out through field renames above #
+#   mutate {
+#     remove_field => [ "[forwarded]", "[ls-ingest]", "[beats_input_codec_plain_applied]", "[message]", "[occurredAt]" ]
+#     id => "6000-meraki-cleanup-fields"
+#   }
+#   # error handling #
+#   if "_jsonparsefailure" in [tags] {
+#     mutate {
+#       add_tag => ["_jsonparsefailure"]
+#       add_field => { "[error][message]" => "error parsing json" }
+#       id => "6000-meraki-json-error"
+#     }
+#   }
+#   # Do not set data_stream_namespace here; that will be handled in the return pipeline
+#   mutate {
+#     add_field => {
+#       "document_id" => "%{[@metadata][fingerprint]}"
+#     }
+#     id => "6000-meraki-set-document-id"
+#   }
+}
