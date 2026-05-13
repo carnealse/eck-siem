@@ -1,0 +1,6 @@
+input {
+  pipeline {
+    address => "nexus"
+    id => "0000-nexus-input"
+  }
+}
