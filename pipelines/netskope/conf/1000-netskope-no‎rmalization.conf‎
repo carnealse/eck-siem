@@ -1,0 +1,19 @@
+filter {
+# add v2 tag
+  mutate {
+    add_tag => ["netskope"]
+    id => "1000-netskope-initial-tag"
+  }
+
+# process the message json
+  json {
+    id => "json_process"
+    source => "message"
+  }
+
+# process timestamp
+  date {
+    match => ["timestamp", "UNIX"]
+    id => "1000-netskope-date-timestamp"
+  }
+}
