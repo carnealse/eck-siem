@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: logstash-https-pipeline
+    files:
+      - conf/0000-logstash-https-input.conf
+      - conf/1000-logstash-https-normalization.conf
+      - conf/9000-logstash-https-output.conf
+
+patches:
+  - target:
+      kind: Logstash
+      name: logstash
+    patch: |-
+      - op: add
+        path: /spec/podTemplate/spec/volumes/-
+        value: 
+          name: logstash-https-pipeline
+          configMap:
+            name: logstash-https-pipeline
+      - op: add
+        path: /spec/podTemplate/spec/containers/0/volumeMounts/-
+        value:
+          name: logstash-https-pipeline
+          mountPath: /usr/share/logstash/conf.d/logstash-https
+      - op: add
+        path: /spec/podTemplate/spec/initContainers/0/volumeMounts/-
+        value:
+          name: logstash-https-pipeline
+          mountPath: /usr/share/logstash/conf.d/logstash-https
