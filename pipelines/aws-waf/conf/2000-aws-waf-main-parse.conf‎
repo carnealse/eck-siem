@@ -1,0 +1,132 @@
+filter {
+  if [terminatingRuleMatchDetails] and [terminatingRuleMatchDetails][0] {
+    split {
+      field => "[terminatingRuleMatchDetails]"
+      target => "[aws][waf][terminating_rule][match_details]"
+    }
+  }
+
+  mutate {
+    id => "top_level_renames"
+    rename => {
+      "[formatVersion]"                 => "[aws][waf][format_version]"
+      "[webaclId]"                      => "[aws][waf][web_acl][id]"
+      "[terminatingRuleId]"             => "[aws][waf][terminating_rule][id]"
+      "[terminatingRuleType]"           => "[aws][waf][terminating_rule][type]"
+      "[action]"                        => "[event][action]"
+      "[httpSourceName]"                => "[aws][waf][http][source][name]"
+      "[httpSourceId]"                  => "[aws][waf][http][source][id]"
+      "[ruleGroupList]"                 => "[temp][rule_group_list]"
+      "[rateBasedRuleList]"             => "[aws][waf][rate_based_rule_list]"
+      "[nonTerminatingMatchingRules]"   => "[aws][waf][non_terminating_matching_rules]"
+      "[requestHeadersInserted]"        => "[aws][waf][request][headers_inserted]"
+      "[responseCodeSent]"              => "[http][response][status_code]"
+      "[httpRequest]"                   => "[aws][waf][http][request]"
+      "[ja3Fingerprint]"                => "[tls][client][ja3]"
+      "[labels]"                        => "[aws][waf][labels]"
+      "[requestBodySize]"               => "[aws][waf][request][body][bytes]"
+      "[requestBodySizeInspectedByWAF]" => "[aws][waf][request][body][size_inspected]"
+    }
+  }
+
+  # handle unknown case of [http][request][id] already existing errors being logged
+  if [http][request][id] {
+    mutate {
+      remove_field => ["[http][request][id]"]
+    }
+  }
+
+  mutate {
+    id => "sub_field_renames"
+    rename => {
+      "[aws][waf][http][request][headers]"                            => "[temp][headers]"
+      "[aws][waf][http][request][uri]"                                => "[http][request][url]"
+      "[aws][waf][http][request][country]"                            => "[client][geo][country_iso_code]"
+      "[aws][waf][http][request][httpMethod]"                         => "[aws][waf][http][request][method]"
+      "[aws][waf][http][request][requestId]"                          => "[http][request][id]"
+      "[aws][waf][http][request][httpVersion]"                        => "[http][request][version]"
+      "[aws][waf][http][request][clientIp]"                           => "[client][ip]"
+      "[aws][waf][terminating_rule][match_details][matchedFieldName]" => "[aws][waf][terminating_rule][match_details][matched][field_name]"
+      "[aws][waf][terminating_rule][match_details][matchedData]"      => "[aws][waf][terminating_rule][match_details][matched][matched_data]"
+      "[aws][waf][terminating_rule][match_details][conditionType]"    => "[aws][waf][terminating_rule][match_details][condition_type]"
+    }
+  }
+
+  ruby {
+    id => "ruby_headers_array"
+    code => '
+      begin
+        headers = event.get("[temp][headers]")
+        if headers.is_a?(Array)
+          headers.each do |header|
+            if header.is_a?(Hash) && header["name"] && header["value"]
+              name = header["name"].downcase.gsub("-", "_")
+              value = header["value"]
+              event.set("[aws][waf][http][request][headers][#{name}]", value)
+            end
+          end
+        end
+        rescue => e
+          event.set("[error][message]", "Ruby headers exception: #{e.message}")
+          event.tag("ruby_exception")
+      end
+    '
+  }
+
+  ruby {
+    id => "ruby_rulegrouplist_extract_all"
+    code => '
+      begin
+        group = event.get("[temp][rule_group_list]")
+        if group.is_a?(Array) && !group.empty?
+          group.each do |grouplist|
+            # Defensive check: ensure the item is a Hash
+            next unless grouplist.is_a?(Hash)
+
+            # Extract terminatingRule safely
+            if grouplist["terminatingRule"].is_a?(Hash)
+              grouplist["terminatingRule"].each do |key, value|
+                event.set("[aws][waf][rule_group_list][terminating_rule][#{key}]", value)
+              end
+            end
+
+            # Extract remaining fields
+            grouplist.each do |key, value|
+              next if key == "terminatingRule"
+              event.set("[aws][waf][rule_group_list][#{key}]", value)
+            end
+          end
+        else
+          event.tag("rule_group_list_empty_or_malformed")
+        end
+      rescue => e
+        event.set("[error][message]", "Ruby rule_group_list exception: #{e.message}")
+        event.tag("ruby_exception")
+      end
+    '
+  }
+
+  mutate {
+    id => "ruby_field_renames"
+    rename => {
+      "[aws][waf][rule_group_list][excludedRules]"                          => "[aws][waf][rule_group_list][terminating_rule][excluded_rules]"
+      "[aws][waf][rule_group_list][terminating_rule][ruleId]"               => "[aws][waf][rule_group_list][terminating_rule][rule][id]"
+      "[aws][waf][rule_group_list][terminating_rule][ruleMatchDetails]"     => "[aws][waf][rule_group_list][terminating_rule][rule][match_details]"
+      "[aws][waf][rule_group_list][ruleGroupId]"                            => "[aws][waf][rule_group_list][rule][group_id]"
+      "[aws][waf][rule_group_list][customerConfig]"                         => "[aws][waf][rule_group_list][customer_config]"
+      "[aws][waf][rule_group_list][nonTerminatingMatchingRules]"            => "[aws][waf][rule_group_list][non_terminating_matching_rules]"
+      "[aws][waf][http][request][headers][content_type]"                    => "[http][request][mime_type]"
+      "[aws][waf][http][request][headers][user_agent]"                      => "[user_agent][original]"
+      "[aws][waf][http][request][headers][sec_fetch_dest]"                  => "[aws][waf][http][request][headers][sec][fetch][dest]"
+      "[aws][waf][http][request][headers][sec_fetch_mode]"                  => "[aws][waf][http][request][headers][sec][fetch][mode]"
+      "[aws][waf][http][request][headers][sec_fetch_site]"                  => "[aws][waf][http][request][headers][sec][fetch][site]"
+      "[aws][waf][http][request][headers][sec_ch_ua_mobile]"                => "[aws][waf][http][request][headers][sec][ch_ua][mobile]"
+      "[aws][waf][http][request][headers][sec_ch_ua_platform]"              => "[aws][waf][http][request][headers][sec][ch_ua][platform]"
+      "[aws][waf][http][request][headers][sec_ch_ua]"                       => "[aws][waf][http][request][headers][sec][ch_ua][browser]"
+    }
+  }
+
+  useragent {
+    source => '[user_agent][original]'
+  }
+}
