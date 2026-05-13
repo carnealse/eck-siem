@@ -1,0 +1,27 @@
+input {
+  elastic_agent {
+    port => 5040
+    ssl_certificate => "/mnt/elastic-internal/http-certs/tls.crt"
+    ssl_certificate_authorities => "/mnt/elastic-internal/http-certs/ca.crt"
+    ssl_client_authentication => "required"
+    ssl_enabled => true
+    ssl_key => "/mnt/elastic-internal/http-certs/tls.key"
+    ssl_supported_protocols => ["TLSv1.2", "TLSv1.3"]
+    tags => ["ls-esaudit"]
+  }
+  elastic_agent {
+    port => 5044
+    ssl_certificate => "/mnt/elastic-internal/http-certs/tls.crt"
+    ssl_certificate_authorities => "/mnt/elastic-internal/http-certs/ca.crt"
+    ssl_client_authentication => "required"
+    ssl_enabled => true
+    ssl_key => "/mnt/elastic-internal/http-certs/tls.key"
+    ssl_supported_protocols => ["TLSv1.2", "TLSv1.3"]
+  }
+  http {
+    port => 8080
+    ecs_compatibility => v8
+    ssl_enabled => false
+    tags => ["ls-http"]
+  }
+}
