@@ -1,0 +1,6 @@
+filter {
+  # field clean up
+  mutate {
+      remove_field => ["[host]", "[user_agent][original]", "[http]"]
+  }
+}
