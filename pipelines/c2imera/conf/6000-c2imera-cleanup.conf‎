@@ -7,30 +7,28 @@ filter {
         def parse_val(v); v = v.strip; if v.start_with?("{") then inner = v.end_with?("}") ? v[1..-2] : v[1..-1]; return parse_obj(inner); elsif v.start_with?("[") then inner = v.end_with?("]") ? v[1..-2] : v[1..-1]; return split_top(inner).map { |x| cast_scalar(x) }; else return cast_scalar(v) end; end
         def cast_scalar(x); s = x.strip; return true if s.casecmp("true").zero?; return false if s.casecmp("false").zero?; return s.to_i if s =~ /\A-?\d+\z/; s; end
         def parse_obj(body); obj = {}; split_top(body).each do |pair|; k, v = pair.split(/[:=]/, 2); next unless v; key = k.strip; obj[key] = parse_val(v); end; obj; end
-
         raw = event.get("user_info")
         if raw
-          inner = raw.strip 
-          inner = inner[1..-1] if inner.start_with?("{") 
+          inner = raw.strip
+          inner = inner[1..-1] if inner.start_with?("{")
           inner = inner[0..-2] if inner.end_with?("}")
           parsed = parse_obj(inner)
-
           event.set("[user][name]", parsed["username"])
           event.set("[user][edipi]", parsed["edipi"])
           #event.set("[user][name]", parsed["name"])
-          if parsed["workspace"]     then event.set("[c2imera][workspace]", parsed["workspace"]) end
+          if parsed["workspace"] then event.set("[c2imera][workspace]", parsed["workspace"]) end
           if parsed["principalType"] then event.set("[user][principal_type]", parsed["principalType"]) end
-          if parsed["authTime"]      then event.set("[user][auth_time]", parsed["authTime"]) end
-
-          if parsed["attributes"]    then event.set("[c2imera][user][attributes]", parsed["attributes"]) end
+          if parsed["authTime"] then event.set("[user][auth_time]", parsed["authTime"]) end
+          if parsed["attributes"] then event.set("[c2imera][user][attributes]", parsed["attributes"]) end
         end
       '
     }
   }
 
   mutate {
+    id => "6000-c2imera-cleanup-remove-fields"
     remove_field => [
-      "message", "syslog_timestamp", "raw_ts", "header_kv", "inner_msg", "parsed_audit", 
+      "message", "syslog_timestamp", "raw_ts", "header_kv", "inner_msg", "parsed_audit",
       "user_info", "config_kv_data", "app_message", "hostname", "syslog_program", "syslog_pid",
       "temp_ssm", "ssm_action", "ssm_content", "audit_body", "middle_kv", "record_type_raw",
       "legacy_class_info", "[c2imera][audit_body]", "inner_msg_raw"
