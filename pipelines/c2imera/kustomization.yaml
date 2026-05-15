@@ -11,6 +11,7 @@ configMapGenerator:
       - conf/2002-c2imera-legacy.conf
       - conf/3000-c2imera-ecs-mapping.conf
       - conf/6000-c2imera-cleanup.conf
+      - conf/8000-c2imera-error-handling.conf
       - conf/9000-c2imera-output.conf
 
 patches:
