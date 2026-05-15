@@ -1,34 +1,34 @@
 filter {
-    if [@metadata][log_lane] == "audit_lane" {
+  if [@metadata][log_lane] == "audit_lane" {
     grok {
       id => "2000-c2imera-audit-main-grok"
-      match => 
-        { 
-          "message" => "^%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:[c2imera][audit_body]}" 
-      } 
+      match => {
+        "message" => "^%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:[c2imera][audit_body]}"
+      }
     }
 
     date {
       id => "2000-c2imera-audit-date"
-      match => [ "syslog_timestamp", "MMM dd HH:mm:ss", "MMM  d HH:mm:ss" ] target => "@timestamp" 
+      match => [ "syslog_timestamp", "MMM dd HH:mm:ss", "MMM d HH:mm:ss" ]
+      target => "@timestamp"
     }
 
     mutate {
-      copy => { 
-        "hostname" => "[host][hostname]" 
-        } 
+      id => "2000-c2imera-audit-copy-hostname"
+      copy => {
+        "hostname" => "[host][hostname]"
       }
+    }
 
     # TOPIC 1: IP Audit
     if [syslog_program] == "audit" {
-
       # Channel 1: Service Activity
       if [c2imera][audit_body] =~ /msg=/ {
         grok {
           id => "2000-c2imera-audit-topic1-grok"
-          match => { 
-            "[c2imera][audit_body]" => "%{DATA:record_type_raw} %{DATA:middle_kv} msg=(?:'|\")?%{GREEDYDATA:inner_msg}" 
-          } 
+          match => {
+            "[c2imera][audit_body]" => "%{DATA:record_type_raw} %{DATA:middle_kv} msg=(?:'|\")?%{GREEDYDATA:inner_msg}"
+          }
         }
 
         # Cleanup inner_msg quotes/backslashes BEFORE KV
@@ -41,49 +41,58 @@ filter {
         grok {
           id => "2000-c2imera-audit-kv-grok"
           match => {
-            "middle_kv" => "pid=%{INT:[c2imera][pid]} uid=%{INT:[c2imera][uid]} auid=%{INT:[c2imera][auid]} ses=%{INT:[auditd][log][ses]} subj=%{DATA:[c2imera][subj]}" 
-          } 
+            "middle_kv" => "pid=%{INT:[c2imera][pid]} uid=%{INT:[c2imera][uid]} auid=%{INT:[c2imera][auid]} ses=%{INT:[auditd][log][ses]} subj=%{DATA:[c2imera][subj]}"
+          }
         }
 
-        kv { 
+        kv {
           id => "2000-c2imera-audit-topic1-kv"
-          source => "inner_msg" 
-          target => "[parsed_audit]" 
+          source => "inner_msg"
+          target => "[parsed_audit]"
           whitespace => "strict"
         }
 
-        if [parsed_audit][res] { 
+        if [parsed_audit][res] {
           mutate {
-            gsub => [ "[parsed_audit][res]", "\\'$", "" ] 
-            } 
-          }
-
-        mutate {
-          rename => {
-            "[record_type_raw]"       => "[auditd][log][record_type]"
-            "[parsed_audit][comm]"    => "[auditd][log][comm]"
-            "[parsed_audit][exe]"     => "[process][executable]"
-            "[parsed_audit][hostname]"=> "[c2imera][audit][hostname]"
-            "[parsed_audit][addr]"    => "[c2imera][audit][addr]"
-            "[parsed_audit][terminal]"=> "[c2imera][audit][terminal]"
-            "[parsed_audit][res]"     => "[event][outcome]"
-            "[parsed_audit][unit]"    => "[systemd][unit]" 
-            "[c2imera][pid]"          => "[process][pid]"
-            "[c2imera][uid]"          => "[user][id]"
-            "[c2imera][auid]"         => "[user][audit][id]"
-            "[c2imera][ses]"          => "[auditd][log][ses]"
-            "[c2imera][subj]"         => "[auditd][log][subj]"
-          }
-          add_field => { 
-            "[event][kind]" => "event" 
-            "[event][dataset]" => "c2imera" 
-            "[event][category]" => "process" 
-            "[process][name]" => "audit" 
+            id => "2000-c2imera-audit-cleanup-res"
+            gsub => [ "[parsed_audit][res]", "\\'$", "" ]
           }
         }
+
+        mutate {
+          id => "2000-c2imera-audit-topic1-renames"
+          rename => {
+            "[record_type_raw]"        => "[auditd][log][record_type]"
+            "[parsed_audit][comm]"     => "[auditd][log][comm]"
+            "[parsed_audit][exe]"      => "[process][executable]"
+            "[parsed_audit][hostname]" => "[c2imera][audit][hostname]"
+            "[parsed_audit][addr]"     => "[c2imera][audit][addr]"
+            "[parsed_audit][terminal]" => "[c2imera][audit][terminal]"
+            "[parsed_audit][res]"      => "[event][outcome]"
+            "[parsed_audit][unit]"     => "[systemd][unit]"
+            "[c2imera][pid]"           => "[process][pid]"
+            "[c2imera][uid]"           => "[user][id]"
+            "[c2imera][auid]"          => "[user][audit][id]"
+            "[c2imera][ses]"           => "[auditd][log][ses]"
+            "[c2imera][subj]"          => "[auditd][log][subj]"
+          }
+          add_field => {
+            "[event][kind]"     => "event"
+            "[event][dataset]"  => "c2imera"
+            "[event][category]" => "process"
+            "[process][name]"   => "audit"
+          }
+        }
+
         translate {
-          source => "[auditd][log][record_type]" target => "[event][action]"
-          dictionary => { "SERVICE_STOP" => "stopped-service" "SERVICE_START" => "started-service" "USER_LOGIN" => "logged-in-user" }
+          id => "2000-c2imera-audit-topic1-translate"
+          source => "[auditd][log][record_type]"
+          target => "[event][action]"
+          dictionary => {
+            "SERVICE_STOP"  => "stopped-service"
+            "SERVICE_START" => "started-service"
+            "USER_LOGIN"    => "logged-in-user"
+          }
           fallback => "unknown-audit-action"
         }
       }
@@ -92,30 +101,44 @@ filter {
       else if [c2imera][audit_body] =~ /^AVC avc:/ {
         grok {
           id => "2000-c2imera-audit-avc-grok"
-          match => { 
-            "[c2imera][audit_body]" => "AVC avc:\s+%{WORD:[event][type]}\s+\{\s+%{DATA:[event][action]}\s+\}\s+for\s+%{GREEDYDATA:avc_kv_data}" 
-          } 
+          match => {
+            "[c2imera][audit_body]" => "AVC avc:\s+%{WORD:[event][type]}\s+\{\s+%{DATA:[event][action]}\s+\}\s+for\s+%{GREEDYDATA:avc_kv_data}"
+          }
         }
+
         kv {
           id => "2000-c2imera-avc-kv"
-          source => "avc_kv_data" target => "[temp_avc]" whitespace => "strict" trim_key => "\s" trim_value => "\s" 
+          source => "avc_kv_data"
+          target => "[temp_avc]"
+          whitespace => "strict"
+          trim_key => "\s"
+          trim_value => "\s"
         }
 
         mutate {
+          id => "2000-c2imera-audit-avc-renames"
           rename => {
-            "[temp_avc][pid]"        => "[process][pid]"
-            "[temp_avc][comm]"       => "[process][name]"
-            "[temp_avc][name]"       => "[file][name]"
-            "[temp_avc][ino]"        => "[file][inode]"
-            "[temp_avc][scontext]"   => "[c2imera][audit][avc][scontext]"
-            "[temp_avc][tcontext]"   => "[c2imera][audit][avc][tcontext]"
-            "[temp_avc][tclass]"     => "[c2imera][audit][avc][tclass]"
-            "[temp_avc][permissive]" => "[c2imera][audit][avc][permissive]"
-            "[temp_avc][dev]"        => "[c2imera][audit][avc][dev]"
+            "[temp_avc][pid]"       => "[process][pid]"
+            "[temp_avc][comm]"      => "[process][name]"
+            "[temp_avc][name]"      => "[file][name]"
+            "[temp_avc][ino]"       => "[file][inode]"
+            "[temp_avc][scontext]"  => "[c2imera][audit][avc][scontext]"
+            "[temp_avc][tcontext]"  => "[c2imera][audit][avc][tcontext]"
+            "[temp_avc][tclass]"    => "[c2imera][audit][avc][tclass]"
+            "[temp_avc][permissive]"=> "[c2imera][audit][avc][permissive]"
+            "[temp_avc][dev]"       => "[c2imera][audit][avc][dev]"
           }
-          add_field => { "[event][kind]" => "alert" "[event][category]" => "intrusion_detection" "[event][dataset]" => "c2imera" }
+          add_field => {
+            "[event][kind]"     => "alert"
+            "[event][category]" => "intrusion_detection"
+            "[event][dataset]"  => "c2imera"
+          }
         }
-        mutate { remove_field => ["avc_kv_data", "temp_avc"] }
+
+        mutate {
+          id => "2000-c2imera-audit-avc-cleanup"
+          remove_field => ["avc_kv_data", "temp_avc"]
+        }
       }
     }
 
@@ -130,15 +153,30 @@ filter {
           ]
         }
       }
+
       if [systemd_action] {
-        mutate { add_field => { "[event][action]" => "service-%{systemd_action}" } }
-        mutate { lowercase => [ "[event][action]" ] }
-      } 
-      else if [systemd][message] =~ /Deactivated/ {
-        mutate { add_field => { "[event][action]" => "service-stopped" } }
+        mutate {
+          id => "2000-c2imera-audit-systemd-action-set"
+          add_field => { "[event][action]" => "service-%{systemd_action}" }
+        }
+        mutate {
+          id => "2000-c2imera-audit-systemd-action-lowercase"
+          lowercase => [ "[event][action]" ]
+        }
       }
-      mutate { 
-        add_field => { "[event][kind]" => "event" "[event][dataset]" => "c2imera" } 
+      else if [systemd][message] =~ /Deactivated/ {
+        mutate {
+          id => "2000-c2imera-audit-systemd-deactivated"
+          add_field => { "[event][action]" => "service-stopped" }
+        }
+      }
+
+      mutate {
+        id => "2000-c2imera-audit-systemd-final"
+        add_field => {
+          "[event][kind]"    => "event"
+          "[event][dataset]" => "c2imera"
+        }
         remove_field => ["systemd_action"]
       }
     }
@@ -146,8 +184,15 @@ filter {
     # TOPIC 3: Generic Syslog
     else {
       mutate {
-        rename => { "syslog_program" => "[process][name]" "syslog_pid" => "[process][pid]" }
-        add_field => { "[event][kind]" => "event" "[event][dataset]" => "c2imera" }
+        id => "2000-c2imera-audit-generic-syslog"
+        rename => {
+          "syslog_program" => "[process][name]"
+          "syslog_pid"     => "[process][pid]"
+        }
+        add_field => {
+          "[event][kind]"    => "event"
+          "[event][dataset]" => "c2imera"
+        }
         add_tag => ["generic_syslog"]
       }
     }
