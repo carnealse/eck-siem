@@ -1,26 +1,45 @@
 filter {
   if [@metadata][log_lane] == "legacy_lane" {
     # 1. Generic Legacy Header
-    grok { 
-      match => { 
+    grok {
+      id => "2002-c2imera-legacy-header-grok"
+      match => {
         "message" => [
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{DATA:app_message} \(OID:%{DATA:[trace][id]}\)\s*\(TID:%{DATA:[process][thread][id]}\)\s*\[%{GREEDYDATA:legacy_class_info}\]$",
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{DATA:app_message} \(OID:%{DATA:[trace][id]}\)\s*\[%{GREEDYDATA:legacy_class_info}\]$",
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{DATA:app_message} \(OID:%{DATA:[trace][id]}\)$",
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{GREEDYDATA:app_message}$"
         ]
-      } 
+      }
     }
-    date { match => [ "raw_ts", "yyyyMMddHHmmssSSS" ] target => "@timestamp" }
+
+    date {
+      id => "2002-c2imera-legacy-date"
+      match => [ "raw_ts", "yyyyMMddHHmmssSSS" ]
+      target => "@timestamp"
+    }
 
     # TOPIC 1: NODE (JSON Data)
     if [app_message] =~ /^NODE: \{/ {
-      grok { match => { "app_message" => "NODE: %{DATA:node_json} \| %{GREEDYDATA:dce_data}" } }
-      json { source => "node_json" target => "[c2imera][node]" }
-      grok { match => { "dce_data" => "DATACHANGEVENT: DataChangeEvent \[id=%{DATA:[c2imera][dce][id]}, workspaceName=%{DATA:[c2imera][workspace]}, createdAt=%{DATA:[c2imera][dce][created_at]}, type=%{DATA:[c2imera][dce][type]}, dataType=%{GREEDYDATA:[c2imera][dce][data_type]}\]" } }
+      grok {
+        id => "2002-c2imera-legacy-node-grok"
+        match => { "app_message" => "NODE: %{DATA:node_json} \| %{GREEDYDATA:dce_data}" }
+      }
+
+      json {
+        id => "2002-c2imera-legacy-node-json"
+        source => "node_json"
+        target => "[c2imera][node]"
+      }
+
+      grok {
+        id => "2002-c2imera-legacy-dce-grok"
+        match => { "dce_data" => "DATACHANGEVENT: DataChangeEvent \[id=%{DATA:[c2imera][dce][id]}, workspaceName=%{DATA:[c2imera][workspace]}, createdAt=%{DATA:[c2imera][dce][created_at]}, type=%{DATA:[c2imera][dce][type]}, dataType=%{GREEDYDATA:[c2imera][dce][data_type]}\]" }
+      }
 
       if [c2imera][node] {
         ruby {
+          id => "2002-c2imera-legacy-node-ruby"
           code => '
             def to_snake(str); str.gsub(/([a-z\d])([A-Z])/, "\\1_\\2").downcase; end
             def process_hash(h)
@@ -36,71 +55,124 @@ filter {
           '
         }
       }
-      mutate { 
+
+      mutate {
+        id => "2002-c2imera-legacy-node-mutate"
         add_field => { "[event][action]" => "node-data-change" }
-        remove_field => ["node_json", "dce_data"] 
+        remove_field => ["node_json", "dce_data"]
       }
     }
 
     # TOPIC 2: User Filters
     else if [app_message] =~ /^createFilterForUser/ {
-      grok { match => { "app_message" => "createFilterForUser for user \"%{DATA:[user][name]}\" and workspace \"%{DATA:[c2imera][workspace]}\" finished in %{INT:[c2imera][user_filter][duration_ms]} ms" } }
-      mutate { 
-        add_field => { "[event][action]" => "create-filter-for-user" } 
+      grok {
+        id => "2002-c2imera-legacy-userfilter-grok"
+        match => { "app_message" => "createFilterForUser for user \"%{DATA:[user][name]}\" and workspace \"%{DATA:[c2imera][workspace]}\" finished in %{INT:[c2imera][user_filter][duration_ms]} ms" }
+      }
+      mutate {
+        id => "2002-c2imera-legacy-userfilter-mutate"
+        add_field => { "[event][action]" => "create-filter-for-user" }
         convert => { "[c2imera][user_filter][duration_ms]" => "integer" }
       }
     }
 
     # TOPIC 3: Scheduled Jobs
     else if [app_message] =~ /^Scheduling job/ {
-      grok { match => { "app_message" => "Scheduling job ScheduledJob\{jobId=%{INT:[c2imera][scheduled_job][id]}, jobType='%{DATA:[c2imera][job][type]}', targetObjectId=%{DATA:[c2imera][job][target_id]}, secondaryId='%{DATA:[c2imera][job][secondary_id]}', scheduledTime=%{DATA:[c2imera][job][scheduled_time]}\}" } }
-      mutate { add_field => { "[event][action]" => "schedule-job" } }
+      grok {
+        id => "2002-c2imera-legacy-scheduledjob-grok"
+        match => { "app_message" => "Scheduling job ScheduledJob\{jobId=%{INT:[c2imera][scheduled_job][id]}, jobType='%{DATA:[c2imera][job][type]}', targetObjectId=%{DATA:[c2imera][job][target_id]}, secondaryId='%{DATA:[c2imera][job][secondary_id]}', scheduledTime=%{DATA:[c2imera][job][scheduled_time]}\}" }
+      }
+      mutate {
+        id => "2002-c2imera-legacy-scheduledjob-mutate"
+        add_field => { "[event][action]" => "schedule-job" }
+      }
     }
 
     # TOPIC 4: Security Context
     else if [app_message] =~ /^filter\(\)/ {
-      grok { match => { "app_message" => "filter\(\) %{DATA:[url][full]} resolved to: DefaultSecurityContext\[user:RestUser\{%{DATA:user_info}\}, roles:\[%{DATA:[user][roles]}\]\]" } }
-      mutate { add_field => { "[event][action]" => "security-context-resolved" } }
+      grok {
+        id => "2002-c2imera-legacy-secctx-filter-grok"
+        match => { "app_message" => "filter\(\) %{DATA:[url][full]} resolved to: DefaultSecurityContext\[user:RestUser\{%{DATA:user_info}\}, roles:\[%{DATA:[user][roles]}\]\]" }
+      }
+      mutate {
+        id => "2002-c2imera-legacy-secctx-filter-mutate"
+        add_field => { "[event][action]" => "security-context-resolved" }
+      }
     }
+
     else if [app_message] =~ /^Using trusted user:/ {
-      grok { match => { "app_message" => "Using trusted user:RestUser\{%{DATA:user_info}\} roles:\[%{DATA:[user][roles]}\]\]?" } }
-      mutate { add_field => { "[event][action]" => "security-context-created" } }
+      grok {
+        id => "2002-c2imera-legacy-secctx-trusted-grok"
+        match => { "app_message" => "Using trusted user:RestUser\{%{DATA:user_info}\} roles:\[%{DATA:[user][roles]}\]\]?" }
+      }
+      mutate {
+        id => "2002-c2imera-legacy-secctx-trusted-mutate"
+        add_field => { "[event][action]" => "security-context-created" }
+      }
     }
 
     # TOPIC 5: EDIT DCE Received
     else if [app_message] =~ /^EDIT DCE received/ {
-      grok { match => { "app_message" => "EDIT DCE received\. Content Type: \"%{DATA:[c2imera][dce][content_type]}\", Kmeka Msg Key: %{GREEDYDATA:[c2imera][dce][msg_key]}" } }
-      mutate { add_field => { "[event][action]" => "dce-received" } }
+      grok {
+        id => "2002-c2imera-legacy-dce-received-grok"
+        match => { "app_message" => "EDIT DCE received\. Content Type: \"%{DATA:[c2imera][dce][content_type]}\", Kmeka Msg Key: %{GREEDYDATA:[c2imera][dce][msg_key]}" }
+      }
+      mutate {
+        id => "2002-c2imera-legacy-dce-received-mutate"
+        add_field => { "[event][action]" => "dce-received" }
+      }
     }
 
     # TOPIC 6: Warnings & Errors
     else if [log][level] in ["WARNING", "ERROR"] or [app_message] =~ /^Error -/ {
-      mutate { copy => { "[app_message]" => "[event][reason]" } }
+      mutate {
+        id => "2002-c2imera-legacy-error-copy"
+        copy => { "[app_message]" => "[event][reason]" }
+      }
+
       if [app_message] =~ /No DataObject found on/ {
-         grok { match => { "app_message" => "No DataObject found on %{DATA:[c2imera][data_object][id]};" } }
-         mutate { add_field => { "[event][action]" => "data-object-missing" } }
+        grok {
+          id => "2002-c2imera-legacy-dataobject-missing-grok"
+          match => { "app_message" => "No DataObject found on %{DATA:[c2imera][data_object][id]};" }
+        }
+        mutate {
+          id => "2002-c2imera-legacy-dataobject-missing-mutate"
+          add_field => { "[event][action]" => "data-object-missing" }
+        }
       }
       else if [app_message] =~ /^Error -/ {
-         grok { 
-           match => { "app_message" => "Error - %{DATA:[event][reason]} \(ID:%{DATA:[error][id]}\)" } 
-           overwrite => [ "[event][reason]" ]
-         }
-         mutate { add_field => { "[event][action]" => "application-error" } }
+        grok {
+          id => "2002-c2imera-legacy-apperror-grok"
+          match => { "app_message" => "Error - %{DATA:[event][reason]} \(ID:%{DATA:[error][id]}\)" }
+          overwrite => [ "[event][reason]" ]
+        }
+        mutate {
+          id => "2002-c2imera-legacy-apperror-mutate"
+          add_field => { "[event][action]" => "application-error" }
+        }
       }
     }
 
     # TOPIC 7: Scribe Processor
     else if [app_message] =~ /^Using normal scribe processor/ {
       mutate {
+        id => "2002-c2imera-legacy-scribe-mutate"
         add_field => { "[event][action]" => "scribe-processor-status" }
         copy => { "[app_message]" => "[event][reason]" }
       }
+
       if [legacy_class_info] {
-        grok { match => { "legacy_class_info" => "%{JAVACLASS:[log][logger]} %{DATA:[log][origin][function]}" } }
+        grok {
+          id => "2002-c2imera-legacy-scribe-grok"
+          match => { "legacy_class_info" => "%{JAVACLASS:[log][logger]} %{DATA:[log][origin][function]}" }
+        }
       }
     }
 
     # Cleanup Legacy Details
-    mutate { remove_field => ["legacy_class_info"] }
+    mutate {
+      id => "2002-c2imera-legacy-cleanup"
+      remove_field => ["legacy_class_info"]
+    }
   }
 }
