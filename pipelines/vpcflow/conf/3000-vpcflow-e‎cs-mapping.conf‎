@@ -1,0 +1,100 @@
+filter {
+  if [aws][vpcflow][srcaddr] != "-" and [aws][vpcflow][srcaddr] =~ "(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)" {
+    cidr {
+      add_tag => [ "src_private" ]
+      address => [ "%{[aws][vpcflow][srcaddr]}" ]
+      network => [ "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16" ]
+      id => "3000-vpcflow-cidr-src"
+    }
+  }
+
+  if [aws][vpcflow][srcaddr] == "-" or !([aws][vpcflow][srcaddr] =~ "(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)") {
+    mutate {
+      add_tag => ["no_ip_srcaddr"]
+      id => "3000-vpcflow-no-src-tag"
+    }
+    mutate {
+      remove_field => ["[aws][vpcflow][srcaddr]"]
+      id => "3000-vpcflow-remove-no-src"
+    }
+  }
+
+  if [aws][vpcflow][dstaddr] != "-" and [aws][vpcflow][dstaddr] =~ "(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)" {
+    cidr {
+      add_tag => [ "dest_private" ]
+      address => [ "%{[aws][vpcflow][dstaddr]}" ]
+      network => [ "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16" ]
+      id => "3000-vpcflow-cidr-dst"
+    }
+  }
+
+  if [aws][vpcflow][dstaddr] == "-" or !([aws][vpcflow][dstaddr] =~ "(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)") {
+    mutate {
+      add_tag => ["no_ip_destaddr"]
+      id => "3000-vpcflow-no-dst-tag"
+    }
+    mutate {
+      remove_field => ["[aws][vpcflow][dstaddr]"]
+      id => "3000-vpcflow-remove-no-dst"
+    }
+  }
+
+  if "src_private" in [tags] and "dest_private" in [tags] {
+    drop { id => "3000-vpcflow-drop-internal-internal" }
+  }
+
+  date {
+    match => [ "[aws][vpcflow][end]", "UNIX" ]
+    target => "@timestamp"
+    id => "3000-vpcflow-date-timestamp"
+  }
+
+  date {
+    match => [ "[aws][vpcflow][start]", "UNIX" ]
+    target => "[event][start]"
+    id => "3000-vpcflow-date-start"
+  }
+
+  date {
+    match => [ "[aws][vpcflow][end]", "UNIX" ]
+    target => "[event][end]"
+    id => "3000-vpcflow-date-end"
+  }
+
+  mutate {
+    remove_field => [ "[aws][vpcflow][start]", "[aws][vpcflow][end]" ]
+    id => "3000-vpcflow-cleanup-epochs"
+  }
+
+  ruby {
+    id => "3000-vpcflow-ruby-remove-dashes"
+    code => '
+        def handle_map(map)
+          map.each do |key, value|
+            if value.is_a?(Hash)
+              handle_map(value)
+            elsif value.is_a?(Array)
+              handle_list(value)
+            elsif value.is_a?(String) && value == "-"
+              map.delete(key)
+            end
+          end
+        end
+
+        def handle_list(list)
+          list.each_with_index do |item, index|
+            if item.is_a?(Hash)
+              handle_map(item)
+            elsif item.is_a?(Array)
+              handle_list(item)
+            end
+          end
+          list.delete_if { |v| v.is_a?(String) && v == "-" }
+        end
+
+        if event.get("aws")
+          handle_map(event.get("aws"))
+        end
+    '
+  }
+}
