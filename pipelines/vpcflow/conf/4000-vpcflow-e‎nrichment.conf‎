@@ -146,38 +146,42 @@ filter {
     id => "4000-vpcflow-community-id"
   }
 
-  geoip {
-    source => "[source][ip]"
-    target => "[source][geo]"
-    id => "4000-vpcflow-geoip-src"
+  # Only run geoip and ASN lookups on non-private IPs
+  # Private IPs will never resolve and would generate false _geoip_lookup_failure tags
+  if [source][ip] and [source][ip] !~ /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/ {
+    geoip {
+      source => "[source][ip]"
+      target => "[source][geo]"
+      id => "4000-vpcflow-geoip-src"
+    }
+    geoip {
+      source => "[source][ip]"
+      target => "[source][as]"
+      default_database_type => "ASN"
+      id => "4000-vpcflow-asn-src"
+    }
   }
 
-  geoip {
-    source => "[destination][ip]"
-    target => "[destination][geo]"
-    id => "4000-vpcflow-geoip-dst"
-  }
-
-  geoip {
-    source => "[source][ip]"
-    target => "[source][as]"
-    default_database_type => "ASN"
-    id => "4000-vpcflow-asn-src"
-  }
-
-  geoip {
-    source => "[destination][ip]"
-    target => "[destination][as]"
-    default_database_type => "ASN"
-    id => "4000-vpcflow-asn-dst"
+  if [destination][ip] and [destination][ip] !~ /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/ {
+    geoip {
+      source => "[destination][ip]"
+      target => "[destination][geo]"
+      id => "4000-vpcflow-geoip-dst"
+    }
+    geoip {
+      source => "[destination][ip]"
+      target => "[destination][as]"
+      default_database_type => "ASN"
+      id => "4000-vpcflow-asn-dst"
+    }
   }
 
   mutate {
     rename => {
       "[source][as][asn]"                      => "[source][as][number]"
-      "[source][as][organization_name]"       => "[source][as][organization][name]"
-      "[destination][as][asn]"                 => "[destination][as][number]"
-      "[destination][as][organization_name]"  => "[destination][as][organization][name]"
+      "[source][as][organization_name]"         => "[source][as][organization][name]"
+      "[destination][as][asn]"                  => "[destination][as][number]"
+      "[destination][as][organization_name]"    => "[destination][as][organization][name]"
     }
     id => "4000-vpcflow-asn-renames"
   }
@@ -195,10 +199,10 @@ filter {
 
   mutate {
     add_field => {
-      "[cloud][provider]"     => "aws"
-      "[cloud][account][id]"  => "none"
-      "[cloud][instance][id]" => "none"
-      "[event][kind]"         => "event"
+      "[cloud][provider]"      => "aws"
+      "[cloud][account][id]"   => "none"
+      "[cloud][instance][id]"  => "none"
+      "[event][kind]"          => "event"
     }
     id => "4000-vpcflow-cloud-defaults"
   }
@@ -214,20 +218,18 @@ filter {
   ruby {
     id => "4000-vpcflow-ruby-tcp-flags"
     code => '
-        tcp_flags = event.get("[aws][vpcflow][tcp_flags]")
-        if tcp_flags
-          flags = tcp_flags.to_i
-          tcp_flags_array = []
-
-          tcp_flags_array << "fin" if (flags & 0x01) != 0
-          tcp_flags_array << "syn" if (flags & 0x02) != 0
-          tcp_flags_array << "rst" if (flags & 0x04) != 0
-          tcp_flags_array << "psh" if (flags & 0x08) != 0
-          tcp_flags_array << "ack" if (flags & 0x10) != 0
-          tcp_flags_array << "urg" if (flags & 0x20) != 0
-
-          event.set("[aws][vpcflow][tcp_flags_array]", tcp_flags_array)
-        end
+      tcp_flags = event.get("[aws][vpcflow][tcp_flags]")
+      if tcp_flags
+        flags = tcp_flags.to_i
+        tcp_flags_array = []
+        tcp_flags_array << "fin" if (flags & 0x01) != 0
+        tcp_flags_array << "syn" if (flags & 0x02) != 0
+        tcp_flags_array << "rst" if (flags & 0x04) != 0
+        tcp_flags_array << "psh" if (flags & 0x08) != 0
+        tcp_flags_array << "ack" if (flags & 0x10) != 0
+        tcp_flags_array << "urg" if (flags & 0x20) != 0
+        event.set("[aws][vpcflow][tcp_flags_array]", tcp_flags_array)
+      end
     '
   }
 }
