@@ -1,0 +1,233 @@
+filter {
+  if [aws][vpcflow][action] == "ACCEPT" {
+    mutate {
+      add_field => { "[event][outcome]" => "success" }
+      id => "4000-vpcflow-outcome-success"
+    }
+  }
+
+  if [aws][vpcflow][action] == "REJECT" {
+    mutate {
+      add_field => { "[event][outcome]" => "failure" }
+      id => "4000-vpcflow-outcome-failure"
+    }
+  }
+
+  if [source][address] {
+    mutate {
+      remove_field => ["[source][address]"]
+      id => "4000-vpcflow-clear-source-addr"
+    }
+  }
+
+  mutate {
+    rename => { "[aws][vpcflow][srcaddr]" => "[source][address]" }
+    id => "4000-vpcflow-src-to-addr"
+  }
+
+  if [source][address] {
+    mutate {
+      copy => { "[source][address]" => "[source][ip]" }
+      id => "4000-vpcflow-src-to-ip"
+    }
+  }
+
+  mutate {
+    add_field => { "[source][port]" => "%{[aws][vpcflow][srcport]}" }
+    id => "4000-vpcflow-add-src-port"
+  }
+
+  mutate {
+    convert => { "[source][port]" => "integer" }
+    id => "4000-vpcflow-int-src-port"
+  }
+
+  mutate {
+    rename => { "[aws][vpcflow][dstaddr]" => "[destination][address]" }
+    id => "4000-vpcflow-dst-to-addr"
+  }
+
+  if [destination][address] {
+    mutate {
+      copy => { "[destination][address]" => "[destination][ip]" }
+      id => "4000-vpcflow-dst-to-ip"
+    }
+  }
+
+  mutate {
+    add_field => { "[destination][port]" => "%{[aws][vpcflow][dstport]}" }
+    id => "4000-vpcflow-add-dst-port"
+  }
+
+  mutate {
+    convert => { "[destination][port]" => "integer" }
+    id => "4000-vpcflow-int-dst-port"
+  }
+
+  mutate {
+    rename => { "[aws][vpcflow][protocol]" => "[network][iana_number]" }
+    id => "4000-vpcflow-protocol-to-iana"
+  }
+
+  mutate {
+    add_field => { "[source][packets]" => "%{[aws][vpcflow][packets]}" }
+    id => "4000-vpcflow-add-src-packets"
+  }
+
+  mutate {
+    convert => { "[source][packets]" => "integer" }
+    id => "4000-vpcflow-int-src-packets"
+  }
+
+  mutate {
+    add_field => { "[source][bytes]" => "%{[aws][vpcflow][bytes]}" }
+    id => "4000-vpcflow-add-src-bytes"
+  }
+
+  mutate {
+    convert => { "[source][bytes]" => "integer" }
+    id => "4000-vpcflow-int-src-bytes"
+  }
+
+  if [source][bytes] {
+    mutate {
+      copy => { "[source][bytes]" => "[network][bytes]" }
+      id => "4000-vpcflow-network-bytes"
+    }
+  }
+
+  if [source][packets] {
+    mutate {
+      copy => { "[source][packets]" => "[network][packets]" }
+      id => "4000-vpcflow-network-packets"
+    }
+  }
+
+  if [source][ip] and "." in [source][ip] {
+    mutate {
+      add_field => { "[network][type]" => "ipv4" }
+      id => "4000-vpcflow-type-ipv4"
+    }
+  }
+
+  if [source][ip] and ":" in [source][ip] {
+    mutate {
+      add_field => { "[network][type]" => "ipv6" }
+      id => "4000-vpcflow-type-ipv6"
+    }
+  }
+
+  if [network][iana_number] {
+    translate {
+      field => "[network][iana_number]"
+      destination => "[network][transport]"
+      dictionary => {
+        "0"   => "hopopt"
+        "1"   => "icmp"
+        "2"   => "igmp"
+        "6"   => "tcp"
+        "8"   => "egp"
+        "17"  => "udp"
+        "47"  => "gre"
+        "50"  => "esp"
+        "58"  => "ipv6-icmp"
+        "112" => "vrrp"
+        "132" => "sctp"
+      }
+      fallback => "unknown"
+      exact => true
+      id => "4000-vpcflow-translate-iana"
+    }
+  }
+
+  fingerprint {
+    source => ["[source][ip]", "[destination][ip]", "[source][port]", "[destination][port]", "[network][transport]"]
+    target => "[network][community_id]"
+    id => "4000-vpcflow-community-id"
+  }
+
+  geoip {
+    source => "[source][ip]"
+    target => "[source][geo]"
+    id => "4000-vpcflow-geoip-src"
+  }
+
+  geoip {
+    source => "[destination][ip]"
+    target => "[destination][geo]"
+    id => "4000-vpcflow-geoip-dst"
+  }
+
+  geoip {
+    source => "[source][ip]"
+    target => "[source][as]"
+    default_database_type => "ASN"
+    id => "4000-vpcflow-asn-src"
+  }
+
+  geoip {
+    source => "[destination][ip]"
+    target => "[destination][as]"
+    default_database_type => "ASN"
+    id => "4000-vpcflow-asn-dst"
+  }
+
+  mutate {
+    rename => {
+      "[source][as][asn]"                      => "[source][as][number]"
+      "[source][as][organization_name]"       => "[source][as][organization][name]"
+      "[destination][as][asn]"                 => "[destination][as][number]"
+      "[destination][as][organization_name]"  => "[destination][as][organization][name]"
+    }
+    id => "4000-vpcflow-asn-renames"
+  }
+
+  if [source][ip] and [destination][ip] {
+    mutate {
+      add_field => { "[related][ip]" => "%{[source][ip]}" }
+      id => "4000-vpcflow-related-ip-src"
+    }
+    mutate {
+      add_field => { "[related][ip]" => "%{[destination][ip]}" }
+      id => "4000-vpcflow-related-ip-dst"
+    }
+  }
+
+  mutate {
+    add_field => {
+      "[cloud][provider]"     => "aws"
+      "[cloud][account][id]"  => "none"
+      "[cloud][instance][id]" => "none"
+      "[event][kind]"         => "event"
+    }
+    id => "4000-vpcflow-cloud-defaults"
+  }
+
+  mutate {
+    copy => {
+      "[aws][vpcflow][account_id]"  => "[cloud][account][id]"
+      "[aws][vpcflow][instance_id]" => "[cloud][instance][id]"
+    }
+    id => "4000-vpcflow-cloud-ids"
+  }
+
+  ruby {
+    id => "4000-vpcflow-ruby-tcp-flags"
+    code => '
+        tcp_flags = event.get("[aws][vpcflow][tcp_flags]")
+        if tcp_flags
+          flags = tcp_flags.to_i
+          tcp_flags_array = []
+
+          tcp_flags_array << "fin" if (flags & 0x01) != 0
+          tcp_flags_array << "syn" if (flags & 0x02) != 0
+          tcp_flags_array << "rst" if (flags & 0x04) != 0
+          tcp_flags_array << "psh" if (flags & 0x08) != 0
+          tcp_flags_array << "ack" if (flags & 0x10) != 0
+          tcp_flags_array << "urg" if (flags & 0x20) != 0
+
+          event.set("[aws][vpcflow][tcp_flags_array]", tcp_flags_array)
+        end
+    '
+  }
+}
