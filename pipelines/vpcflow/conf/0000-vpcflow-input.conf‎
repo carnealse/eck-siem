@@ -1,0 +1,6 @@
+input {
+  pipeline {
+    address => "vpcflow"
+    id => "0000-vpcflow-input"
+  }
+}
