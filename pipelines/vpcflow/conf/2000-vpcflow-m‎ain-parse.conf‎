@@ -2,7 +2,7 @@ filter {
   ruby {
     id => "2000-vpcflow-ruby-token-count"
     code => '
-        event.set("[_temp][message_token_count]", event.get("[event][original]").split(" ").length)
+      event.set("[_temp][message_token_count]", event.get("[event][original]").split(" ").length)
     '
   }
 
@@ -52,18 +52,25 @@ filter {
   }
 
   if [_temp][message_token_count] == 40 {
+    # Tier 1: strict pattern
     grok {
       match => {
         "[event][original]" => "%{NOTSPACE:[aws][vpcflow][account_id]} %{DATA:[aws][vpcflow][action]} %{DATA:[cloud][availability_zone]} %{NOTSPACE:[aws][vpcflow][extra]} %{DATA:[aws][vpcflow][srcaddr]} %{DATA:[aws][vpcflow][srcport]} %{NOTSPACE:[aws][vpcflow][start]} %{NOTSPACE:[aws][vpcflow][direction]} %{NOTSPACE:[aws][vpcflow][instance_id]} %{GREEDYDATA:[aws][vpcflow][interface_id]} %{DATA:[aws][vpcflow][log_status]} %{NOTSPACE:[aws][vpcflow][packets]} %{DATA:[aws][vpcflow][bytes_field]} %{NOTSPACE:[aws][vpcflow][srcaddr_dup]} %{NOTSPACE:[aws][vpcflow][placeholder1]} %{NOTSPACE:[aws][vpcflow][dstaddr]} %{NOTSPACE:[aws][vpcflow][protocol]} %{DATA:[cloud][region]} %{NOTSPACE:[placeholder2]} %{NOTSPACE:[aws][vpcflow][dstaddr_dup]} %{NOTSPACE:[aws][vpcflow][dstport]} %{NOTSPACE:[aws][vpcflow][end]} %{NOTSPACE:[aws][placeholder3]} %{NOTSPACE:[aws][placeholder4]} %{NOTSPACE:[aws][vpcflow][subnet_id]} %{NOTSPACE:[aws][vpcflow][bytes]} %{NOTSPACE:[aws][placeholder5]} %{DATA:[aws][vpcflow][type]} %{NOTSPACE:[aws][vpcflow][tcp_flags]} %{NOTSPACE:[aws][vpcflow][vpc_id]} %{NOTSPACE:[aws][placeholder6]} %{NOTSPACE:[aws][placeholder7]} %{NOTSPACE:[aws][placeholder8]} %{NOTSPACE:[aws][placeholder9]} %{NOTSPACE:[aws][placeholder10]} %{NOTSPACE:[aws][placeholder11]} %{NOTSPACE:[aws][placeholder12]} %{NOTSPACE:[aws][placeholder13]} %{NOTSPACE:[aws][placeholder14]} %{NOTSPACE:[aws][placeholder15]}"
       }
-      id => "2000-vpcflow-grok-40-primary"
+      tag_on_failure => ["_vpcflow_40_strict_failure"]
+      id => "2000-vpcflow-grok-40-strict"
     }
-  } else if [_temp][message_token_count] == 40 {
-    grok {
-      match => {
-        "[event][original]" => "%{DATA:[aws][vpcflow][account_id]} %{DATA:[aws][vpcflow][action]} %{DATA:[cloud][availability_zone]} %{NOTSPACE:[aws][vpcflow][extra]} %{DATA:[aws][vpcflow][srcaddr]} %{DATA:[aws][vpcflow][srcport]} %{NOTSPACE:[aws][vpcflow][start]} %{DATA:[aws][vpcflow][direction]} %{NOTSPACE:[aws][vpcflow][instance_id]} %{DATA:[aws][vpcflow][interface_id]} %{DATA:[aws][vpcflow][log_status]} %{NOTSPACE:[aws][vpcflow][packets]} %{DATA:[aws][vpcflow][bytes_field]} %{NOTSPACE:[aws][vpcflow][srcaddr_dup]} %{NOTSPACE:[aws][vpcflow][placeholder1]} %{NOTSPACE:[aws][vpcflow][dstaddr]} %{NOTSPACE:[aws][vpcflow][protocol]} %{DATA:[cloud][region]} %{NOTSPACE:[placeholder2]} %{NOTSPACE:[aws][vpcflow][dstaddr_dup]} %{NOTSPACE:[aws][vpcflow][dstport]} %{NOTSPACE:[aws][vpcflow][end]} %{NOTSPACE:[aws][placeholder3]} %{NOTSPACE:[aws][placeholder4]} %{NOTSPACE:[aws][vpcflow][subnet_id]} %{NOTSPACE:[aws][vpcflow][bytes]} %{NOTSPACE:[aws][placeholder5]} %{DATA:[aws][vpcflow][type]} %{NOTSPACE:[aws][vpcflow][tcp_flags]} %{NOTSPACE:[aws][vpcflow][vpc_id]} %{NOTSPACE:[aws][placeholder6]} %{NOTSPACE:[aws][placeholder7]} %{NOTSPACE:[aws][placeholder8]} %{NOTSPACE:[aws][placeholder9]} %{NOTSPACE:[aws][placeholder10]} %{NOTSPACE:[aws][placeholder11]} %{NOTSPACE:[aws][placeholder12]} %{NOTSPACE:[aws][placeholder13]} %{NOTSPACE:[aws][placeholder14]} %{NOTSPACE:[aws][placeholder15]}"
+
+    # Tier 2: only fires if strict failed
+    # If this also fails it is a genuine pipeline problem and _grokparsefailure will fire
+    if "_vpcflow_40_strict_failure" in [tags] {
+      grok {
+        match => {
+          "[event][original]" => "%{DATA:[aws][vpcflow][account_id]} %{DATA:[aws][vpcflow][action]} %{DATA:[cloud][availability_zone]} %{NOTSPACE:[aws][vpcflow][extra]} %{DATA:[aws][vpcflow][srcaddr]} %{DATA:[aws][vpcflow][srcport]} %{NOTSPACE:[aws][vpcflow][start]} %{DATA:[aws][vpcflow][direction]} %{NOTSPACE:[aws][vpcflow][instance_id]} %{DATA:[aws][vpcflow][interface_id]} %{DATA:[aws][vpcflow][log_status]} %{NOTSPACE:[aws][vpcflow][packets]} %{DATA:[aws][vpcflow][bytes_field]} %{NOTSPACE:[aws][vpcflow][srcaddr_dup]} %{NOTSPACE:[aws][vpcflow][placeholder1]} %{NOTSPACE:[aws][vpcflow][dstaddr]} %{NOTSPACE:[aws][vpcflow][protocol]} %{DATA:[cloud][region]} %{NOTSPACE:[placeholder2]} %{NOTSPACE:[aws][vpcflow][dstaddr_dup]} %{NOTSPACE:[aws][vpcflow][dstport]} %{NOTSPACE:[aws][vpcflow][end]} %{NOTSPACE:[aws][placeholder3]} %{NOTSPACE:[aws][placeholder4]} %{NOTSPACE:[aws][vpcflow][subnet_id]} %{NOTSPACE:[aws][vpcflow][bytes]} %{NOTSPACE:[aws][placeholder5]} %{DATA:[aws][vpcflow][type]} %{NOTSPACE:[aws][vpcflow][tcp_flags]} %{NOTSPACE:[aws][vpcflow][vpc_id]} %{NOTSPACE:[aws][placeholder6]} %{NOTSPACE:[aws][placeholder7]} %{NOTSPACE:[aws][placeholder8]} %{NOTSPACE:[aws][placeholder9]} %{NOTSPACE:[aws][placeholder10]} %{NOTSPACE:[aws][placeholder11]} %{NOTSPACE:[aws][placeholder12]} %{NOTSPACE:[aws][placeholder13]} %{NOTSPACE:[aws][placeholder14]} %{NOTSPACE:[aws][placeholder15]}"
+        }
+        tag_on_failure => ["_grokparsefailure"]
+        id => "2000-vpcflow-grok-40-lenient"
       }
-      id => "2000-vpcflow-grok-40-secondary"
     }
   }
 }
