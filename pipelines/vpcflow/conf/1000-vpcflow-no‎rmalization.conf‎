@@ -1,0 +1,54 @@
+filter {
+  mutate {
+    add_tag => ["logstash", "version_2"]
+    id => "1000-vpcflow-initial-tags"
+  }
+
+  mutate {
+      add_field => { "[ecs][version]" => "8.0.0" }
+      id => "1000-vpcflow-ecs-version"
+  }
+
+  mutate {
+      rename => { "message" => "[event][original]" }
+      id => "1000-vpcflow-preserve-original"
+  }
+
+  mutate {
+      add_field => { "[event][type]" => "connection" }
+      id => "1000-vpcflow-event-type"
+  }
+
+  mutate {
+      add_field => { "[event][category]" => "network" }
+      id => "1000-vpcflow-event-category"
+  }
+
+  if [event][original] =~ "version" or [event][original] =~ "instance-id" {
+      drop { id => "1000-vpcflow-drop-headers" }
+  }
+
+  if [event][original] =~ /^\[/ {
+    mutate {
+      gsub => [
+        "[event][original]", "^\[", "",
+        "[event][original]", "\]$", ""
+      ]
+      id => "1000-vpcflow-strip-brackets"
+    }
+    if [event][original] =~ /, / {
+      mutate { 
+        split => { "[event][original]" => ", " } 
+        id => "1000-vpcflow-split-comma"
+      }
+      split { 
+        field => "[event][original]" 
+        id => "1000-vpcflow-split-field"
+      }
+    }
+    mutate {
+      add_tag => ["split_message"]
+      id => "1000-vpcflow-tag-split"
+    }
+  }
+}
