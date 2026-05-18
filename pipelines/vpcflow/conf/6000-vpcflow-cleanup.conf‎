@@ -1,0 +1,21 @@
+filter {
+  fingerprint {
+    source => [ "[event][original]" ]
+    method => "SHA256"
+    target => "[@metadata][fingerprint]"
+    id => "6000-vpcflow-final-fingerprint"
+  }
+
+  mutate {
+    remove_field => [ "[_temp]", "[aws][vpcflow][srcaddr]", "[aws][vpcflow][srcport]", "[aws][vpcflow][dstaddr]", "[aws][vpcflow][dstport]", "[aws][vpcflow][bytes]", "[aws][vpcflow][packets]", "[aws][vpcflow][protocol]"]
+    id => "6000-vpcflow-cleanup"
+  }
+
+  # Do not set data_stream_namespace here; that will be handled in the return pipeline
+  mutate {
+    add_field => {
+      "data_stream_dataset" => "aws.vpcflow"
+    }
+    id => "6000-vpcflow-dataset-tag"
+  }
+}
