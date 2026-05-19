@@ -1,0 +1,61 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: monitor-kibana
+  namespace: es-monitoring
+spec:
+  version: 9.3.0
+  count: 3
+  image: <relevant link data goes here>/kibana/kibana:9.3.0
+  elasticsearchRef:
+    name: monitor
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: false
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - name: https
+            nodePort: <port number>
+            port: <port number>
+            protocol: TCP
+            targetPort: <port number>
+  podTemplate:
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - name: kibana
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=85.0"
+  config:
+    xpack.fleet.registryUrl: "http://<relevant link data goes here>:<port number>/"
+    xpack.security.authc.providers:
+      saml.okta-mil:
+        order: 1
+        realm: "okta-mil"
+        accessAgreement:
+          message: |
+            BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES.
+            UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES.
+            INFORMATION SYSTEM USAGE MAY BE MONITORED, RECORDED, AND SUBJECT TO AUDIT.
+      saml.okta-icam:
+        order: 2
+        realm: "okta-icam"
+        accessAgreement:
+          message: |
+            BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES.
+            UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES.
+            INFORMATION SYSTEM USAGE MAY BE MONITORED, RECORDED, AND SUBJECT TO AUDIT.
+      # Keep this enabled: The ECK operator uses basic auth to communicate with Kibana
+      basic.basic1:
+        order: 3
+ 
