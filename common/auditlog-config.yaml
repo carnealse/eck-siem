@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auditlog-config
+  namespace: siem
+data:
+  filebeat.yml: |
+    filebeat:
+      modules:
+      - audit:
+          close_timeout: 2h
+          enabled: true
+          fields_under_root: true
+          var:
+            paths:
+            - /usr/share/elasticsearch/logs/*_audit.json
+        module: elasticsearch
+    output:
+      logstash:
+        hosts:
+        - <relevant link data here>:<port number>
+        ssl:
+          certificate: /usr/share/filebeat/certs/tls.crt
+          certificate_authorities:
+          - /usr/share/filebeat/certs/ca.crt
+          key: /usr/share/filebeat/certs/tls.key
+    path:
+      config: /usr/share/filebeat/config
+      data: /usr/share/filebeat/data
+      home: /usr/share/filebeat
+      logs: /usr/share/elasticsearch/logs
+    processors:
+    - add_cloud_metadata: null
+    - add_host_metadata: null
