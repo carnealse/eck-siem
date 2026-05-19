@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-es-ingest-nodes
+  namespace: siem
+spec:
+  type: NodePort
+  ports:
+    - name: https
+      port: <port number>
+      targetPort: <port number>
+      nodePort: <port number
+  selector:
+    elasticsearch.k8s.elastic.co/cluster-name: "elasticsearch"
+    elasticsearch.k8s.elastic.co/node-data_hot: "true"
