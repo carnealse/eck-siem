@@ -1,0 +1,24 @@
+## Adding this here because the Terraform-managed cluster-autoscaler helm chart does not allow
+## for the addition of rbac permissions cleanly. 
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: 
+  name: cluster-autoscaler-extra
+rules:
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["list", "watch", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-autoscaler-extra
+subjects: 
+  - kind: ServiceAccount
+    name: cluster-autoscaler-sa-irsa
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: cluster-autoscaler-extra
+  apiGroup: rbac.authorization.k8s.io
