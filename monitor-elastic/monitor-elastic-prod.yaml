@@ -1,0 +1,152 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: monitor
+  namespace: es-monitoring
+spec:
+  version: 9.3.0
+  image: <relevant link data goes here>/elasticsearch/elasticsearch:9.3.0
+  nodeSets:
+    - name: nodes
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 500Gi
+            storageClassName: gp3t
+            volumeMode: Filesystem
+      podTemplate:
+        metadata:
+          annotations:
+            traffic.sidecar.istio.io/includeInboundPorts: "*"
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9300"
+            traffic.sidecar.istio.io/excludeInboundPorts: "9300"
+        spec:
+          serviceAccountName: aws-s3-sa
+          automountServiceAccountToken: true
+          initContainers:
+            - name: sysctl
+              securityContext:
+                privileged: true
+                runAsUser: 0
+              command: ["sh", "-c", "sysctl -w vm.max_map_count=262144"]
+            - name: trusted-ca
+              image: 125463138321.dkr.ecr.us-gov-west-1.amazonaws.com/elasticsearch/elasticsearch:9.3.0
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  PATH=$PATH:/usr/share/elasticsearch/jdk/bin
+                  OUTPUT_DIR=/usr/share/elasticsearch/config/ROOT
+
+                  aliases=$(keytool -list -keystore /usr/share/elasticsearch/jdk/lib/security/cacerts -storepass "$SRC_STORE_PASS" \
+                  | awk -F, '/trustedCertEntry/ {print $1}')
+
+                  for alias in $aliases; do
+                    sanitized_alias=$(echo "$alias" | sed 's/[^a-zA-Z0-9._-]/_/g')
+                    keytool -export \
+                      -keystore /usr/share/elasticsearch/jdk/lib/security/cacerts \
+                      -storepass "$SRC_STORE_PASS" \
+                      -alias "$alias" \
+                      -rfc \
+                      -file "$OUTPUT_DIR/${sanitized_alias}.crt"
+                  done
+
+                  for file in $(ls /usr/share/elasticsearch/config/ROOT); do
+                    cat $OUTPUT_DIR/$file >> $OUTPUT_DIR/combined.crt
+                  done
+              volumeMounts:
+                - name: truststore
+                  mountPath: /usr/share/elasticsearch/config/ROOT
+              env:
+                - name: SRC_STORE_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: truststore
+                      key: srcstorepass
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  elasticsearch.k8s.elastic.co/statefulset-name: monitor-es-nodes
+          containers:
+            - name: elasticsearch
+              imagePullPolicy: Always
+              env:
+                - name: AWS_WEB_IDENTITY_TOKEN_FILE
+                  value: "/usr/share/elasticsearch/config/repository-s3/<relevant path data goes here>e"
+                - name: AWS_ROLE_ARN
+                  value: "arn:<relevant link data goes here>:role/<relevant role data goes here>
+                - name: ES_JAVA_OPTS
+                  value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=85.0"
+              volumeMounts:
+                - name: aws-iam-token
+                  mountPath: /usr/share/elasticsearch/config/repository-s3
+                - name: monitor-saml-metadata
+                  mountPath: /usr/share/elasticsearch/config/saml/mil
+                - name: monitor-icam-saml-metadata
+                  mountPath: /usr/share/elasticsearch/config/saml/icam
+                - name: truststore
+                  mountPath: /usr/share/elasticsearch/config/ROOT
+                - name: trusted-ca
+                  mountPath: /usr/share/elasticsearch/config/remote-certs
+          volumes:
+            - name: monitor-saml-metadata
+              secret:
+                secretName: monitor-saml-metadata
+            - name: monitor-icam-saml-metadata
+              secret:
+                secretName: monitor-icam-saml-metadata
+            - name: trusted-ca
+              secret:
+                secretName: trusted-ca
+            - name: truststore
+              emptyDir: {}
+      config:
+        node.roles: ["master", "data", "ingest", "remote_cluster_client"]
+        xpack.ml.enabled: true
+        cluster.routing.allocation.awareness.attributes: k8s_node_name
+        s3.client.default.endpoint: s3.<relevant link data goes here>
+        xpack.http.ssl.certificate_authorities:
+          - "/usr/share/elasticsearch/config/ROOT/combined.crt"
+          - "/usr/share/elasticsearch/config/remote-certs/kibana-ca.crt"
+          - "/usr/share/elasticsearch/config/remote-certs/elastic-ca.crt"
+        xpack.security:
+          authc:
+            token:
+              enabled: true
+            realms:
+              saml:
+                okta-mil:
+                  attributes.principal: nameid
+                  attributes.groups: groups
+                  idp.entity_id: http://<relevant link data goes here>
+                  idp.metadata.path: /usr/share/elasticsearch/config/<relevant path data goes here>
+                  order: 1
+                  sp.acs: https://<relevant link data goes here>
+                  sp.entity_id: https://<relevant link data goes here>
+                  sp.logout: https:/<relevant link data goes here>
+                okta-icam:
+                  attributes.principal: nameid
+                  attributes.groups: groups
+                  idp.entity_id: http://www.okta.com/exk18i28sonuLmELV0k7
+                  idp.metadata.path: /usr/share/elasticsearch/config/<relevant path data goes here>
+                  order: 2
+                  sp.acs: https://<relevant link data goes here>
+                  sp.entity_id: https://<relevant link data goes here>
+                  sp.logout: https://<relevant link data goes here>
+  podDisruptionBudget:
+    spec:
+      maxUnavailable: 1
+      selector:
+        matchLabels:
+          elasticsearch.k8s.elastic.co/cluster-name: monitor
+ 
