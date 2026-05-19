@@ -1,0 +1,30 @@
+apiVersion: autoscaling.k8s.elastic.co/v1alpha1
+kind: ElasticsearchAutoscaler
+metadata:
+  name: monitor
+  namespace: es-monitoring
+spec:
+  elasticsearchRef:
+    name: monitor
+  policies:
+    - name: nodes
+      roles: ["master", "data", "ingest", "remote_cluster_client"]
+      ## Autoscaling deciders (https://www.elastic.co/guide/en/elasticsearch/reference/current/autoscaling-deciders.html) come with
+      ## default settings. Uncomment the lines below to adjust the deciders settings.
+      deciders:
+        proactive_storage:
+          # (Optional, time value) The window of time to use for forecasting. Defaults to 30 minutes.
+          forecast_window: 60m
+      resources:
+        nodeCount:
+          min: 3
+          max: 3
+        cpu:
+          min: 500m
+          max: 6
+        memory:
+          min: 2Gi
+          max: 37Gi # This should keep the JVM heap under 32GB per Elastic recommendation
+        storage:
+          min: 1000Gi
+          max: 4000Gi
