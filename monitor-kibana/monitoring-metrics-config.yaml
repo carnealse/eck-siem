@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-config
+  namespace: siem
+data:
+  metricbeat.yml: |
+    metricbeat:
+      modules:
+        - hosts:
+            - <a rel="noreferrer noopener" title="https://localhost:<port" target="_blank">https://localhost:<port</a> number>
+          metricsets:
+            - ccr
+            - cluster_stats
+            - enrich
+            - index
+            - index_recovery
+            - ingest_pipeline
+            - index_summary
+            - ml_job
+            - node_stats
+            - pending_tasks
+            - shard
+          ingest.processor_sample_rate: 0.1
+          module: elasticsearch
+          password: ${INTERNAL_MONITORING_PASSWORD}
+          period: 10s
+          ssl:
+            certificate_authorities:
+                - /mnt/elastic-internal/es-monitoring/siem/elasticsearch/certs/ca.crt
+            enabled: true
+            verification_mode: certificate
+          username: elastic-internal-monitoring
+          xpack:
+            enabled: true
+    output:
+        elasticsearch:
+            hosts:
+                - <a rel="noreferrer noopener" title="https://monitor-es-http.es-monitoring.svc:<port" target="_blank">https://monitor-es-http.es-monitoring.svc:<port</a> number>
+            password: ${MONITORING_PASSWORD}
+            ssl:
+                certificate_authorities:
+                    - /mnt/elastic-internal/es-monitoring-association/es-monitoring/monitor/certs/ca.crt
+                verification_mode: certificate
+            username: siem-elasticsearch-es-monitoring-monitor-beat-es-mon-user
+    processors:
+        - add_cloud_metadata: null
+        - add_host_metadata: null
