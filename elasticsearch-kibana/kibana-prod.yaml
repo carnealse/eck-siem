@@ -1,0 +1,221 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+  namespace: siem
+spec:
+  version: 9.3.0
+  count: 3
+  image: <relevant link data here>/kibana/kibana:9.3.0
+  elasticsearchRef:
+    name: elasticsearch
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: false
+        subjectAltNames:
+        - dns: <relevant link data here>
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - name: https
+            nodePort: 30442
+            port: 5601
+            protocol: TCP
+            targetPort: 5601
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+    logs:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+  podTemplate:
+    metadata:
+      labels:
+        kibana-instance: kibana
+    spec:
+      automountServiceAccountToken: true
+      volumes:
+        - name: trusted-ca
+          configMap:
+            name: remote-certs
+      containers:
+        - name: metricbeat
+          imagePullPolicy: Always
+          image: <relevant link data here>/beats/metricbeat:9.3.0
+        - name: filebeat
+          imagePullPolicy: Always
+          image: <relevant link data here>/beats/filebeat:9.3.0
+        - name: kibana
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=85.0"
+            - name: LOGSTASH_SERVER_CA_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-server
+                  key: ca.crt
+            - name: LOGSTASH_AGENTS_SSL_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-agents
+                  key: tls.crt
+            - name: LOGSTASH_AGENTS_SSL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-agents
+                  key: tls.key
+            - name: LOGSTASH_NEXUS_SSL_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-cat-nexus
+                  key: tls.crt
+            - name: LOGSTASH_NEXUS_SSL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-cat-nexus
+                  key: tls.key
+            - name: LOGSTASH_CAT_K8S_DEV_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-cat-k8s-dev
+                  key: tls.crt
+            - name: LOGSTASH_CAT_K8S_DEV_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: logstash-certs-cat-k8s-dev
+                  key: tls.key
+            - name: NODE_EXTRA_CA_CERTS
+              value: /usr/share/kibana/config/external-trust/ca.crt
+          volumeMounts:
+            - name: trusted-ca
+              mountPath: /usr/share/kibana/config/external-trust
+              readOnly: true
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            kibana.k8s.elastic.co/name: kibana
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+  config:
+    # Configs to permit large CSV exports
+    elasticsearch.requestTimeout: 120000 # how long kibabna will wait for elasticsearch to respond
+    xpack.reporting.csv.maxSizeBytes: 50mb # max size for export
+    xpack.reporting.queue.timeout: 5m # timeout for reporting job
+    xpack.reporting.csv.scroll.duration: 5m # scroll window expiration
+    xpack.reporting.csv.scroll.size: 500 # scroll window batch size
+    xpack.cases.analytics.index.enabled: true # Enable Cases Index
+    xpack.integration_assistant.enabled: false # Address CVE-2025-25012
+    xpack.security.authc.providers:
+      saml.okta-mil:
+        order: 1
+        realm: "okta-mil"
+        accessAgreement:
+          message: |
+            BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES.
+            UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES.
+            INFORMATION SYSTEM USAGE MAY BE MONITORED, RECORDED, AND SUBJECT TO AUDIT.
+      saml.okta-icam:
+        order: 2
+        realm: "okta-icam"
+        accessAgreement:
+          message: |
+            BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES.
+            UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES.
+            INFORMATION SYSTEM USAGE MAY BE MONITORED, RECORDED, AND SUBJECT TO AUDIT.
+
+      # Keep this enabled: The ECK operator uses basic auth to communicate with Kibana
+      basic.basic1:
+        order: 3
+    xpack.reporting.csv.maxSizeBytes: 50mb
+    xpack.reporting.queue.timeout: 4m
+    xpack.fleet.registryUrl: "https://<relevant link data here>:<relevant port data here>"
+    # xpack.fleet.registryUrl: "http://package-registry-secops-bb-prod.ecs.secops.secops-bb-prod.kesselrun.us:8080/"
+    xpack.fleet.agents.elasticsearch.hosts: ["https://<relevant link data here>:<relevant port data here>"]
+    xpack.fleet.agents.fleet_server.hosts: ["https://<relevant link data here>:<relevant port data here>"]
+    xpack.fleet.packages:
+      - name: system
+        version: latest
+      - name: elastic_agent
+        version: latest
+      - name: fleet_server
+        version: latest
+    xpack.fleet.agentPolicies:
+      - name: Fleet Server on ECK policy
+        id: eck-fleet-server
+        namespace: siem
+        monitoring_enabled:
+          - logs
+          - metrics
+        unenroll_timeout: 900
+        package_policies:
+          - name: fleet_server-1
+            id: fleet_server-1
+            package:
+              name: fleet_server
+      - name: Elastic Agent for AWS SQS Ingestion
+        id: eck-agent
+        namespace: siem
+        monitoring_enabled:
+          - logs
+          - metrics
+        unenroll_timeout: 900
+        package_policies:
+          - name: system-1
+            id: system-1
+            package:
+              name: system
+      - name: Local Agents
+        id: local-agents-1
+        namespace: siem
+        monitoring_enabled:
+          - logs
+          - metrics
+        unenroll_timeout: 900
+        package_policies:
+          - name: system-1
+            id: system-1
+            package:
+              name: system
+    xpack.fleet.outputs:
+      - id: logstash-ssl
+        name: Logstash Agent mTLS
+        type: logstash
+        hosts: ["logstash-ls-ingest.siem.svc:5044"]
+        ssl:
+          certificate: ${LOGSTASH_AGENTS_SSL_CERT}
+          certificate_authorities: [ "${LOGSTASH_SERVER_CA_CERT}" ]
+        secrets:
+          ssl:
+            key: ${LOGSTASH_AGENTS_SSL_KEY}
+      - id: logstash-nexus
+        name: Nexus Logstash mTLS
+        type: logstash
+        hosts: ["logstash-tcp.sec.kesselrun.us:443"]
+        ssl:
+          certificate: ${LOGSTASH_NEXUS_SSL_CERT}
+          certificate_authorities: [ "${LOGSTASH_SERVER_CA_CERT}" ]
+        secrets:
+          ssl:
+            key: ${LOGSTASH_NEXUS_SSL_KEY}
+      - id: logstash-cat-k8s-dev
+        name: CAT k8s Logstash mTLS
+        type: logstash
+        hosts: ["logstash-tcp.sec.kesselrun.us:443"]
+        ssl:
+          certificate: ${LOGSTASH_CAT_K8S_DEV_CERT}
+          certificate_authorities: [ "${LOGSTASH_SERVER_CA_CERT}" ]
+        secrets:
+          ssl:
+            key: ${LOGSTASH_CAT_K8S_DEV_KEY}
