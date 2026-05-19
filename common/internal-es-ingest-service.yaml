@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-es-ingest-nodes
+  namespace: siem
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: <port number>
+      targetPort: <port number>
+  selector:
+    elasticsearch.k8s.elastic.co/cluster-name: "elasticsearch"
+    elasticsearch.k8s.elastic.co/node-ingest: "true"
