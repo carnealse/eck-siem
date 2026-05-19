@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: siem
+  labels:
+    license.k8s.elastic.co/scope: operator
+  name: eck-license
+type: Opaque
+data:
+  license: "<the license goes here>"
