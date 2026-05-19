@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kibana-vsvc
+  namespace: siem
+spec:
+  gateways:
+    - istio-gateway/public-ingressgateway
+  hosts:
+    - kibana.sec.kesselrun.us
+  http:
+    - route:
+        - destination:
+            host: <relevant path data here>
+            port:
+              number: 5601
+ 
