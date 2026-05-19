@@ -1,0 +1,477 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: siem
+spec:
+  version: 9.3.0
+  image: <relevant link data goes here>/elasticsearch/elasticsearch:9.3.0
+  http:
+    tls:
+      selfSignedCertificate:
+        subjectAltNames:
+        - dns: external-es-ingest-nodes.siem.svc
+        - dns: internal-es-ingest-nodes.siem.svc
+  transport:
+    tls:
+      certificateAuthorities:
+        configMapName: remote-certs
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+    logs:
+      elasticsearchRefs:
+      - name: monitor
+        namespace: es-monitoring
+  podDisruptionBudget:
+    spec:
+      maxUnavailable: 1
+      selector:
+        matchLabels:
+          elasticsearch.k8s.elastic.co/cluster-name: elasticsearch
+  nodeSets:
+    - name: master-b
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+            storageClassName: gp3t
+      podTemplate:
+        metadata: &masterPodTemplateMetadata
+          annotations:
+            traffic.sidecar.istio.io/includeInboundPorts: "*"
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9300"
+            traffic.sidecar.istio.io/excludeInboundPorts: "9300"
+            eks.amazonaws.com/role-arn: arn:<relevant iam data goes here>:role/<relevant role data here>
+        spec: &masterPodTemplateSpec
+          initContainers:
+            - name: sysctl
+              securityContext:
+                privileged: true
+                runAsUser: 0
+              resources:
+                requests:
+                  memory: 100Mi
+                  cpu: "50m"
+                limits:
+                  memory: 200Mi
+              command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+          affinity:
+            # This podAntiAffinity rule prevents the scheduling of master nodes
+            # on the same EKS node.
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: elasticsearch.k8s.elastic.co/node-master
+                    operator: In
+                    values:
+                    - "true"
+                topologyKey: kubernetes.io/hostname
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-master-b
+          serviceAccountName: elastic-node
+          automountServiceAccountToken: true
+          securityContext:
+            # This grants the elasticsearch user group ownership on any mounted volumes
+            fsGroup: 1000
+          containers:
+            - &masterPodTemplateSpecContainersAuditlog
+              name: auditlog
+              imagePullPolicy: Always
+              image: <relevant link data goes here>/beats/filebeat:9.3.0
+              resources:
+                requests:
+                  memory: 500Mi
+                  cpu: "50m"
+                limits:
+                  memory: 1000Mi
+              env:
+              - name: ES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: elasticsearch-es-elastic-user
+                    key: elastic
+              volumeMounts:
+              - name: auditlog-yml
+                mountPath: /usr/share/filebeat/config
+              - name: elasticsearch-logs
+                mountPath: /usr/share/elasticsearch/logs
+              - name: auditlog-data
+                mountPath: /usr/share/filebeat/data
+              - name: client-certs
+                readOnly: true
+                mountPath: /usr/share/filebeat/certs
+              args:
+                - "-c"
+                - "/usr/share/filebeat/config/filebeat.yml"
+                - "-e"
+            - &masterPodTemplateSpecContainersMetricbeat
+              name: metricbeat
+              imagePullPolicy: Always
+              image: <relevant link data goes here>/beats/metricbeat:9.3.0
+              resources:
+                requests:
+                  memory: 500Mi
+                  cpu: 50m
+                limits:
+                  memory: 1024Mi
+              env:
+              - name: INTERNAL_MONITORING_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: elastic-internal-monitoring
+                    key: elastic-internal-monitoring
+              - name: MONITORING_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: elasticsearch-es-monitoring-monitor-beat-es-mon-user
+                    key: siem-elasticsearch-es-monitoring-monitor-beat-es-mon-user
+              volumeMounts:
+                - name: metricbeat-yml
+                  mountPath: /etc/custom-metric-config/metricbeat.yml
+                  subPath: metricbeat.yml
+              args:
+                - "-c"
+                - "/etc/custom-metric-config/metricbeat.yml"
+                - "-e"
+            - &masterPodTemplateSpecContainersFilebeat
+              name: filebeat
+              imagePullPolicy: Always
+              image: <relevant link data goes here>/beats/filebeat:9.3.0
+              resources:
+                requests:
+                  memory: 100Mi
+                  cpu: "50m"
+                limits:
+                  memory: 500Mi
+            - &masterPodTemplateSpecContainersElasticsearch
+              name: elasticsearch
+              imagePullPolicy: Always
+              env:
+                - name: ES_JAVA_OPTS
+                  value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=85.0"
+              volumeMounts:
+                - name: elasticsearch-saml-metadata
+                  mountPath: /usr/share/elasticsearch/config/saml/mil
+                - name: elasticsearch-icam-saml-metadata
+                  mountPath: /usr/share/elasticsearch/config/saml/icam
+                - name: aws-iam-token
+                  mountPath: /usr/share/elasticsearch/config/repository-s3
+                - name: remote-certs
+                  mountPath: /usr/share/elasticsearch/config/remote-certs
+                - name: elastic-llm-models
+                  mountPath: /usr/share/elasticsearch/config/models
+                  readOnly: true
+          volumes:
+            - name: auditlog-yml
+              configMap:
+                name: auditlog-config
+                items:
+                - key: filebeat.yml
+                  path: filebeat.yml
+            - name: metricbeat-yml
+              configMap:
+                name: metrics-config
+            - name: auditlog-data
+              emptyDir: {}
+            - name: client-certs
+              secret:
+                secretName: logstash-certs-auditlog
+            - name: aws-iam-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      audience: sts.amazonaws.com
+                      expirationSeconds: 86400
+                      path: aws-web-identity-token-file
+            - name: elasticsearch-saml-metadata
+              secret:
+                secretName: elasticsearch-saml-metadata
+            - name: elasticsearch-icam-saml-metadata
+              secret:
+                secretName: elasticsearch-icam-saml-metadata
+            - name: remote-certs
+              configMap:
+                name: remote-certs
+            - name: elastic-llm-models
+              persistentVolumeClaim:
+                claimName: elastic-llm-pvc
+      config: &masterConfig
+        node.roles: ["master", "remote_cluster_client"]
+        cluster.routing.allocation.awareness.attributes: k8s_node_name
+        s3.client.default.endpoint: s3.us-gov-west-1.amazonaws.com
+        xpack.ml.model_repository: file://${path.home}/config/models/
+        xpack.security:
+          audit.enabled: true
+          authc:
+            # oidc.ignore_invalid_content_type: true
+            token:
+              enabled: true
+            realms: &realms
+              saml:
+                okta-mil:
+                  attributes.principal: nameid
+                  attributes.groups: groups
+                  idp.entity_id: http://<relevant link data goes here>
+                  idp.metadata.path: /usr/share/elasticsearch/config/<relevant path data goes here>.xml
+                  order: 1
+                  sp.acs: https://<relevant link data goes here>
+                  sp.entity_id: https://<relevant link data goes here>
+                  sp.logout: https://<relevant link data goes here>
+                okta-icam:
+                  attributes.principal: nameid
+                  attributes.groups: groups
+                  idp.entity_id: http://<relevant link data goes here>
+                  idp.metadata.path: /usr/share/elasticsearch/config/saml/<relevant path data goes here>
+                  order: 2
+                  sp.acs: https://<relevant link data goes here>
+                  sp.entity_id: https://<relevant link data goes here>
+                  sp.logout: https://<relevant link data goes here>
+        xpack.http.ssl.certificate_authorities: ["/usr/share/elasticsearch/config/remote-certs/ca.crt"]
+        xpack.security.http.ssl.certificate_authorities: ["/usr/share/elasticsearch/config/remote-certs/ca.crt"]
+
+    - name: ml-b
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+            storageClassName: gp3t
+      podTemplate:
+        metadata:
+          # Merging in pod template metadata from master node; add overrides below
+          <<: *masterPodTemplateMetadata
+        spec:
+          # Merging in pod template spec from master node; add overrides below
+          <<: *masterPodTemplateSpec
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: elasticsearch.k8s.elastic.co/node-ml
+                    operator: In
+                    values:
+                    - "true"
+                topologyKey: kubernetes.io/hostname
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-ml-b
+          containers: # These aliases bring in each container individually
+            - *masterPodTemplateSpecContainersAuditlog
+            - *masterPodTemplateSpecContainersMetricbeat
+            - *masterPodTemplateSpecContainersFilebeat
+            - *masterPodTemplateSpecContainersElasticsearch
+            # Merge the elasticsearch spec from master with the env var override
+            # - <<: *masterPodTemplateSpecContainersElasticsearch
+            #   env:
+            #     - name: ES_JAVA_OPTS
+            #       value: "-Xms24g -Xmx24g"
+      config:
+        # Merging in config from master node; add overrides below
+        <<: *masterConfig
+        node.roles: ["ml", "remote_cluster_client"]
+
+    - name: ingest-transform-b
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+            storageClassName: gp3t
+      podTemplate:
+        metadata:
+          # Merging in pod template metadata from master node; add overrides below
+          <<: *masterPodTemplateMetadata
+          labels:
+            co.elastic.metrics/metricsets: ingest_pipeline
+        spec:
+          # Merging in pod template spec from master node; add overrides below
+          <<: *masterPodTemplateSpec
+          # Affinity disabled for ingest nodes. No data persistance concerns so can
+          # be scheduled anywhere.
+          affinity: {}
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-ingest-transform-b
+      config:
+        # Merging in config from master node; add overrides below
+        <<: *masterConfig
+        node.roles: ["ingest", "transform", "remote_cluster_client"]
+
+    - name: data-hot-b
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 50Gi
+            storageClassName: elastic-data-tput250
+      podTemplate:
+        metadata:
+          # Merging in pod template metadata from master node; add overrides below
+          <<: *masterPodTemplateMetadata
+        spec:
+          # Merging in pod template spec from master node; add overrides below
+          <<: *masterPodTemplateSpec
+          affinity:
+            # This podAntiAffinity rule prevents the scheduling of hot nodes
+            # with any other data node.
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: elasticsearch.k8s.elastic.co/cluster-name
+                    operator: In
+                    values:
+                    - elasticsearch
+                topologyKey: kubernetes.io/hostname
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-data-hot-b
+      config:
+        # Merging in config from master node; add overrides below
+        <<: *masterConfig
+        node.roles: ["data_hot", "data_content", "remote_cluster_client"]
+
+    - name: data-warm-b
+      count: 1 # placeholder, this is controlled by autoscaler
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 50Gi
+            storageClassName: elastic-data-retain
+      podTemplate:
+        metadata:
+          # Merging in pod template metadata from master node; add overrides below
+          <<: *masterPodTemplateMetadata
+        spec:
+          # Merging in pod template spec from master node; add overrides below
+          <<: *masterPodTemplateSpec
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: elasticsearch.k8s.elastic.co/node-data_warm
+                    operator: In
+                    values:
+                    - "true"
+                topologyKey: kubernetes.io/hostname
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-data-warm-b
+      config:
+        # Merging in config from master node; add overrides below
+        <<: *masterConfig
+        node.roles: ["data_warm", "remote_cluster_client"]
+
+    - name: data-frozen-b
+      count: 6 
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 200Gi
+            storageClassName: elastic-data-tput250
+      podTemplate:
+        metadata:
+          # Merging in pod template metadata from master node; add overrides below
+          <<: *masterPodTemplateMetadata
+        spec:
+          <<: *masterPodTemplateSpec
+          containers:
+            - *masterPodTemplateSpecContainersAuditlog
+            - *masterPodTemplateSpecContainersMetricbeat
+            - *masterPodTemplateSpecContainersFilebeat
+            - <<: *masterPodTemplateSpecContainersElasticsearch
+              resources:
+                requests:
+                  cpu: 2
+                  memory: 4Gi
+                limits:
+                  cpu: 4
+                  memory: 8Gi
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: elasticsearch.k8s.elastic.co/node-data_frozen
+                    operator: In
+                    values:
+                    - "true"
+                topologyKey: kubernetes.io/hostname
+          # Merging in pod template spec from master node; add overrides below
+          # This topologySpreadConstraint causes the ES nodes to be distributed across the AZ
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-data-frozen-b
+
+      config:
+        # Merging in config from master node; add overrides below
+        <<: *masterConfig
+        node.roles: ["data_frozen", "remote_cluster_client"]
+        xpack.searchable.snapshot.shared_cache.size: "79%"
