@@ -1,0 +1,74 @@
+# The fleet-server agent pool is a Deployment that is responsible for managing other
+# agent pools
+apiVersion: agent.k8s.elastic.co/v1alpha1
+kind: Agent
+metadata:
+  name: fleet-server
+  namespace: siem
+spec:
+  version: 9.3.0
+  kibanaRef:
+    name: kibana
+  elasticsearchRefs:
+    - name: elasticsearch
+  http:
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - name: https
+            nodePort: <port number>
+            port: <port number>
+            protocol: TCP
+            targetPort: <port number>
+  mode: fleet
+  fleetServerEnabled: true
+  policyID: eck-fleet-server
+  deployment:
+    replicas: 3
+    podTemplate:
+      spec:
+        automountServiceAccountToken: true
+        terminationGracePeriodSeconds: 10
+        containers:
+          - name: agent
+            image: <relevant link data goes here>/elastic-agent/elastic-agent:9.3.0 
+            resources:
+              limits:
+                memory: 16200Mi # Leave a buffer of 200Mi for the agent-data ramdisk
+              requests:
+                cpu: 500m
+                memory: 16000Mi
+            volumeMounts:
+              - name: agent-data
+                mountPath: /var/lib/elastic-agent/siem/elastic/state
+        securityContext:
+          runAsUser: 0
+        serviceAccountName: elastic-agent
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              agent.k8s.elastic.co/name: fleet-server
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+        volumes:
+        - name: agent-data
+          emptyDir:
+            medium: "Memory"
+            sizeLimit: 200Mi
+---
+## This VPA is set to Off; this allows it to make recommendations without
+## trying to adjust the size of the pods
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: fleet-server-agent
+  namespace: siem
+spec:
+  updatePolicy:
+    updateMode: "Off"
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fleet-server-agent
