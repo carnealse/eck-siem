@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kibana-monitor-vsvc
+  namespace: es-monitoring
+spec:
+  gateways:
+    - istio-gateway/public-ingressgateway
+  hosts:
+    - <relevant data goes here>
+  http:
+    - route:
+        - destination:
+            host: <relevant data goes here>
+            port:
+              number:  <port number>
