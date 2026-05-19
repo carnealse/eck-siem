@@ -1,0 +1,97 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=confirm
+    storageclass.kubernetes.io/is-default-class: "false"
+parameters:
+  fsType: ext4
+  type: gp2
+provisioner: kubernetes.io/aws-ebs
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3t
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=confirm
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+  tagSpecification_1: "id-auto-delete=false"
+  tagSpecification_2: "id-environment=production"
+  tagSpecification_3: "id-iac-generated=true"
+  tagSpecification_4: "id-iac-source-repo=eck-siem"
+  tagSpecification_5: "id-owner-email=secops@kr.af.mil"
+  tagSpecification_6: "id-patch-window=WN"
+  tagSpecification_7: "id-snapshots=false"
+  tagSpecification_8: "id-team=SecOps"
+  tagSpecification_9: "id-workload=secops-siem"
+  tagSpecification_10: "id-backup-frequency=weekly"
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: elastic-data-retain
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=confirm
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+  tagSpecification_1: "id-auto-delete=false"
+  tagSpecification_2: "id-environment=production"
+  tagSpecification_3: "id-iac-generated=true"
+  tagSpecification_4: "id-iac-source-repo=eck-siem"
+  tagSpecification_5: "id-owner-email=secops@kr.af.mil"
+  tagSpecification_6: "id-patch-window=WN"
+  tagSpecification_7: "id-snapshots=false"
+  tagSpecification_8: "id-team=SecOps"
+  tagSpecification_9: "id-workload=secops-siem"
+  tagSpecification_10: "id-backup-frequency=weekly"
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: elastic-data-tput250
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=confirm
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+  throughput: "250"
+  encrypted: "true"
+  tagSpecification_1: "id-auto-delete=false"
+  tagSpecification_2: "id-environment=production"
+  tagSpecification_3: "id-iac-generated=true"
+  tagSpecification_4: "id-iac-source-repo=eck-siem"
+  tagSpecification_5: "id-owner-email=secops@kr.af.mil"
+  tagSpecification_6: "id-patch-window=WN"
+  tagSpecification_7: "id-snapshots=false"
+  tagSpecification_8: "id-team=SecOps"
+  tagSpecification_9: "id-workload=secops-siem"
+  tagSpecification_10: "id-backup-frequency=weekly"
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+# ---
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: local-storage
+# provisioner: kubernetes.io/no-provisioner
+# volumeBindingMode: WaitForFirstConsumer
