@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elastic-llm-pv
+  namespace: siem
+spec:
+  capacity:
+    storage: 1200Gi # Ignored, required
+  accessModes:
+    - ReadOnlyMany # Supported options: ReadWriteMany / ReadOnlyMany
+  mountOptions:
+    - allow-other
+    - uid 1000
+    - gid 1000
+    - read-only
+    - region us-gov-west-1
+  storageClassName: "" # Required for static provisioning
+  claimRef: # To ensure no other PVCs can claim this PV
+    namespace: siem # Namespace is required even though it's in "default" namespace.
+    name: elastic-llm-pvc # Name of your PVC
+  csi:
+    driver: s3.csi.aws.com
+    volumeHandle: elastic-llm-volume # Must be unique
+    volumeAttributes:
+      bucketName: elastic-siem-secops-bb-prod-llm-models
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elastic-llm-pvc
+  namespace: siem
+spec:
+  accessModes:
+    - ReadOnlyMany # Supported options: ReadWriteMany / ReadOnlyMany
+  storageClassName: "" # Required for static provisioning
+  resources:
+    requests:
+      storage: 1200Gi # Ignored, required
+  volumeName: elastic-llm-pv # Name of your PV
