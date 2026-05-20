@@ -1,0 +1,75 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+buildMetadata:
+  - originAnnotations
+labels:
+  - pairs:
+      app.kubernetes.io/instance: argocd-argocd
+      app.kubernetes.io/managed-by: kustomize
+      app.kubernetes.io/part-of: argocd
+      app.kubernetes.io/version: v2.14.11
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  # - argocd-applications.yaml
+  # - argocd-appprojects.yaml
+  - argocd-cm.yaml
+  - argocd-cmd-params-cm.yaml
+  # - argocd-notifications-cm.yaml
+  - argocd-rbac-cm.yaml
+  # - argocd-repo-creds.yaml
+  # - argocd-repositories.yaml
+  # - argocd-ssh-known-hosts-cm.yaml
+  # - argocd-tls-certs-cm.yaml
+
+# We build these secrets here in base because they will be the same in dev or prod
+# - A "repo-creds" secret has credentials that can be used for multiple repos
+# - A "repository" secret defines a single instance of a repo
+secretGenerator:
+- name: gitlab-https-creds
+  namespace: argocd
+  options:
+    labels:
+      argocd.argoproj.io/secret-type: repo-creds
+  literals:
+    - url=https://gitlab.<relevant link data goes here>
+    - type=git
+    # Username doesn't matter to gitlab, it just can't be blank
+    - username=seceng_argocd
+  envs:
+    - github-password.env
+
+  # This creates a repository; the creds are blank so it will use the repo-creds above
+- name: eck-siem
+  namespace: argocd
+  options:
+    labels:
+      argocd.argoproj.io/secret-type: repository
+  literals:
+    - name=eck-siem
+    - url=https://gitlab.<relevant link data goes here>.git
+- name: docker-proxy
+  namespace: argocd
+  options:
+    labels:
+      argocd.argoproj.io/secret-type: repository
+  literals:
+    - name=docker-proxy
+    - type=helm
+    - url=docker-proxy.nexus.kesselrun.us
+  envs:
+    - nexus-creds.env
+- name: secops-ecr
+  namespace: argocd
+  options:
+    labels:
+      argocd.argoproj.io/secret-type: repository
+  literals:
+    - name=secops-ecr
+    - type=helm
+    - enableOCI="true"
+    - url=<relevant link data goes here>
+    - username=AWS
+  envs:
+    - ecr-password.env
