@@ -1,7 +1,7 @@
 filter {
   if "_csvparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_csvparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -9,7 +9,7 @@ filter {
 
   if "_dateparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_dateparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -17,7 +17,7 @@ filter {
 
   if "_dissectfailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_dissectfailure in %{[error][source_pipeline]}"
       }
     }
@@ -25,7 +25,7 @@ filter {
 
   if "_elasticsearch_lookup_failure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_elasticsearch_lookup_failure in %{[error][source_pipeline]}"
       }
     }
@@ -33,7 +33,7 @@ filter {
 
   if "_geoip_lookup_failure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_geoip_lookup_failure in %{[error][source_pipeline]}"
       }
     }
@@ -41,7 +41,7 @@ filter {
 
   if "_grok_kv_parse_failure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_grok_kv_parse_failure in %{[error][source_pipeline]}"
       }
     }
@@ -49,7 +49,7 @@ filter {
 
   if "_grokparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_grokparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -57,7 +57,7 @@ filter {
 
   if "_jsonparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_jsonparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -65,7 +65,7 @@ filter {
 
   if "_kvparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_kvparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -73,7 +73,7 @@ filter {
 
   if "_multilineparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_multilineparsefailure in %{[error][source_pipeline]}"
       }
     }
@@ -82,7 +82,7 @@ filter {
 
   if "_rubyexception" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_rubyexception in %{[error][source_pipeline]}"
       }
     }
@@ -90,9 +90,9 @@ filter {
 
   if "_xmlparsefailure" in [tags] {
     mutate {
-      add_field => { 
+      replace => { 
         "[error][detail]" => "_xmlparsefailure in %{[error][source_pipeline]}"
       }
     }
   }
-}
+} 
