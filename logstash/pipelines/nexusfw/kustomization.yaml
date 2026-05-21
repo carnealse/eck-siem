@@ -9,6 +9,7 @@ configMapGenerator:
       - conf/2000-nexusfw-main-parse.conf
       - conf/3000-nexusfw-ecs-mapping.conf
       - conf/6000-nexusfw-cleanup.conf
+      - conf/8000-nexusfw-error-handling.conf
       - conf/9000-nexusfw-output.conf
 
 patches:
