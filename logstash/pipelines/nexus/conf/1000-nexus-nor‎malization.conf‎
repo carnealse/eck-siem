@@ -1,8 +1,6 @@
 filter {
   # This is broken into three message types: main nexus, service, and healthchecker messages. 
   # Healthchecker is captured as is and is not broken into fields.
-
-  # set event original to message
   mutate {
     add_field => {
       "[event][original]" => "%{[message]}"
@@ -10,24 +8,23 @@ filter {
     id => "1000-nexus-preserve-original"
   }
 
-  # check message type (json or not) and add a temp field that will be used for conditionals further down
+  # check message type (json or not) and add a temp field that will be used for conditionals later on
   if [message] =~ /^(\s+)?\{.*\}(\s+)?$/ {
     mutate {
       add_field => { "isJson" => "true" }
       id => "1000-nexus-detect-json"
     }
   } else if !([message] =~ /^\{.*\}$/) {
-      mutate {
-        add_field => { "isJson" => "false" }
-        id => "1000-nexus-detect-non-json"
-      }
+    mutate {
+      add_field => { "isJson" => "false" }
+      id => "1000-nexus-detect-non-json"
     }
+  }
 
-  # update the tags field
   mutate {
-    id => "update_tags"
-    replace  => {
-      "tags" => "logstash"
+    id => "1000-nexus-update-tags"
+    replace => {
+      "tags" => ["logstash"]
     }
   }
 }
