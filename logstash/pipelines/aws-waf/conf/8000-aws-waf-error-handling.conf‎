@@ -1,67 +1,129 @@
 filter {
   if "_jsonparsefailure" in [tags] {
-    mutate {
-      id => "8000-aws-waf-jsonparsefailure"
-      add_field => { "[error][message]" => "json parsing failed" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_dateparsefailure" in [tags] {
-    mutate {
-      id => "8000-aws-waf-dateparsefailure"
-      add_field => { "[error][message]" => "date parsing failed" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_mutate_error" in [tags] {
-    mutate {
-      id => "8000-aws-waf-mutate-error"
-      add_field => { "[error][message]" => "mutate error occurred" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
-    mutate {
-      id => "8000-aws-waf-rubyexception"
-      add_field => { "[error][message]" => "An exception occurred in the ruby code" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_geoip_lookup_failure" in [tags] {
-    mutate {
-      id => "8000-aws-waf-geoip-lookup-failure"
-      add_field => { "[error][message]" => "geoip lookup failed" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_grokparsefailure" in [tags] {
-    mutate {
-      id => "8000-aws-waf-grokparsefailure"
-      add_field => { "[error][message]" => "grok parsing failed" }
-      add_tag => ["filter_error"]
-    }
-  }
-  if "_grok_kv_parse_failure" in [tags] {
-    mutate {
-      id => "8000-aws-waf-grok-kv-parse-failure"
-      add_field => { "[error][message]" => "grok kv parsing failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-jsonparsefailure-add"
+        add_field => { "[error][message]" => "json parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-jsonparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
 
-  # consolidate filter errors under one tag and add error fields
+  if "_dateparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-dateparsefailure-add"
+        add_field => { "[error][message]" => "date parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-dateparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | date parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-mutate-error-add"
+        add_field => { "[error][message]" => "mutate error occurred" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-mutate-error-update"
+        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-rubyexception-add"
+        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-rubyexception-update"
+        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  if "_geoip_lookup_failure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-geoip-lookup-failure-add"
+        add_field => { "[error][message]" => "geoip lookup failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-geoip-lookup-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | geoip lookup failed" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  if "_grokparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-grokparsefailure-add"
+        add_field => { "[error][message]" => "grok parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-grokparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  if "_grok_kv_parse_failure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-aws-waf-grok-kv-parse-failure-add"
+        add_field => { "[error][message]" => "grok kv parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-aws-waf-grok-kv-parse-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    }
+  }
+
+  # Consolidate all filter errors under one tag and stamp pipeline metadata
   if "filter_error" in [tags] {
     mutate {
       id => "8000-aws-waf-pipeline-error-consolidation"
       add_tag => ["pipeline_processing_error"]
-      add_field => {
+      replace => {
         "[error][source_pipeline]" => "aws-waf"
         "[error][event_status]"    => "processing_failure"
       }
     }
   }
 
-  # fallback generic error message if none was set
+  # Fallback generic error message if none was set
   if "pipeline_processing_error" in [tags] and ![error][message] {
     mutate {
       id => "8000-aws-waf-generic-error-message"
@@ -69,16 +131,16 @@ filter {
     }
   }
 
-  # set routing to 9000 conf
+  # Set routing path for 9000 output
   if "pipeline_processing_error" in [tags] {
     mutate {
       id => "8000-aws-waf-routing-error"
-      add_field => { "[@metadata][routing_path]" => "error_index" }
+      replace => { "[@metadata][routing_path]" => "error_index" }
     }
   } else {
     mutate {
       id => "8000-aws-waf-routing-standard"
-      add_field => { "[@metadata][routing_path]" => "standard_index" }
+      replace => { "[@metadata][routing_path]" => "standard_index" }
     }
   }
 }
