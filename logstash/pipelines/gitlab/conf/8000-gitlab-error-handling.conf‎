@@ -1,51 +1,113 @@
 filter {
   if "_jsonparsefailure" in [tags] {
-    mutate {
-      id => "8000-gitlab-jsonparsefailure"
-      add_field => { "[error][message]" => "json parsing failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-jsonparsefailure-add"
+        add_field => { "[error][message]" => "json parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-jsonparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_dateparsefailure" in [tags] {
-    mutate {
-      id => "8000-gitlab-dateparsefailure"
-      add_field => { "[error][message]" => "date parsing failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-dateparsefailure-add"
+        add_field => { "[error][message]" => "date parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-dateparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | date parsing failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_mutate_error" in [tags] {
-    mutate {
-      id => "8000-gitlab-mutate-error"
-      add_field => { "[error][message]" => "mutate error occurred" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-mutate-error-add"
+        add_field => { "[error][message]" => "mutate error occurred" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-mutate-error-update"
+        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
-    mutate {
-      id => "8000-gitlab-rubyexception"
-      add_field => { "[error][message]" => "An exception occurred in the ruby code" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-rubyexception-add"
+        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-rubyexception-update"
+        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_geoip_lookup_failure" in [tags] {
-    mutate {
-      id => "8000-gitlab-geoip-lookup-failure"
-      add_field => { "[error][message]" => "geoip lookup failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-geoip-lookup-failure-add"
+        add_field => { "[error][message]" => "geoip lookup failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-geoip-lookup-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | geoip lookup failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_grokparsefailure" in [tags] {
-    mutate {
-      id => "8000-gitlab-grokparsefailure"
-      add_field => { "[error][message]" => "grok parsing failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-grokparsefailure-add"
+        add_field => { "[error][message]" => "grok parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-grokparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok parsing failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
+
   if "_grok_kv_parse_failure" in [tags] {
-    mutate {
-      id => "8000-gitlab-grok-kv-parse-failure"
-      add_field => { "[error][message]" => "grok kv parsing failed" }
-      add_tag => ["filter_error"]
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-grok-kv-parse-failure-add"
+        add_field => { "[error][message]" => "grok kv parsing failed" }
+        add_tag => ["filter_error"]
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-grok-kv-parse-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
+        add_tag => ["filter_error"]
+      }
     }
   }
 
@@ -54,7 +116,7 @@ filter {
     mutate {
       id => "8000-gitlab-pipeline-error-consolidation"
       add_tag => ["pipeline_processing_error"]
-      add_field => {
+      replace => {
         "[error][source_pipeline]" => "gitlab"
         "[error][event_status]"    => "processing_failure"
       }
@@ -73,12 +135,12 @@ filter {
   if "pipeline_processing_error" in [tags] {
     mutate {
       id => "8000-gitlab-routing-error"
-      add_field => { "[@metadata][routing_path]" => "error_index" }
+      replace => { "[@metadata][routing_path]" => "error_index" }
     }
   } else {
     mutate {
       id => "8000-gitlab-routing-standard"
-      add_field => { "[@metadata][routing_path]" => "standard_index" }
+      replace => { "[@metadata][routing_path]" => "standard_index" }
     }
   }
 }
