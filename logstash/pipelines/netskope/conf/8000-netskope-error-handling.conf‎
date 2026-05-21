@@ -2,49 +2,49 @@ filter {
   if "_jsonparsefailure" in [tags] {
     mutate {
       id => "8000-netskope-jsonparsefailure"
-      add_field => { "[error][message]" => "json parsing failed" }
+      replace => { "[error][message]" => "json parsing failed" }
       add_tag => ["filter_error"]
     }
   }
   if "_dateparsefailure" in [tags] {
     mutate {
       id => "8000-netskope-dateparsefailure"
-      add_field => { "[error][message]" => "date parsing failed" }
+      replace => { "[error][message]" => "date parsing failed" }
       add_tag => ["filter_error"]
     }
   }
   if "_mutate_error" in [tags] {
     mutate {
       id => "8000-netskope-mutate-error"
-      add_field => { "[error][message]" => "mutate error occurred" }
+      replace => { "[error][message]" => "mutate error occurred" }
       add_tag => ["filter_error"]
     }
   }
   if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
     mutate {
       id => "8000-netskope-rubyexception"
-      add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+      replace => { "[error][message]" => "An exception occurred in the ruby code" }
       add_tag => ["filter_error"]
     }
   }
   if "_geoip_lookup_failure" in [tags] {
     mutate {
       id => "8000-netskope-geoip-lookup-failure"
-      add_field => { "[error][message]" => "geoip lookup failed" }
+      replace => { "[error][message]" => "geoip lookup failed" }
       add_tag => ["filter_error"]
     }
   }
   if "_grokparsefailure" in [tags] {
     mutate {
       id => "8000-netskope-grokparsefailure"
-      add_field => { "[error][message]" => "grok parsing failed" }
+      replace => { "[error][message]" => "grok parsing failed" }
       add_tag => ["filter_error"]
     }
   }
   if "_grok_kv_parse_failure" in [tags] {
     mutate {
       id => "8000-netskope-grok-kv-parse-failure"
-      add_field => { "[error][message]" => "grok kv parsing failed" }
+      replace => { "[error][message]" => "grok kv parsing failed" }
       add_tag => ["filter_error"]
     }
   }
@@ -54,7 +54,7 @@ filter {
     mutate {
       id => "8000-netskope-pipeline-error-consolidation"
       add_tag => ["pipeline_processing_error"]
-      add_field => {
+      replace => {
         "[error][source_pipeline]" => "netskope"
         "[error][event_status]"    => "processing_failure"
       }
@@ -65,7 +65,7 @@ filter {
   if "pipeline_processing_error" in [tags] and ![error][message] {
     mutate {
       id => "8000-netskope-generic-error-message"
-      add_field => { "[error][message]" => "netskope generic pipeline processing failure" }
+      replace => { "[error][message]" => "netskope generic pipeline processing failure" }
     }
   }
 
@@ -73,12 +73,12 @@ filter {
   if "pipeline_processing_error" in [tags] {
     mutate {
       id => "8000-netskope-routing-error"
-      add_field => { "[@metadata][routing_path]" => "error_index" }
+      replace => { "[@metadata][routing_path]" => "error_index" }
     }
   } else {
     mutate {
       id => "8000-netskope-routing-standard"
-      add_field => { "[@metadata][routing_path]" => "standard_index" }
+      replace => { "[@metadata][routing_path]" => "standard_index" }
     }
   }
 }
