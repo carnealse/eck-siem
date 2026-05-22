@@ -79,6 +79,14 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] {
+    if ![error][detail] {
+      mutate { add_field => { "[error][detail]" => "_mutate_error in %{[error][source_pipeline]}" } }
+    } else {
+      mutate { update => { "[error][detail]" => "%{[error][detail]} | _mutate_error in %{[error][source_pipeline]}" } }
+    }
+  }
+
   if "_rubyexception" in [tags] {
     if ![error][detail] {
       mutate { add_field => { "[error][detail]" => "_rubyexception in %{[error][source_pipeline]}" } }
