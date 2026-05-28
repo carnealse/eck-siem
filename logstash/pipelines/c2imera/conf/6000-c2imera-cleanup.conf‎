@@ -23,6 +23,15 @@ filter {
         end
       '
     }
+
+    if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "6000-c2imera-cleanup.conf"
+          "[error][source_plugin_id]" => "6000-c2imera-cleanup-ruby"
+        }
+      }
+    }
   }
 
   mutate {
@@ -33,5 +42,14 @@ filter {
       "temp_ssm", "ssm_action", "ssm_content", "audit_body", "middle_kv", "record_type_raw",
       "legacy_class_info", "[c2imera][audit_body]", "inner_msg_raw"
     ]
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "6000-c2imera-cleanup.conf"
+        "[error][source_plugin_id]" => "6000-c2imera-cleanup-remove-fields"
+      }
+    }
   }
 }

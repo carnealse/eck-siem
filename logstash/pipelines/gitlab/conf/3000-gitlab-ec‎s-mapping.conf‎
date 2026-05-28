@@ -15,8 +15,27 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "gitlab_field_renames"
+      }
+    }
+  }
+
   # add tag to ensure no pipelines remove event original
   mutate {
+    id => "3000-gitlab-ecs-mapping-mutate-19"
     add_tag => ["preserve_original_event"]
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-gitlab-ecs-mapping-mutate-19"
+      }
+    }
   }
 }

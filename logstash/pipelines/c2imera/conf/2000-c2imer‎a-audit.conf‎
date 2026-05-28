@@ -7,16 +7,43 @@ filter {
       }
     }
 
+    if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-c2imera-audit.conf"
+          "[error][source_plugin_id]" => "2000-c2imera-audit-main-grok"
+        }
+      }
+    }
+
     date {
       id => "2000-c2imera-audit-date"
       match => [ "syslog_timestamp", "MMM dd HH:mm:ss", "MMM d HH:mm:ss" ]
       target => "@timestamp"
     }
 
+    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-c2imera-audit.conf"
+          "[error][source_plugin_id]" => "2000-c2imera-audit-date"
+        }
+      }
+    }
+
     mutate {
       id => "2000-c2imera-audit-copy-hostname"
       copy => {
         "hostname" => "[host][hostname]"
+      }
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-c2imera-audit.conf"
+          "[error][source_plugin_id]" => "2000-c2imera-audit-copy-hostname"
+        }
       }
     }
 
@@ -31,6 +58,15 @@ filter {
           }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-grok"
+            }
+          }
+        }
+
         # Cleanup inner_msg quotes/backslashes BEFORE KV
         mutate {
           id => "2000-c2imera-audit-cleanup-msg"
@@ -38,10 +74,28 @@ filter {
           strip => [ "inner_msg" ]
         }
 
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-msg"
+            }
+          }
+        }
+
         grok {
           id => "2000-c2imera-audit-kv-grok"
           match => {
             "middle_kv" => "pid=%{INT:[c2imera][pid]} uid=%{INT:[c2imera][uid]} auid=%{INT:[c2imera][auid]} ses=%{INT:[auditd][log][ses]} subj=%{DATA:[c2imera][subj]}"
+          }
+        }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-kv-grok"
+            }
           }
         }
 
@@ -52,10 +106,28 @@ filter {
           whitespace => "strict"
         }
 
+        if "_kvparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-kv"
+            }
+          }
+        }
+
         if [parsed_audit][res] {
           mutate {
             id => "2000-c2imera-audit-cleanup-res"
             gsub => [ "[parsed_audit][res]", "\\'$", "" ]
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2000-c2imera-audit.conf"
+                "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-res"
+              }
+            }
           }
         }
 
@@ -84,6 +156,15 @@ filter {
           }
         }
 
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-renames"
+            }
+          }
+        }
+
         translate {
           id => "2000-c2imera-audit-topic1-translate"
           source => "[auditd][log][record_type]"
@@ -106,6 +187,15 @@ filter {
           }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-grok"
+            }
+          }
+        }
+
         kv {
           id => "2000-c2imera-avc-kv"
           source => "avc_kv_data"
@@ -113,6 +203,15 @@ filter {
           whitespace => "strict"
           trim_key => "\s"
           trim_value => "\s"
+        }
+
+        if "_kvparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-avc-kv"
+            }
+          }
         }
 
         mutate {
@@ -135,9 +234,27 @@ filter {
           }
         }
 
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-renames"
+            }
+          }
+        }
+
         mutate {
           id => "2000-c2imera-audit-avc-cleanup"
           remove_field => ["avc_kv_data", "temp_avc"]
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-cleanup"
+            }
+          }
         }
       }
     }
@@ -154,20 +271,56 @@ filter {
         }
       }
 
+      if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-c2imera-audit.conf"
+            "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-grok"
+          }
+        }
+      }
+
       if [systemd_action] {
         mutate {
           id => "2000-c2imera-audit-systemd-action-set"
           add_field => { "[event][action]" => "service-%{systemd_action}" }
         }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-set"
+            }
+          }
+        }
         mutate {
           id => "2000-c2imera-audit-systemd-action-lowercase"
           lowercase => [ "[event][action]" ]
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-lowercase"
+            }
+          }
         }
       }
       else if [systemd][message] =~ /Deactivated/ {
         mutate {
           id => "2000-c2imera-audit-systemd-deactivated"
           add_field => { "[event][action]" => "service-stopped" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-c2imera-audit.conf"
+              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-deactivated"
+            }
+          }
         }
       }
 
@@ -178,6 +331,15 @@ filter {
           "[event][dataset]" => "c2imera"
         }
         remove_field => ["systemd_action"]
+      }
+
+      if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-c2imera-audit.conf"
+            "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-final"
+          }
+        }
       }
     }
 
@@ -194,6 +356,15 @@ filter {
           "[event][dataset]" => "c2imera"
         }
         add_tag => ["generic_syslog"]
+      }
+
+      if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-c2imera-audit.conf"
+            "[error][source_plugin_id]" => "2000-c2imera-audit-generic-syslog"
+          }
+        }
       }
     }
   }

@@ -7,13 +7,32 @@ filter {
   }
 
   mutate {
+    id => "1000-gitlab-normalization-mutate-9"
     add_tag => ["logstash"]
     add_field => {"[ecs][version]" => "8.0.0"}
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-gitlab-normalization.conf"
+        "[error][source_plugin_id]" => "1000-gitlab-normalization-mutate-9"
+      }
+    }
   }
 
   json {
     id => "gitlab_json_parse"
     source => "message"
     target => "gitlab"
+  }
+
+  if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-gitlab-normalization.conf"
+        "[error][source_plugin_id]" => "gitlab_json_parse"
+      }
+    }
   }
 }

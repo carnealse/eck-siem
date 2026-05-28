@@ -126,4 +126,13 @@ filter {
       end
     '
   }
+
+  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-cat-dev-main-parse.conf"
+        "[error][source_plugin_id]" => "2000-cat-dev-ruby"
+      }
+    }
+  }
 }

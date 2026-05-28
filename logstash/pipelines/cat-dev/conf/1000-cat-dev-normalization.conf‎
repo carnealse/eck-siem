@@ -5,5 +5,14 @@ filter {
       target => "check_json"
       id => "1000-cat-dev-json"
     }
+
+    if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-cat-dev-normalization.conf"
+          "[error][source_plugin_id]" => "1000-cat-dev-json"
+        }
+      }
+    }
   }
 }

@@ -123,6 +123,17 @@ filter {
     }
   }
 
+  # Keep dashboard attribution fields present when a failure tag was not stamped at source.
+  if "pipeline_processing_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      id => "8000-gitlab-source-attribution-fallback"
+      add_field => {
+        "[error][source_config]"    => "unknown"
+        "[error][source_plugin_id]" => "unknown"
+      }
+    }
+  }
+
   # Fallback generic error message if none was set
   if "pipeline_processing_error" in [tags] and ![error][message] {
     mutate {

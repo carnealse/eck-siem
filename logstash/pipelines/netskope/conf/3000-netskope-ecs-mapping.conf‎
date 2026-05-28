@@ -94,6 +94,15 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "rename_v1"
+      }
+    }
+  }
+
   # rename fields to ECS standards for v2
   mutate {
     id => "rename_v2"
@@ -186,6 +195,15 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "rename_v2"
+      }
+    }
+  }
+
   # rename temps that would clash with same name fields already assigned as strings in above rename
   mutate {
     id => "3000-netskope-temp-mapping"
@@ -194,6 +212,15 @@ filter {
       "[temp][os]"      => "[os]"
       "[temp][url]"     => "[url]"
       "[temp][network]" => "[network]"
+    }
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-netskope-temp-mapping"
+      }
     }
   }
 

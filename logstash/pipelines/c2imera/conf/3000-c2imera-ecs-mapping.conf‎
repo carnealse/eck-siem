@@ -7,5 +7,14 @@ filter {
         "[event][dataset]" => "c2imera"
       }
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-c2imera-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-c2imera-ecs-mapping"
+        }
+      }
+    }
   }
 }

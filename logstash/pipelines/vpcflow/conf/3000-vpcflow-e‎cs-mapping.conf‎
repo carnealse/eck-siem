@@ -13,9 +13,27 @@ filter {
       add_tag => ["no_ip_srcaddr"]
       id => "3000-vpcflow-no-src-tag"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-vpcflow-no-src-tag"
+        }
+      }
+    }
     mutate {
       remove_field => ["[aws][vpcflow][srcaddr]"]
       id => "3000-vpcflow-remove-no-src"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-vpcflow-remove-no-src"
+        }
+      }
     }
   }
 
@@ -33,9 +51,27 @@ filter {
       add_tag => ["no_ip_destaddr"]
       id => "3000-vpcflow-no-dst-tag"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-vpcflow-no-dst-tag"
+        }
+      }
+    }
     mutate {
       remove_field => ["[aws][vpcflow][dstaddr]"]
       id => "3000-vpcflow-remove-no-dst"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-vpcflow-remove-no-dst"
+        }
+      }
     }
   }
 
@@ -49,10 +85,28 @@ filter {
     id => "3000-vpcflow-date-timestamp"
   }
 
+  if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-vpcflow-date-timestamp"
+      }
+    }
+  }
+
   date {
     match => [ "[aws][vpcflow][start]", "UNIX" ]
     target => "[event][start]"
     id => "3000-vpcflow-date-start"
+  }
+
+  if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-vpcflow-date-start"
+      }
+    }
   }
 
   date {
@@ -61,9 +115,27 @@ filter {
     id => "3000-vpcflow-date-end"
   }
 
+  if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-vpcflow-date-end"
+      }
+    }
+  }
+
   mutate {
     remove_field => [ "[aws][vpcflow][start]", "[aws][vpcflow][end]" ]
     id => "3000-vpcflow-cleanup-epochs"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-vpcflow-cleanup-epochs"
+      }
+    }
   }
 
   ruby {
@@ -96,5 +168,14 @@ filter {
           handle_map(event.get("aws"))
         end
     '
+  }
+
+  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-vpcflow-ruby-remove-dashes"
+      }
+    }
   }
 }

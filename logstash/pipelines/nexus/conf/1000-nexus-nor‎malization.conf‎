@@ -8,16 +8,43 @@ filter {
     id => "1000-nexus-preserve-original"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-nexus-normalization.conf"
+        "[error][source_plugin_id]" => "1000-nexus-preserve-original"
+      }
+    }
+  }
+
   # check message type (json or not) and add a temp field that will be used for conditionals later on
   if [message] =~ /^(\s+)?\{.*\}(\s+)?$/ {
     mutate {
       add_field => { "isJson" => "true" }
       id => "1000-nexus-detect-json"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-nexus-normalization.conf"
+          "[error][source_plugin_id]" => "1000-nexus-detect-json"
+        }
+      }
+    }
   } else if !([message] =~ /^\{.*\}$/) {
     mutate {
       add_field => { "isJson" => "false" }
       id => "1000-nexus-detect-non-json"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-nexus-normalization.conf"
+          "[error][source_plugin_id]" => "1000-nexus-detect-non-json"
+        }
+      }
     }
   }
 
@@ -25,6 +52,15 @@ filter {
     id => "1000-nexus-update-tags"
     replace => {
       "tags" => ["logstash"]
+    }
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-nexus-normalization.conf"
+        "[error][source_plugin_id]" => "1000-nexus-update-tags"
+      }
     }
   }
 }

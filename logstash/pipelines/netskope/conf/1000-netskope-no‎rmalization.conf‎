@@ -5,15 +5,42 @@ filter {
     id => "1000-netskope-initial-tag"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-netskope-normalization.conf"
+        "[error][source_plugin_id]" => "1000-netskope-initial-tag"
+      }
+    }
+  }
+
 # process the message json
   json {
     id => "json_process"
     source => "message"
   }
 
+  if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-netskope-normalization.conf"
+        "[error][source_plugin_id]" => "json_process"
+      }
+    }
+  }
+
 # process timestamp
   date {
     match => ["timestamp", "UNIX"]
     id => "1000-netskope-date-timestamp"
+  }
+
+  if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-netskope-normalization.conf"
+        "[error][source_plugin_id]" => "1000-netskope-date-timestamp"
+      }
+    }
   }
 }

@@ -1,6 +1,16 @@
 filter {
   mutate {
+    id => "2001-gitlab-main-parse-mutate-2"
     rename => { "message" => "[event][original]" }
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2001-gitlab-main-parse.conf"
+        "[error][source_plugin_id]" => "2001-gitlab-main-parse-mutate-2"
+      }
+    }
   }
   if [gitlab][created_at] {
     date {
@@ -9,6 +19,15 @@ filter {
       target => "@timestamp"
       remove_field => ["[gitlab][created_at]"]
     }
+
+    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2001-gitlab-main-parse.conf"
+          "[error][source_plugin_id]" => "2001-gitlab-date-created-at"
+        }
+      }
+    }
   }
   if [gitlab][@timestamp] {
     date {
@@ -16,6 +35,15 @@ filter {
       match => ["[gitlab][@timestamp]", "UNIX_MS", "ISO8601", "UNIX"]
       target => "@timestamp"
       remove_field => ["[gitlab][@timestamp]"]
+    }
+
+    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2001-gitlab-main-parse.conf"
+          "[error][source_plugin_id]" => "2001-gitlab-date-timestamp"
+        }
+      }
     }
   }
 }

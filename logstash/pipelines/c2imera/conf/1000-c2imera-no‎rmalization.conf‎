@@ -32,12 +32,30 @@ filter {
         "message", 'PASSWORD\s*=\s*"[^"]*"', 'PASSWORD="[REDACTED]"' 
       ] 
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-c2imera-normalization.conf"
+          "[error][source_plugin_id]" => "1000-c2imera-password-redaction"
+        }
+      }
+    }
   }
 
   # Preserve the message before parsing as per ECS standards
   mutate { 
     replace => { "[event][original]" => "%{message}" } 
     id => "1000-c2imera-preserve-original-message"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-c2imera-normalization.conf"
+        "[error][source_plugin_id]" => "1000-c2imera-preserve-original-message"
+      }
+    }
   }
 
   # =============================================================================
@@ -50,11 +68,29 @@ filter {
       add_field => { "[@metadata][log_lane]" => "java_lane" } 
       id => "1000-c2imera-route-to-java"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-c2imera-normalization.conf"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-java"
+        }
+      }
+    }
   } 
   else if [message] =~ /^\d{17}\s+(INFO|WARNING|ERROR):/ {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "legacy_lane" } 
       id => "1000-c2imera-route-to-legacy"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-c2imera-normalization.conf"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-legacy"
+        }
+      }
     }
   }
   # Priority 2: Audit & Syslog
@@ -63,11 +99,29 @@ filter {
       add_field => { "[@metadata][log_lane]" => "audit_lane" } 
       id => "1000-c2imera-route-to-audit"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-c2imera-normalization.conf"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-audit"
+        }
+      }
+    }
   } 
   else {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "unknown" } 
       id => "1000-c2imera-route-to-unknown"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-c2imera-normalization.conf"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-unknown"
+        }
+      }
     }
   }
 }

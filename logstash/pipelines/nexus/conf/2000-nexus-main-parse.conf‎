@@ -8,6 +8,15 @@ filter {
       source => "message"
     }
 
+    if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "json_process"
+        }
+      }
+    }
+
     # initial renames to ECS
     mutate {
       id => "initial_renames"
@@ -43,6 +52,15 @@ filter {
         "[attributes][wasSuccessful]"            => "[nexus][attributes][was_successful]"
       }
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "initial_renames"
+        }
+      }
+    }
   }
   ### END JSON ONLY PROCESSING ###
 
@@ -55,16 +73,43 @@ filter {
       id => "2000-nexus-convert-string"
     }
 
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-convert-string"
+        }
+      }
+    }
+
     # strip quotes from the message before dissect
     mutate {
       gsub => [ "message", '"', "" ]
       id => "2000-nexus-gsub-quotes"
     }
 
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-gsub-quotes"
+        }
+      }
+    }
+
     # strip unseen leading and trailing spaces
     mutate {
       strip => ["message"]
       id => "2000-nexus-strip-whitespace"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-strip-whitespace"
+        }
+      }
     }
 
     if !("HealthChecker" in [message]) {
@@ -83,12 +128,30 @@ filter {
             add_tag => ["nexus-service"]
             id => "2000-nexus-tag-service"
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                "[error][source_plugin_id]" => "2000-nexus-tag-service"
+              }
+            }
+          }
         }
       } else {
         # no service-token, force fallthrough to non-service dissect
         mutate {
           add_tag => ["_dissectonefailure"]
           id => "2000-nexus-tag-force-nonservice"
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-nexus-main-parse.conf"
+              "[error][source_plugin_id]" => "2000-nexus-tag-force-nonservice"
+            }
+          }
         }
       }
 
@@ -101,16 +164,43 @@ filter {
           tag_on_failure => ["_dissecttwofailure"]
           id => "2000-nexus-dissect-nonservice"
         }
+
+        if "_dissecttwofailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-nexus-main-parse.conf"
+              "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice"
+            }
+          }
+        }
         if !("_dissecttwofailure" in [tags]) {
           mutate {
             add_tag => ["nexus-nonservice"]
             id => "2000-nexus-tag-nonservice"
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                "[error][source_plugin_id]" => "2000-nexus-tag-nonservice"
+              }
+            }
           }
           # clean up placeholder dash captured in email field for unauthenticated requests
           if [user][email] == "-" {
             mutate {
               remove_field => ["[user][email]"]
               id => "2000-nexus-remove-empty-email"
+            }
+
+            if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+              mutate {
+                add_field => {
+                  "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                  "[error][source_plugin_id]" => "2000-nexus-remove-empty-email"
+                }
+              }
             }
           }
         }
@@ -121,6 +211,15 @@ filter {
       mutate {
         add_tag => ["nexus-healthchecker"]
         id => "2000-nexus-tag-healthchecker"
+      }
+
+      if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-nexus-main-parse.conf"
+            "[error][source_plugin_id]" => "2000-nexus-tag-healthchecker"
+          }
+        }
       }
     }
   }

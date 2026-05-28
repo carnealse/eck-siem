@@ -29,10 +29,29 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+        "[error][source_plugin_id]" => "top_level_renames"
+      }
+    }
+  }
+
   # handle unknown case of [http][request][id] already existing errors being logged
   if [http][request][id] {
     mutate {
+      id => "2000-aws-waf-main-parse-mutate-34"
       remove_field => ["[http][request][id]"]
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-aws-waf-main-parse-mutate-34"
+        }
+      }
     }
   }
 
@@ -49,6 +68,15 @@ filter {
       "[aws][waf][terminating_rule][match_details][matchedFieldName]" => "[aws][waf][terminating_rule][match_details][matched][field_name]"
       "[aws][waf][terminating_rule][match_details][matchedData]"      => "[aws][waf][terminating_rule][match_details][matched][matched_data]"
       "[aws][waf][terminating_rule][match_details][conditionType]"    => "[aws][waf][terminating_rule][match_details][condition_type]"
+    }
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+        "[error][source_plugin_id]" => "sub_field_renames"
+      }
     }
   }
 
@@ -71,6 +99,15 @@ filter {
           event.tag("ruby_exception")
       end
     '
+  }
+
+  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+        "[error][source_plugin_id]" => "ruby_headers_array"
+      }
+    }
   }
 
   ruby {
@@ -106,6 +143,15 @@ filter {
     '
   }
 
+  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+        "[error][source_plugin_id]" => "ruby_rulegrouplist_extract_all"
+      }
+    }
+  }
+
   mutate {
     id => "ruby_field_renames"
     rename => {
@@ -123,6 +169,15 @@ filter {
       "[aws][waf][http][request][headers][sec_ch_ua_mobile]"                => "[aws][waf][http][request][headers][sec][ch_ua][mobile]"
       "[aws][waf][http][request][headers][sec_ch_ua_platform]"              => "[aws][waf][http][request][headers][sec][ch_ua][platform]"
       "[aws][waf][http][request][headers][sec_ch_ua]"                       => "[aws][waf][http][request][headers][sec][ch_ua][browser]"
+    }
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
+        "[error][source_plugin_id]" => "ruby_field_renames"
+      }
     }
   }
 

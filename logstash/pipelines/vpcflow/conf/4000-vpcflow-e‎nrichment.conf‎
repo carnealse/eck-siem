@@ -4,12 +4,30 @@ filter {
       add_field => { "[event][outcome]" => "success" }
       id => "4000-vpcflow-outcome-success"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-outcome-success"
+        }
+      }
+    }
   }
 
   if [aws][vpcflow][action] == "REJECT" {
     mutate {
       add_field => { "[event][outcome]" => "failure" }
       id => "4000-vpcflow-outcome-failure"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-outcome-failure"
+        }
+      }
     }
   }
 
@@ -18,6 +36,15 @@ filter {
       remove_field => ["[source][address]"]
       id => "4000-vpcflow-clear-source-addr"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-clear-source-addr"
+        }
+      }
+    }
   }
 
   mutate {
@@ -25,10 +52,28 @@ filter {
     id => "4000-vpcflow-src-to-addr"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-src-to-addr"
+      }
+    }
+  }
+
   if [source][address] {
     mutate {
       copy => { "[source][address]" => "[source][ip]" }
       id => "4000-vpcflow-src-to-ip"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-src-to-ip"
+        }
+      }
     }
   }
 
@@ -37,9 +82,27 @@ filter {
     id => "4000-vpcflow-add-src-port"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-add-src-port"
+      }
+    }
+  }
+
   mutate {
     convert => { "[source][port]" => "integer" }
     id => "4000-vpcflow-int-src-port"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-int-src-port"
+      }
+    }
   }
 
   mutate {
@@ -47,10 +110,28 @@ filter {
     id => "4000-vpcflow-dst-to-addr"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-dst-to-addr"
+      }
+    }
+  }
+
   if [destination][address] {
     mutate {
       copy => { "[destination][address]" => "[destination][ip]" }
       id => "4000-vpcflow-dst-to-ip"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-dst-to-ip"
+        }
+      }
     }
   }
 
@@ -59,9 +140,27 @@ filter {
     id => "4000-vpcflow-add-dst-port"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-add-dst-port"
+      }
+    }
+  }
+
   mutate {
     convert => { "[destination][port]" => "integer" }
     id => "4000-vpcflow-int-dst-port"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-int-dst-port"
+      }
+    }
   }
 
   mutate {
@@ -69,9 +168,27 @@ filter {
     id => "4000-vpcflow-protocol-to-iana"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-protocol-to-iana"
+      }
+    }
+  }
+
   mutate {
     add_field => { "[source][packets]" => "%{[aws][vpcflow][packets]}" }
     id => "4000-vpcflow-add-src-packets"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-add-src-packets"
+      }
+    }
   }
 
   mutate {
@@ -79,9 +196,27 @@ filter {
     id => "4000-vpcflow-int-src-packets"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-int-src-packets"
+      }
+    }
+  }
+
   mutate {
     add_field => { "[source][bytes]" => "%{[aws][vpcflow][bytes]}" }
     id => "4000-vpcflow-add-src-bytes"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-add-src-bytes"
+      }
+    }
   }
 
   mutate {
@@ -89,10 +224,28 @@ filter {
     id => "4000-vpcflow-int-src-bytes"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-int-src-bytes"
+      }
+    }
+  }
+
   if [source][bytes] {
     mutate {
       copy => { "[source][bytes]" => "[network][bytes]" }
       id => "4000-vpcflow-network-bytes"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-network-bytes"
+        }
+      }
     }
   }
 
@@ -101,6 +254,15 @@ filter {
       copy => { "[source][packets]" => "[network][packets]" }
       id => "4000-vpcflow-network-packets"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-network-packets"
+        }
+      }
+    }
   }
 
   if [source][ip] and "." in [source][ip] {
@@ -108,12 +270,30 @@ filter {
       add_field => { "[network][type]" => "ipv4" }
       id => "4000-vpcflow-type-ipv4"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-type-ipv4"
+        }
+      }
+    }
   }
 
   if [source][ip] and ":" in [source][ip] {
     mutate {
       add_field => { "[network][type]" => "ipv6" }
       id => "4000-vpcflow-type-ipv6"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-type-ipv6"
+        }
+      }
     }
   }
 
@@ -154,11 +334,29 @@ filter {
       target => "[source][geo]"
       id => "4000-vpcflow-geoip-src"
     }
+
+    if "_geoip_lookup_failure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-geoip-src"
+        }
+      }
+    }
     geoip {
       source => "[source][ip]"
       target => "[source][as]"
       default_database_type => "ASN"
       id => "4000-vpcflow-asn-src"
+    }
+
+    if "_geoip_lookup_failure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-asn-src"
+        }
+      }
     }
   }
 
@@ -168,11 +366,29 @@ filter {
       target => "[destination][geo]"
       id => "4000-vpcflow-geoip-dst"
     }
+
+    if "_geoip_lookup_failure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-geoip-dst"
+        }
+      }
+    }
     geoip {
       source => "[destination][ip]"
       target => "[destination][as]"
       default_database_type => "ASN"
       id => "4000-vpcflow-asn-dst"
+    }
+
+    if "_geoip_lookup_failure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-asn-dst"
+        }
+      }
     }
   }
 
@@ -186,14 +402,41 @@ filter {
     id => "4000-vpcflow-asn-renames"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-asn-renames"
+      }
+    }
+  }
+
   if [source][ip] and [destination][ip] {
     mutate {
       add_field => { "[related][ip]" => "%{[source][ip]}" }
       id => "4000-vpcflow-related-ip-src"
     }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-related-ip-src"
+        }
+      }
+    }
     mutate {
       add_field => { "[related][ip]" => "%{[destination][ip]}" }
       id => "4000-vpcflow-related-ip-dst"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+          "[error][source_plugin_id]" => "4000-vpcflow-related-ip-dst"
+        }
+      }
     }
   }
 
@@ -207,12 +450,30 @@ filter {
     id => "4000-vpcflow-cloud-defaults"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-cloud-defaults"
+      }
+    }
+  }
+
   mutate {
     copy => {
       "[aws][vpcflow][account_id]"  => "[cloud][account][id]"
       "[aws][vpcflow][instance_id]" => "[cloud][instance][id]"
     }
     id => "4000-vpcflow-cloud-ids"
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-cloud-ids"
+      }
+    }
   }
 
   ruby {
@@ -231,5 +492,14 @@ filter {
         event.set("[aws][vpcflow][tcp_flags_array]", tcp_flags_array)
       end
     '
+  }
+
+  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "4000-vpcflow-enrichment.conf"
+        "[error][source_plugin_id]" => "4000-vpcflow-ruby-tcp-flags"
+      }
+    }
   }
 }

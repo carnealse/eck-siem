@@ -8,6 +8,15 @@ filter {
       }
     }
 
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "add_event_ingested"
+        }
+      }
+    }
+
     # set the @timestamp to the earliest extracted timestamp in the message
     date {
       id => "set_timestamp"
@@ -15,10 +24,28 @@ filter {
       target => "@timestamp"
     }
 
+    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "set_timestamp"
+        }
+      }
+    }
+
     # update tags
     mutate {
       add_tag => ["nexus-main"]
       id => "3000-nexus-tag-main"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
+          "[error][source_plugin_id]" => "3000-nexus-tag-main"
+        }
+      }
     }
   }
 }

@@ -5,11 +5,29 @@ filter {
     id => "6000-nexus-tag-preserve"
   }
 
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "6000-nexus-cleanup.conf"
+        "[error][source_plugin_id]" => "6000-nexus-tag-preserve"
+      }
+    }
+  }
+
   # check if the dissect had failure on the service but not on the non-service pattern to clear the unecessary tag
   if ("_dissectonefailure" in [tags]) and !("_dissecttwofailure" in [tags]) {
     mutate {
       remove_tag => ["_dissectonefailure"]
       id => "6000-nexus-remove-dissect-tag"
+    }
+
+    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "6000-nexus-cleanup.conf"
+          "[error][source_plugin_id]" => "6000-nexus-remove-dissect-tag"
+        }
+      }
     }
   }
 
@@ -17,5 +35,14 @@ filter {
   mutate {
     id => "remove_fields"
     remove_field => ["timestamp","message","isJson"]
+  }
+
+  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "6000-nexus-cleanup.conf"
+        "[error][source_plugin_id]" => "remove_fields"
+      }
+    }
   }
 }

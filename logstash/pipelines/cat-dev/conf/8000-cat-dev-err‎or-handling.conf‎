@@ -10,6 +10,17 @@ filter {
     }
   }
 
+  # Keep dashboard attribution fields present when a failure tag was not stamped at source.
+  if "pipeline_processing_error" in [tags] and ![error][source_plugin_id] {
+    mutate {
+      id => "8000-cat-dev-source-attribution-fallback"
+      add_field => {
+        "[error][source_config]"    => "unknown"
+        "[error][source_plugin_id]" => "unknown"
+      }
+    }
+  }
+
   # Add an explicit error message field if one doesn't exist
   if "pipeline_processing_error" in [tags] and ![error][message] {
     mutate {

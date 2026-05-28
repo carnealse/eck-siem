@@ -13,10 +13,28 @@ filter {
       }
     }
 
+    if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2001-c2imera-java.conf"
+          "[error][source_plugin_id]" => "2001-c2imera-java-header-grok"
+        }
+      }
+    }
+
     date {
       id => "2001-c2imera-java-date"
       match => [ "raw_ts", "yyyyMMddHHmmssSSS" ]
       target => "@timestamp"
+    }
+
+    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2001-c2imera-java.conf"
+          "[error][source_plugin_id]" => "2001-c2imera-java-date"
+        }
+      }
     }
 
     # Topic 1: aws.SsmConfiguration
@@ -24,6 +42,15 @@ filter {
       grok {
         id => "2001-c2imera-java-ssm-grok"
         match => { "app_message" => "%{DATA:ssm_action}: \[%{DATA:ssm_content}\]" }
+      }
+
+      if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2001-c2imera-java.conf"
+            "[error][source_plugin_id]" => "2001-c2imera-java-ssm-grok"
+          }
+        }
       }
 
       if [ssm_action] == "Finished reload" {
@@ -35,6 +62,15 @@ filter {
           value_split => " = "
           remove_char_key => "\""
           remove_char_value => "\""
+        }
+
+        if "_kvparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-kv"
+            }
+          }
         }
 
         mutate {
@@ -78,15 +114,42 @@ filter {
             "[temp_ssm][MONOLITH_LOGIN_RATE_LIMIT]" => "[c2imera][ssm][monolith][login_rate_limit]"
           }
         }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames"
+            }
+          }
+        }
       }
       else if [ssm_action] == "Reload starting" {
         mutate {
           id => "2001-c2imera-java-ssm-reload-split"
           split => { "ssm_content" => ", " }
         }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split"
+            }
+          }
+        }
         mutate {
           id => "2001-c2imera-java-ssm-reload-rename"
           rename => { "ssm_content" => "[c2imera][ssm][reloaded_parameters]" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename"
+            }
+          }
         }
       }
     }
@@ -99,10 +162,28 @@ filter {
           match => { "app_message" => "AUDIT: HEADER = %{DATA:header_key}: %{GREEDYDATA:header_value}" }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-grok"
+            }
+          }
+        }
+
         if [header_key] == "User-Agent" {
           mutate {
             id => "2001-c2imera-java-auditor-useragent-rename"
             rename => { "header_value" => "[user_agent][original]" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename"
+              }
+            }
           }
           useragent {
             id => "2001-c2imera-java-auditor-useragent-parse"
@@ -116,17 +197,44 @@ filter {
             id => "2001-c2imera-java-auditor-referer-rename"
             rename => { "header_value" => "[http][request][referrer]" }
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename"
+              }
+            }
+          }
         }
         else {
           mutate {
             id => "2001-c2imera-java-auditor-header-add"
             add_field => { "[http][request][headers][%{header_key}]" => "%{header_value}" }
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add"
+              }
+            }
+          }
         }
 
         mutate {
           id => "2001-c2imera-java-auditor-header-cleanup"
           remove_field => ["header_key", "header_value"]
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup"
+            }
+          }
         }
       }
       else if [app_message] =~ /^AUDIT: username =/ {
@@ -135,15 +243,42 @@ filter {
           match => { "app_message" => "AUDIT: username = %{DATA:[user][name]}\.\s+%{GREEDYDATA:[event][action]}" }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-username-grok"
+            }
+          }
+        }
+
         if [event][action] =~ /^(SUCCESS|FAILURE),/ {
           grok {
             id => "2001-c2imera-java-auditor-outcome-grok"
             match => { "[event][action]" => "%{WORD:[event][outcome]},\s+%{GREEDYDATA:[event][reason]}" }
           }
+
+          if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-grok"
+              }
+            }
+          }
           mutate {
             id => "2001-c2imera-java-auditor-outcome-mutate"
             lowercase => [ "[event][outcome]" ]
             replace => { "[event][action]" => "audit-check" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate"
+              }
+            }
           }
         }
         else if [event][action] =~ /^PII:/ {
@@ -151,9 +286,27 @@ filter {
             id => "2001-c2imera-java-auditor-pii-grok"
             match => { "[event][action]" => "PII:\s+%{GREEDYDATA:[event][reason]}" }
           }
+
+          if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-grok"
+              }
+            }
+          }
           mutate {
             id => "2001-c2imera-java-auditor-pii-mutate"
             replace => { "[event][action]" => "pii-access" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate"
+              }
+            }
           }
         }
       }
@@ -166,6 +319,15 @@ filter {
           id => "2001-c2imera-java-certstorejws-grok"
           match => { "app_message" => "Using trusted user:RestUser%{DATA:user_info} roles:" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-certstorejws-grok"
+            }
+          }
+        }
       }
     }
 
@@ -176,9 +338,27 @@ filter {
           id => "2001-c2imera-java-opfilter-copy"
           copy => { "[app_message]" => "[event][reason]" }
         }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy"
+            }
+          }
+        }
         grok {
           id => "2001-c2imera-java-opfilter-grok"
           match => { "app_message" => "Request path \"%{DATA:[url][path]}\" did not provide %{DATA:[c2imera][op_filter][missing_header]} header value" }
+        }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-grok"
+            }
+          }
         }
       }
     }
@@ -191,10 +371,28 @@ filter {
           match => { "app_message" => "Ping received %{DATA:ping_json} code: %{INT:[c2imera][sync][response_code]}" }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-grok"
+            }
+          }
+        }
+
         if [ping_json] {
           ruby {
             id => "2001-c2imera-java-sync-ping-ruby"
             code => 'val = event.get("[ping_json]"); if val then event.set("[ping_json]", val.downcase) end'
+          }
+
+          if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-ruby"
+              }
+            }
           }
         }
 
@@ -204,9 +402,27 @@ filter {
           target => "[c2imera][sync][ping_data]"
         }
 
+        if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-json"
+            }
+          }
+        }
+
         mutate {
           id => "2001-c2imera-java-sync-ping-cleanup"
           remove_field => ["ping_json"]
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup"
+            }
+          }
         }
       }
       else {
@@ -231,6 +447,15 @@ filter {
           }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-grok"
+            }
+          }
+        }
+
         if [_temp][reporter] {
           ruby {
             id => "2001-c2imera-java-sync-reporter-ruby"
@@ -245,9 +470,27 @@ filter {
               end
             '
           }
+
+          if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-ruby"
+              }
+            }
+          }
           mutate {
             id => "2001-c2imera-java-sync-reporter-cleanup"
             remove_field => ["[_temp]", "[_temp_reporter_status]"]
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup"
+              }
+            }
           }
         }
 
@@ -256,6 +499,15 @@ filter {
             id => "2001-c2imera-java-sync-type-strip"
             strip => ["[c2imera][sync][type]"]
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip"
+              }
+            }
+          }
         }
 
         if [app_message] =~ /^Activating/ {
@@ -263,11 +515,29 @@ filter {
             id => "2001-c2imera-java-sync-activating"
             add_field => { "[event][action]" => "sync-activated" }
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating"
+              }
+            }
+          }
         }
         else if [app_message] =~ /^Deactivating/ {
           mutate {
             id => "2001-c2imera-java-sync-deactivating"
             add_field => { "[event][action]" => "sync-deactivated" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating"
+              }
+            }
           }
         }
       }
@@ -280,9 +550,27 @@ filter {
           id => "2001-c2imera-java-lastsync-grok"
           match => { "app_message" => "^Loading last sync time for type: %{DATA:[c2imera][sync][type]}(\s+)?$" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-grok"
+            }
+          }
+        }
         mutate {
           id => "2001-c2imera-java-lastsync-mutate"
           add_field => { "[event][action]" => "loading-last-sync-time" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate"
+            }
+          }
         }
       }
     }
@@ -294,9 +582,27 @@ filter {
           id => "2001-c2imera-java-queryutils-grok"
           match => { "app_message" => "^Querying by Last Updated; %{DATA:[c2imera][query][method]}; Time: %{DATA:[c2imera][query][time_string]} Operator: %{DATA:[c2imera][query][operator]} Batch: %{INT:[c2imera][query][batch_size]} Offset: %{INT:[c2imera][query][offset]}$" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-grok"
+            }
+          }
+        }
         mutate {
           id => "2001-c2imera-java-queryutils-mutate"
           add_field => { "[event][action]" => "query-last-updated" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate"
+            }
+          }
         }
       }
     }
@@ -316,17 +622,44 @@ filter {
           }
         }
 
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-grok"
+            }
+          }
+        }
+
         # Set specific actions to distinguish start vs complete
         if [app_message] =~ / started\./ {
           mutate {
             id => "2001-c2imera-java-requesttimer-started"
             add_field => { "[event][action]" => "request-timer-started" }
           }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started"
+              }
+            }
+          }
         }
         else {
           mutate {
             id => "2001-c2imera-java-requesttimer-completed"
             add_field => { "[event][action]" => "request-timer-completed" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed"
+              }
+            }
           }
         }
 
@@ -335,6 +668,15 @@ filter {
           mutate {
             id => "2001-c2imera-java-requesttimer-convert"
             convert => { "[c2imera][request_timer][duration_ms]" => "integer" }
+          }
+
+          if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2001-c2imera-java.conf"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert"
+              }
+            }
           }
         }
       }
@@ -347,9 +689,27 @@ filter {
           id => "2001-c2imera-java-dataobject-grok"
           match => { "app_message" => "getDataObjectsByDataObjectQuery: DataObjectQuery with %{INT:[c2imera][data_object][filter_count]} Filters:%{GREEDYDATA:[c2imera][data_object][query]} \(SANITIZED\)" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-grok"
+            }
+          }
+        }
         mutate {
           id => "2001-c2imera-java-dataobject-mutate"
           add_field => { "[event][action]" => "data-object-query" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate"
+            }
+          }
         }
       }
     }
@@ -361,10 +721,28 @@ filter {
           id => "2001-c2imera-java-syncdeterminator-grok"
           match => { "app_message" => "SYNCDETERMINATORTOOL: %{GREEDYDATA:[c2imera][sync_determinator]}" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-grok"
+            }
+          }
+        }
       }
       mutate {
         id => "2001-c2imera-java-syncdeterminator-strip"
         strip => ["[c2imera][sync_determinator]"]
+      }
+
+      if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2001-c2imera-java.conf"
+            "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip"
+          }
+        }
       }
     }
 
@@ -375,9 +753,27 @@ filter {
           id => "2001-c2imera-java-userservice-grok"
           match => { "app_message" => "Adding user: <%{DATA:[user][name]}>" }
         }
+
+        if "_grokparsefailure" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-grok"
+            }
+          }
+        }
         mutate {
           id => "2001-c2imera-java-userservice-mutate"
           add_field => { "[event][action]" => "user-added" }
+        }
+
+        if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2001-c2imera-java.conf"
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate"
+            }
+          }
         }
       }
     }
