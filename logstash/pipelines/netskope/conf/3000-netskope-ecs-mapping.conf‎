@@ -134,7 +134,7 @@ filter {
       "dlp_scan_failed"             => "[dlp][scan_failed]"
       "dlp_unique_count"            => "[dlp][unique_count]"
       "exposure"                    => "[netskope][exposure]"
-      "ext_labels"                  => "[netskope][[ext_labels]"
+      "ext_labels"                  => "[netskope][ext_labels]"
       "file_lang"                   => "[netskope][file][lang]"
       "file_path"                   => "[netskope][file][path]"
       "file_size"                   => "[netskope][file][size]"
