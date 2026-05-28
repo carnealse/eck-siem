@@ -8,12 +8,14 @@ filter {
       }
     }
 
-    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
           "[error][source_plugin_id]" => "add_event_ingested"
         }
+        add_tag => ["_logstash_failure__3000-nexus-ecs-mapping__mutate__add_event_ingested", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
     }
 
@@ -22,9 +24,10 @@ filter {
       id => "set_timestamp"
       match  => ["[timestamp]", "ISO8601"]
       target => "@timestamp"
+      tag_on_failure => ["_dateparsefailure", "_logstash_failure__3000-nexus-ecs-mapping__date__set_timestamp"]
     }
 
-    if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+    if "_logstash_failure__3000-nexus-ecs-mapping__date__set_timestamp" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
@@ -39,12 +42,14 @@ filter {
       id => "3000-nexus-tag-main"
     }
 
-    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "3000-nexus-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-nexus-tag-main"
         }
+        add_tag => ["_logstash_failure__3000-nexus-ecs-mapping__mutate__3000-nexus-tag-main", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
     }
   }

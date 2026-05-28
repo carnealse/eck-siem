@@ -1,4 +1,19 @@
 filter {
+  # Restore generic failure tags after per-plugin attribution removes them to avoid false matches.
+  if "_logstash_attributed_mutate_error" in [tags] and !("_mutate_error" in [tags]) {
+    mutate {
+      id => "8000-cat-dev-restore-mutate-error-tag"
+      add_tag => ["_mutate_error"]
+    }
+  }
+
+  if "_logstash_attributed_ruby_exception" in [tags] and !("_rubyexception" in [tags]) {
+    mutate {
+      id => "8000-cat-dev-restore-ruby-exception-tags"
+      add_tag => ["_rubyexception", "ruby_exception"]
+    }
+  }
+
   # Catch known failure tags
   if "_jsonparsefailure" in [tags] or "_rubyexception" in [tags] or "_mutate_error" in [tags] or "ruby_exception" in [tags] {
     mutate {

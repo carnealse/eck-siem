@@ -125,14 +125,17 @@ filter {
         event.tag("ruby_exception")
       end
     '
+    tag_on_exception => "_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby"
   }
 
-  if ("_rubyexception" in [tags] or "ruby_exception" in [tags]) and ![error][source_plugin_id] {
+  if ("_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-cat-dev-main-parse.conf"
         "[error][source_plugin_id]" => "2000-cat-dev-ruby"
       }
+      add_tag => ["_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby", "_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception"]
     }
   }
 }

@@ -5,12 +5,14 @@ filter {
     id => "1000-netskope-initial-tag"
   }
 
-  if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+  if "_mutate_error" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"
         "[error][source_plugin_id]" => "1000-netskope-initial-tag"
       }
+      add_tag => ["_logstash_failure__1000-netskope-normalization__mutate__1000-netskope-initial-tag", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
     }
   }
 
@@ -18,9 +20,10 @@ filter {
   json {
     id => "json_process"
     source => "message"
+    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-netskope-normalization__json__json_process"]
   }
 
-  if "_jsonparsefailure" in [tags] and ![error][source_plugin_id] {
+  if "_logstash_failure__1000-netskope-normalization__json__json_process" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"
@@ -33,9 +36,10 @@ filter {
   date {
     match => ["timestamp", "UNIX"]
     id => "1000-netskope-date-timestamp"
+    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp"]
   }
 
-  if "_dateparsefailure" in [tags] and ![error][source_plugin_id] {
+  if "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"

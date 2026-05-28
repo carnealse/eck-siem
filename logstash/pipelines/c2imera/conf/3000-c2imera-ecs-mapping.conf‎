@@ -8,12 +8,14 @@ filter {
       }
     }
 
-    if "_mutate_error" in [tags] and ![error][source_plugin_id] {
+    if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "3000-c2imera-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-c2imera-ecs-mapping"
         }
+        add_tag => ["_logstash_failure__3000-c2imera-ecs-mapping__mutate__3000-c2imera-ecs-mapping", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
     }
   }
