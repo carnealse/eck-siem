@@ -43,7 +43,7 @@ filter {
   # handle unknown case of [http][request][id] already existing errors being logged
   if [http][request][id] {
     mutate {
-      id => "2000-aws-waf-main-parse-mutate-34"
+      id => "2000-aws-waf-main-parse-mutate-01"
       remove_field => ["[http][request][id]"]
     }
 
@@ -51,9 +51,9 @@ filter {
       mutate {
         add_field => {
           "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-          "[error][source_plugin_id]" => "2000-aws-waf-main-parse-mutate-34"
+          "[error][source_plugin_id]" => "2000-aws-waf-main-parse-mutate-01"
         }
-        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-main-parse-mutate-34", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-main-parse-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

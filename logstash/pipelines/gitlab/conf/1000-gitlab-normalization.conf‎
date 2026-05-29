@@ -7,7 +7,7 @@ filter {
   }
 
   mutate {
-    id => "1000-gitlab-normalization-mutate-9"
+    id => "1000-gitlab-normalization-mutate-01"
     add_tag => ["logstash"]
     add_field => {"[ecs][version]" => "8.0.0"}
   }
@@ -16,9 +16,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-gitlab-normalization.conf"
-        "[error][source_plugin_id]" => "1000-gitlab-normalization-mutate-9"
+        "[error][source_plugin_id]" => "1000-gitlab-normalization-mutate-01"
       }
-      add_tag => ["_logstash_failure__1000-gitlab-normalization__mutate__1000-gitlab-normalization-mutate-9", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__1000-gitlab-normalization__mutate__1000-gitlab-normalization-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
