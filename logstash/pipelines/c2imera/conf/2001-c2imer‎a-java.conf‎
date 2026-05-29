@@ -2,7 +2,7 @@ filter {
   if [@metadata][log_lane] == "java_lane" {
     # 1. Generic Java Header (Priority List)
     grok {
-      id => "2001-c2imera-java-header-grok"
+      id => "2001-c2imera-java-header-grok-01"
       match => {
         "message" => [
           # Pattern 1: Message + OID (Priority)
@@ -11,30 +11,30 @@ filter {
           "^%{DATA:raw_ts}\s+%{JAVACLASS:[log][logger]}\s+(?:%{LOGLEVEL:[log][level]}|FINE|FINER|FINEST)\s+\[%{DATA:[process][thread][name]}\]\s+-\s+%{GREEDYDATA:app_message}\s*$"
         ]
       }
-      tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-header-grok"]
+      tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-header-grok-01"]
     }
 
-    if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-header-grok" in [tags] {
+    if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-header-grok-01" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2001-c2imera-java.conf"
-          "[error][source_plugin_id]" => "2001-c2imera-java-header-grok"
+          "[error][source_plugin_id]" => "2001-c2imera-java-header-grok-01"
         }
       }
     }
 
     date {
-      id => "2001-c2imera-java-date"
+      id => "2001-c2imera-java-date-01"
       match => [ "raw_ts", "yyyyMMddHHmmssSSS" ]
       target => "@timestamp"
-      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-c2imera-java__date__2001-c2imera-java-date"]
+      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-c2imera-java__date__2001-c2imera-java-date-01"]
     }
 
-    if "_logstash_failure__2001-c2imera-java__date__2001-c2imera-java-date" in [tags] {
+    if "_logstash_failure__2001-c2imera-java__date__2001-c2imera-java-date-01" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2001-c2imera-java.conf"
-          "[error][source_plugin_id]" => "2001-c2imera-java-date"
+          "[error][source_plugin_id]" => "2001-c2imera-java-date-01"
         }
       }
     }
@@ -42,43 +42,43 @@ filter {
     # Topic 1: aws.SsmConfiguration
     if [log][logger] == "aws.SsmConfiguration" {
       grok {
-        id => "2001-c2imera-java-ssm-grok"
+        id => "2001-c2imera-java-ssm-grok-02"
         match => { "app_message" => "%{DATA:ssm_action}: \[%{DATA:ssm_content}\]" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-ssm-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-ssm-grok-02"]
       }
 
-      if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-ssm-grok" in [tags] {
+      if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-ssm-grok-02" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2001-c2imera-java.conf"
-            "[error][source_plugin_id]" => "2001-c2imera-java-ssm-grok"
+            "[error][source_plugin_id]" => "2001-c2imera-java-ssm-grok-02"
           }
         }
       }
 
       if [ssm_action] == "Finished reload" {
         kv {
-          id => "2001-c2imera-java-ssm-kv"
+          id => "2001-c2imera-java-ssm-kv-01"
           source => "ssm_content"
           target => "[temp_ssm]"
           field_split => ", "
           value_split => " = "
           remove_char_key => "\""
           remove_char_value => "\""
-          tag_on_failure => ["_kvparsefailure", "_logstash_failure__2001-c2imera-java__kv__2001-c2imera-java-ssm-kv"]
+          tag_on_failure => ["_kvparsefailure", "_logstash_failure__2001-c2imera-java__kv__2001-c2imera-java-ssm-kv-01"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__kv__2001-c2imera-java-ssm-kv" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__kv__2001-c2imera-java-ssm-kv-01" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-kv"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-kv-01"
             }
           }
         }
 
         mutate {
-          id => "2001-c2imera-java-ssm-renames"
+          id => "2001-c2imera-java-ssm-renames-mutate-01"
           rename => {
             "[temp_ssm][EMAIL_FROM]"                => "[email][from][address]"
             "[temp_ssm][PLATFORM]"                  => "[service][environment]"
@@ -123,16 +123,16 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames-mutate-01"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-renames", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-renames-mutate-01", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
       }
       else if [ssm_action] == "Reload starting" {
         mutate {
-          id => "2001-c2imera-java-ssm-reload-split"
+          id => "2001-c2imera-java-ssm-reload-split-mutate-02"
           split => { "ssm_content" => ", " }
         }
 
@@ -140,14 +140,14 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split-mutate-02"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-split", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-split-mutate-02", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
         mutate {
-          id => "2001-c2imera-java-ssm-reload-rename"
+          id => "2001-c2imera-java-ssm-reload-rename-mutate-03"
           rename => { "ssm_content" => "[c2imera][ssm][reloaded_parameters]" }
         }
 
@@ -155,9 +155,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename"
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename-mutate-03"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-rename", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-rename-mutate-03", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -168,23 +168,23 @@ filter {
     else if [log][logger] == "util.Auditor" {
       if [app_message] =~ /^AUDIT: HEADER =/ {
         grok {
-          id => "2001-c2imera-java-auditor-header-grok"
+          id => "2001-c2imera-java-auditor-header-grok-03"
           match => { "app_message" => "AUDIT: HEADER = %{DATA:header_key}: %{GREEDYDATA:header_value}" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-header-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-header-grok-03"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-header-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-header-grok-03" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-grok-03"
             }
           }
         }
 
         if [header_key] == "User-Agent" {
           mutate {
-            id => "2001-c2imera-java-auditor-useragent-rename"
+            id => "2001-c2imera-java-auditor-useragent-rename-mutate-04"
             rename => { "header_value" => "[user_agent][original]" }
           }
 
@@ -192,9 +192,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename-mutate-04"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-useragent-rename", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-useragent-rename-mutate-04", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -207,7 +207,7 @@ filter {
         }
         else if [header_key] == "Referer" {
           mutate {
-            id => "2001-c2imera-java-auditor-referer-rename"
+            id => "2001-c2imera-java-auditor-referer-rename-mutate-05"
             rename => { "header_value" => "[http][request][referrer]" }
           }
 
@@ -215,16 +215,16 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename-mutate-05"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-referer-rename", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-referer-rename-mutate-05", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
         }
         else {
           mutate {
-            id => "2001-c2imera-java-auditor-header-add"
+            id => "2001-c2imera-java-auditor-header-add-mutate-06"
             add_field => { "[http][request][headers][%{header_key}]" => "%{header_value}" }
           }
 
@@ -232,16 +232,16 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add-mutate-06"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-add", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-add-mutate-06", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
         }
 
         mutate {
-          id => "2001-c2imera-java-auditor-header-cleanup"
+          id => "2001-c2imera-java-auditor-header-cleanup-mutate-07"
           remove_field => ["header_key", "header_value"]
         }
 
@@ -249,46 +249,46 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup-mutate-07"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-cleanup", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-cleanup-mutate-07", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
       }
       else if [app_message] =~ /^AUDIT: username =/ {
         grok {
-          id => "2001-c2imera-java-auditor-username-grok"
+          id => "2001-c2imera-java-auditor-username-grok-04"
           match => { "app_message" => "AUDIT: username = %{DATA:[user][name]}\.\s+%{GREEDYDATA:[event][action]}" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-username-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-username-grok-04"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-username-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-username-grok-04" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-username-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-username-grok-04"
             }
           }
         }
 
         if [event][action] =~ /^(SUCCESS|FAILURE),/ {
           grok {
-            id => "2001-c2imera-java-auditor-outcome-grok"
+            id => "2001-c2imera-java-auditor-outcome-grok-05"
             match => { "[event][action]" => "%{WORD:[event][outcome]},\s+%{GREEDYDATA:[event][reason]}" }
-            tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-outcome-grok"]
+            tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-outcome-grok-05"]
           }
 
-          if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-outcome-grok" in [tags] {
+          if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-outcome-grok-05" in [tags] {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-grok"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-grok-05"
               }
             }
           }
           mutate {
-            id => "2001-c2imera-java-auditor-outcome-mutate"
+            id => "2001-c2imera-java-auditor-outcome-mutate-08"
             lowercase => [ "[event][outcome]" ]
             replace => { "[event][action]" => "audit-check" }
           }
@@ -297,30 +297,30 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate-08"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-outcome-mutate", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-outcome-mutate-08", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
         }
         else if [event][action] =~ /^PII:/ {
           grok {
-            id => "2001-c2imera-java-auditor-pii-grok"
+            id => "2001-c2imera-java-auditor-pii-grok-06"
             match => { "[event][action]" => "PII:\s+%{GREEDYDATA:[event][reason]}" }
-            tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-pii-grok"]
+            tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-pii-grok-06"]
           }
 
-          if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-pii-grok" in [tags] {
+          if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-pii-grok-06" in [tags] {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-grok"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-grok-06"
               }
             }
           }
           mutate {
-            id => "2001-c2imera-java-auditor-pii-mutate"
+            id => "2001-c2imera-java-auditor-pii-mutate-09"
             replace => { "[event][action]" => "pii-access" }
           }
 
@@ -328,9 +328,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate"
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate-09"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-pii-mutate", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-pii-mutate-09", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -342,16 +342,16 @@ filter {
     else if [log][logger] == "restauth.CertStoreJwsFunction" {
       if [app_message] =~ /^Using trusted user:RestUser/ {
         grok {
-          id => "2001-c2imera-java-certstorejws-grok"
+          id => "2001-c2imera-java-certstorejws-grok-07"
           match => { "app_message" => "Using trusted user:RestUser%{DATA:user_info} roles:" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-certstorejws-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-certstorejws-grok-07"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-certstorejws-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-certstorejws-grok-07" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-certstorejws-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-certstorejws-grok-07"
             }
           }
         }
@@ -362,7 +362,7 @@ filter {
     else if [log][logger] == "rest.OperationIdFilter" {
       if [app_message] =~ /^Request path/ {
         mutate {
-          id => "2001-c2imera-java-opfilter-copy"
+          id => "2001-c2imera-java-opfilter-copy-mutate-10"
           copy => { "[app_message]" => "[event][reason]" }
         }
 
@@ -370,23 +370,23 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy"
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy-mutate-10"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-opfilter-copy", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-opfilter-copy-mutate-10", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
         grok {
-          id => "2001-c2imera-java-opfilter-grok"
+          id => "2001-c2imera-java-opfilter-grok-08"
           match => { "app_message" => "Request path \"%{DATA:[url][path]}\" did not provide %{DATA:[c2imera][op_filter][missing_header]} header value" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-opfilter-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-opfilter-grok-08"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-opfilter-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-opfilter-grok-08" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-grok-08"
             }
           }
         }
@@ -397,57 +397,57 @@ filter {
     else if [log][logger] == "servlets.ServerClientSyncServlet" {
       if [app_message] =~ /Ping received/ {
         grok {
-          id => "2001-c2imera-java-sync-ping-grok"
+          id => "2001-c2imera-java-sync-ping-grok-09"
           match => { "app_message" => "Ping received %{DATA:ping_json} code: %{INT:[c2imera][sync][response_code]}" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-ping-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-ping-grok-09"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-ping-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-ping-grok-09" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-grok-09"
             }
           }
         }
 
         if [ping_json] {
           ruby {
-            id => "2001-c2imera-java-sync-ping-ruby"
+            id => "2001-c2imera-java-sync-ping-ruby-01"
             code => 'val = event.get("[ping_json]"); if val then event.set("[ping_json]", val.downcase) end'
-            tag_on_exception => "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby"
+            tag_on_exception => "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01"
           }
 
-          if ("_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+          if ("_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-ruby"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-ruby-01"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby", "_logstash_attributed_ruby_exception"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01", "_logstash_attributed_ruby_exception"]
               remove_tag => ["ruby_exception", "_rubyexception"]
             }
           }
         }
 
         json {
-          id => "2001-c2imera-java-sync-ping-json"
+          id => "2001-c2imera-java-sync-ping-json-01"
           source => "ping_json"
           target => "[c2imera][sync][ping_data]"
-          tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2001-c2imera-java__json__2001-c2imera-java-sync-ping-json"]
+          tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2001-c2imera-java__json__2001-c2imera-java-sync-ping-json-01"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__json__2001-c2imera-java-sync-ping-json" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__json__2001-c2imera-java-sync-ping-json-01" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-json"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-json-01"
             }
           }
         }
 
         mutate {
-          id => "2001-c2imera-java-sync-ping-cleanup"
+          id => "2001-c2imera-java-sync-ping-cleanup-mutate-11"
           remove_field => ["ping_json"]
         }
 
@@ -455,16 +455,16 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup-mutate-11"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-ping-cleanup", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-ping-cleanup-mutate-11", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
       }
       else {
         grok {
-          id => "2001-c2imera-java-sync-grok"
+          id => "2001-c2imera-java-sync-grok-10"
           match => {
             "app_message" => [
               "^Activating sync for type: %{GREEDYDATA:[c2imera][sync][type]}(\s+)?$",
@@ -482,21 +482,21 @@ filter {
               "^SYNC_HEARTBEAT: %{GREEDYDATA:[c2imera][sync][heartbeat_message]}(\s+)?$"
             ]
           }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-grok-10"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-grok-10" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-sync-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-grok-10"
             }
           }
         }
 
         if [_temp][reporter] {
           ruby {
-            id => "2001-c2imera-java-sync-reporter-ruby"
+            id => "2001-c2imera-java-sync-reporter-ruby-02"
             code => '
               reporter = event.get("[_temp][reporter]")
               status = event.get("[_temp_reporter_status]")
@@ -507,21 +507,21 @@ filter {
                 event.set(field_path, status)
               end
             '
-            tag_on_exception => "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby"
+            tag_on_exception => "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02"
           }
 
-          if ("_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+          if ("_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-ruby"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-ruby-02"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby", "_logstash_attributed_ruby_exception"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02", "_logstash_attributed_ruby_exception"]
               remove_tag => ["ruby_exception", "_rubyexception"]
             }
           }
           mutate {
-            id => "2001-c2imera-java-sync-reporter-cleanup"
+            id => "2001-c2imera-java-sync-reporter-cleanup-mutate-12"
             remove_field => ["[_temp]", "[_temp_reporter_status]"]
           }
 
@@ -529,9 +529,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup-mutate-12"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-reporter-cleanup", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-reporter-cleanup-mutate-12", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -539,7 +539,7 @@ filter {
 
         if [c2imera][sync][type] {
           mutate {
-            id => "2001-c2imera-java-sync-type-strip"
+            id => "2001-c2imera-java-sync-type-strip-mutate-13"
             strip => ["[c2imera][sync][type]"]
           }
 
@@ -547,9 +547,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip-mutate-13"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-type-strip", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-type-strip-mutate-13", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -557,7 +557,7 @@ filter {
 
         if [app_message] =~ /^Activating/ {
           mutate {
-            id => "2001-c2imera-java-sync-activating"
+            id => "2001-c2imera-java-sync-activating-mutate-14"
             add_field => { "[event][action]" => "sync-activated" }
           }
 
@@ -565,16 +565,16 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating-mutate-14"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-activating", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-activating-mutate-14", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
         }
         else if [app_message] =~ /^Deactivating/ {
           mutate {
-            id => "2001-c2imera-java-sync-deactivating"
+            id => "2001-c2imera-java-sync-deactivating-mutate-15"
             add_field => { "[event][action]" => "sync-deactivated" }
           }
 
@@ -582,9 +582,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating"
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating-mutate-15"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-deactivating", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-deactivating-mutate-15", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -596,21 +596,21 @@ filter {
     else if [log][logger] == "sync.LastSyncTimeTool" {
       if [app_message] =~ /^Loading last sync time/ {
         grok {
-          id => "2001-c2imera-java-lastsync-grok"
+          id => "2001-c2imera-java-lastsync-grok-11"
           match => { "app_message" => "^Loading last sync time for type: %{DATA:[c2imera][sync][type]}(\s+)?$" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-lastsync-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-lastsync-grok-11"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-lastsync-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-lastsync-grok-11" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-grok-11"
             }
           }
         }
         mutate {
-          id => "2001-c2imera-java-lastsync-mutate"
+          id => "2001-c2imera-java-lastsync-mutate-16"
           add_field => { "[event][action]" => "loading-last-sync-time" }
         }
 
@@ -618,9 +618,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate"
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate-16"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-lastsync-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-lastsync-mutate-16", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -631,21 +631,21 @@ filter {
     else if [log][logger] == "query.Uc2QueryUtils" {
       if [app_message] =~ /^Querying by Last Updated/ {
         grok {
-          id => "2001-c2imera-java-queryutils-grok"
+          id => "2001-c2imera-java-queryutils-grok-12"
           match => { "app_message" => "^Querying by Last Updated; %{DATA:[c2imera][query][method]}; Time: %{DATA:[c2imera][query][time_string]} Operator: %{DATA:[c2imera][query][operator]} Batch: %{INT:[c2imera][query][batch_size]} Offset: %{INT:[c2imera][query][offset]}$" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-queryutils-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-queryutils-grok-12"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-queryutils-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-queryutils-grok-12" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-grok-12"
             }
           }
         }
         mutate {
-          id => "2001-c2imera-java-queryutils-mutate"
+          id => "2001-c2imera-java-queryutils-mutate-17"
           add_field => { "[event][action]" => "query-last-updated" }
         }
 
@@ -653,9 +653,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate"
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate-17"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-queryutils-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-queryutils-mutate-17", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -666,7 +666,7 @@ filter {
     else if [log][logger] == "RequestTimer" {
       if [app_message] =~ /^Request/ {
         grok {
-          id => "2001-c2imera-java-requesttimer-grok"
+          id => "2001-c2imera-java-requesttimer-grok-13"
           match => {
             "app_message" => [
               # Pattern 1: Completed (Existing)
@@ -675,14 +675,14 @@ filter {
               "^Request %{WORD:[http][request][method]} \"%{DATA:[url][path]}\" started\. Sent from %{DATA:[c2imera][request_timer][source_ips]}\s+\"%{DATA}\""
             ]
           }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-requesttimer-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-requesttimer-grok-13"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-requesttimer-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-requesttimer-grok-13" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-grok-13"
             }
           }
         }
@@ -690,7 +690,7 @@ filter {
         # Set specific actions to distinguish start vs complete
         if [app_message] =~ / started\./ {
           mutate {
-            id => "2001-c2imera-java-requesttimer-started"
+            id => "2001-c2imera-java-requesttimer-started-mutate-18"
             add_field => { "[event][action]" => "request-timer-started" }
           }
 
@@ -698,16 +698,16 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started-mutate-18"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-started", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-started-mutate-18", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
         }
         else {
           mutate {
-            id => "2001-c2imera-java-requesttimer-completed"
+            id => "2001-c2imera-java-requesttimer-completed-mutate-19"
             add_field => { "[event][action]" => "request-timer-completed" }
           }
 
@@ -715,9 +715,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed-mutate-19"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-completed", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-completed-mutate-19", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -726,7 +726,7 @@ filter {
         # Only convert duration if it exists (Started logs won't have it)
         if [c2imera][request_timer][duration_ms] {
           mutate {
-            id => "2001-c2imera-java-requesttimer-convert"
+            id => "2001-c2imera-java-requesttimer-convert-mutate-20"
             convert => { "[c2imera][request_timer][duration_ms]" => "integer" }
           }
 
@@ -734,9 +734,9 @@ filter {
             mutate {
               add_field => {
                 "[error][source_config]"    => "2001-c2imera-java.conf"
-                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert"
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert-mutate-20"
               }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-convert", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-convert-mutate-20", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
             }
           }
@@ -748,21 +748,21 @@ filter {
     else if [log][logger] == "rest.DataObjectRestServiceWrapper" {
       if [app_message] =~ /^getDataObjectsByDataObjectQuery/ {
         grok {
-          id => "2001-c2imera-java-dataobject-grok"
+          id => "2001-c2imera-java-dataobject-grok-14"
           match => { "app_message" => "getDataObjectsByDataObjectQuery: DataObjectQuery with %{INT:[c2imera][data_object][filter_count]} Filters:%{GREEDYDATA:[c2imera][data_object][query]} \(SANITIZED\)" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-dataobject-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-dataobject-grok-14"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-dataobject-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-dataobject-grok-14" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-grok-14"
             }
           }
         }
         mutate {
-          id => "2001-c2imera-java-dataobject-mutate"
+          id => "2001-c2imera-java-dataobject-mutate-21"
           add_field => { "[event][action]" => "data-object-query" }
         }
 
@@ -770,9 +770,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate"
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate-21"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-dataobject-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-dataobject-mutate-21", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -783,22 +783,22 @@ filter {
     else if [log][logger] == "rest.SyncDeterminatorTool" {
       if [app_message] =~ /^SYNCDETERMINATORTOOL:/ {
         grok {
-          id => "2001-c2imera-java-syncdeterminator-grok"
+          id => "2001-c2imera-java-syncdeterminator-grok-15"
           match => { "app_message" => "SYNCDETERMINATORTOOL: %{GREEDYDATA:[c2imera][sync_determinator]}" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-syncdeterminator-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-syncdeterminator-grok-15"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-syncdeterminator-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-syncdeterminator-grok-15" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-grok-15"
             }
           }
         }
       }
       mutate {
-        id => "2001-c2imera-java-syncdeterminator-strip"
+        id => "2001-c2imera-java-syncdeterminator-strip-mutate-22"
         strip => ["[c2imera][sync_determinator]"]
       }
 
@@ -806,9 +806,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2001-c2imera-java.conf"
-            "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip"
+            "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip-mutate-22"
           }
-          add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-syncdeterminator-strip", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-syncdeterminator-strip-mutate-22", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -818,21 +818,21 @@ filter {
     else if [log][logger] == "internal.UserServiceInternal" {
       if [app_message] =~ /^Adding user:/ {
         grok {
-          id => "2001-c2imera-java-userservice-grok"
+          id => "2001-c2imera-java-userservice-grok-16"
           match => { "app_message" => "Adding user: <%{DATA:[user][name]}>" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-userservice-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-userservice-grok-16"]
         }
 
-        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-userservice-grok" in [tags] {
+        if "_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-userservice-grok-16" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-grok"
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-grok-16"
             }
           }
         }
         mutate {
-          id => "2001-c2imera-java-userservice-mutate"
+          id => "2001-c2imera-java-userservice-mutate-23"
           add_field => { "[event][action]" => "user-added" }
         }
 
@@ -840,9 +840,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2001-c2imera-java.conf"
-              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate"
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate-23"
             }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-userservice-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-userservice-mutate-23", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }

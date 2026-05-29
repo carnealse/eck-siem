@@ -1,7 +1,7 @@
 filter {
   if [@metadata][log_lane] in ["java_lane", "legacy_lane"] {
     mutate {
-      id => "3000-c2imera-ecs-mapping"
+      id => "3000-c2imera-ecs-mapping-mutate-01"
       add_field => {
         "[event][kind]"    => "event"
         "[event][dataset]" => "c2imera"
@@ -12,9 +12,9 @@ filter {
       mutate {
         add_field => {
           "[error][source_config]"    => "3000-c2imera-ecs-mapping.conf"
-          "[error][source_plugin_id]" => "3000-c2imera-ecs-mapping"
+          "[error][source_plugin_id]" => "3000-c2imera-ecs-mapping-mutate-01"
         }
-        add_tag => ["_logstash_failure__3000-c2imera-ecs-mapping__mutate__3000-c2imera-ecs-mapping", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__3000-c2imera-ecs-mapping__mutate__3000-c2imera-ecs-mapping-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

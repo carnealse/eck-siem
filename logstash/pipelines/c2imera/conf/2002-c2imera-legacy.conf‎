@@ -2,7 +2,7 @@ filter {
   if [@metadata][log_lane] == "legacy_lane" {
     # 1. Generic Legacy Header
     grok {
-      id => "2002-c2imera-legacy-header-grok"
+      id => "2002-c2imera-legacy-header-grok-01"
       match => {
         "message" => [
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{DATA:app_message} \(OID:%{DATA:[trace][id]}\)\s*\(TID:%{DATA:[process][thread][id]}\)\s*\[%{GREEDYDATA:legacy_class_info}\]$",
@@ -11,30 +11,30 @@ filter {
           "^%{DATA:raw_ts}\s+%{LOGLEVEL:[log][level]}:\s+%{GREEDYDATA:app_message}$"
         ]
       }
-      tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok"]
+      tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok-01"]
     }
 
-    if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok" in [tags] {
+    if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok-01" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2002-c2imera-legacy.conf"
-          "[error][source_plugin_id]" => "2002-c2imera-legacy-header-grok"
+          "[error][source_plugin_id]" => "2002-c2imera-legacy-header-grok-01"
         }
       }
     }
 
     date {
-      id => "2002-c2imera-legacy-date"
+      id => "2002-c2imera-legacy-date-01"
       match => [ "raw_ts", "yyyyMMddHHmmssSSS" ]
       target => "@timestamp"
-      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date"]
+      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date-01"]
     }
 
-    if "_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date" in [tags] {
+    if "_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date-01" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2002-c2imera-legacy.conf"
-          "[error][source_plugin_id]" => "2002-c2imera-legacy-date"
+          "[error][source_plugin_id]" => "2002-c2imera-legacy-date-01"
         }
       }
     }
@@ -42,54 +42,54 @@ filter {
     # TOPIC 1: NODE (JSON Data)
     if [app_message] =~ /^NODE: \{/ {
       grok {
-        id => "2002-c2imera-legacy-node-grok"
+        id => "2002-c2imera-legacy-node-grok-02"
         match => { "app_message" => "NODE: %{DATA:node_json} \| %{GREEDYDATA:dce_data}" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok-02"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok-02" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-grok-02"
           }
         }
       }
 
       json {
-        id => "2002-c2imera-legacy-node-json"
+        id => "2002-c2imera-legacy-node-json-01"
         source => "node_json"
         target => "[c2imera][node]"
-        tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json"]
+        tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json-01"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json-01" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-json"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-json-01"
           }
         }
       }
 
       grok {
-        id => "2002-c2imera-legacy-dce-grok"
+        id => "2002-c2imera-legacy-dce-grok-03"
         match => { "dce_data" => "DATACHANGEVENT: DataChangeEvent \[id=%{DATA:[c2imera][dce][id]}, workspaceName=%{DATA:[c2imera][workspace]}, createdAt=%{DATA:[c2imera][dce][created_at]}, type=%{DATA:[c2imera][dce][type]}, dataType=%{GREEDYDATA:[c2imera][dce][data_type]}\]" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok-03"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok-03" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-grok-03"
           }
         }
       }
 
       if [c2imera][node] {
         ruby {
-          id => "2002-c2imera-legacy-node-ruby"
+          id => "2002-c2imera-legacy-node-ruby-01"
           code => '
             def to_snake(str); str.gsub(/([a-z\d])([A-Z])/, "\\1_\\2").downcase; end
             def process_hash(h)
@@ -103,23 +103,23 @@ filter {
             node_data = event.get("[c2imera][node]")
             if node_data.is_a?(Hash) then new_data = process_hash(node_data); event.set("[c2imera][node]", new_data) end
           '
-          tag_on_exception => "_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby"
+          tag_on_exception => "_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01"
         }
 
-        if ("_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+        if ("_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-node-ruby"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-node-ruby-01"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby", "_logstash_attributed_ruby_exception"]
+            add_tag => ["_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01", "_logstash_attributed_ruby_exception"]
             remove_tag => ["ruby_exception", "_rubyexception"]
           }
         }
       }
 
       mutate {
-        id => "2002-c2imera-legacy-node-mutate"
+        id => "2002-c2imera-legacy-node-mutate-01"
         add_field => { "[event][action]" => "node-data-change" }
         remove_field => ["node_json", "dce_data"]
       }
@@ -128,9 +128,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-node-mutate-01"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-node-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-node-mutate-01", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -139,21 +139,21 @@ filter {
     # TOPIC 2: User Filters
     else if [app_message] =~ /^createFilterForUser/ {
       grok {
-        id => "2002-c2imera-legacy-userfilter-grok"
+        id => "2002-c2imera-legacy-userfilter-grok-04"
         match => { "app_message" => "createFilterForUser for user \"%{DATA:[user][name]}\" and workspace \"%{DATA:[c2imera][workspace]}\" finished in %{INT:[c2imera][user_filter][duration_ms]} ms" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok-04"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok-04" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-grok-04"
           }
         }
       }
       mutate {
-        id => "2002-c2imera-legacy-userfilter-mutate"
+        id => "2002-c2imera-legacy-userfilter-mutate-02"
         add_field => { "[event][action]" => "create-filter-for-user" }
         convert => { "[c2imera][user_filter][duration_ms]" => "integer" }
       }
@@ -162,9 +162,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-mutate-02"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-userfilter-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-userfilter-mutate-02", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -173,21 +173,21 @@ filter {
     # TOPIC 3: Scheduled Jobs
     else if [app_message] =~ /^Scheduling job/ {
       grok {
-        id => "2002-c2imera-legacy-scheduledjob-grok"
+        id => "2002-c2imera-legacy-scheduledjob-grok-05"
         match => { "app_message" => "Scheduling job ScheduledJob\{jobId=%{INT:[c2imera][scheduled_job][id]}, jobType='%{DATA:[c2imera][job][type]}', targetObjectId=%{DATA:[c2imera][job][target_id]}, secondaryId='%{DATA:[c2imera][job][secondary_id]}', scheduledTime=%{DATA:[c2imera][job][scheduled_time]}\}" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok-05"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok-05" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-grok-05"
           }
         }
       }
       mutate {
-        id => "2002-c2imera-legacy-scheduledjob-mutate"
+        id => "2002-c2imera-legacy-scheduledjob-mutate-03"
         add_field => { "[event][action]" => "schedule-job" }
       }
 
@@ -195,9 +195,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-mutate-03"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scheduledjob-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scheduledjob-mutate-03", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -206,21 +206,21 @@ filter {
     # TOPIC 4: Security Context
     else if [app_message] =~ /^filter\(\)/ {
       grok {
-        id => "2002-c2imera-legacy-secctx-filter-grok"
+        id => "2002-c2imera-legacy-secctx-filter-grok-06"
         match => { "app_message" => "filter\(\) %{DATA:[url][full]} resolved to: DefaultSecurityContext\[user:RestUser\{%{DATA:user_info}\}, roles:\[%{DATA:[user][roles]}\]\]" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok-06"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok-06" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-grok-06"
           }
         }
       }
       mutate {
-        id => "2002-c2imera-legacy-secctx-filter-mutate"
+        id => "2002-c2imera-legacy-secctx-filter-mutate-04"
         add_field => { "[event][action]" => "security-context-resolved" }
       }
 
@@ -228,9 +228,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-mutate-04"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-filter-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-filter-mutate-04", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -238,21 +238,21 @@ filter {
 
     else if [app_message] =~ /^Using trusted user:/ {
       grok {
-        id => "2002-c2imera-legacy-secctx-trusted-grok"
+        id => "2002-c2imera-legacy-secctx-trusted-grok-07"
         match => { "app_message" => "Using trusted user:RestUser\{%{DATA:user_info}\} roles:\[%{DATA:[user][roles]}\]\]?" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok-07"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok-07" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-grok-07"
           }
         }
       }
       mutate {
-        id => "2002-c2imera-legacy-secctx-trusted-mutate"
+        id => "2002-c2imera-legacy-secctx-trusted-mutate-05"
         add_field => { "[event][action]" => "security-context-created" }
       }
 
@@ -260,9 +260,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-mutate-05"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-trusted-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-trusted-mutate-05", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -271,21 +271,21 @@ filter {
     # TOPIC 5: EDIT DCE Received
     else if [app_message] =~ /^EDIT DCE received/ {
       grok {
-        id => "2002-c2imera-legacy-dce-received-grok"
+        id => "2002-c2imera-legacy-dce-received-grok-08"
         match => { "app_message" => "EDIT DCE received\. Content Type: \"%{DATA:[c2imera][dce][content_type]}\", Kmeka Msg Key: %{GREEDYDATA:[c2imera][dce][msg_key]}" }
-        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok-08"]
       }
 
-      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok" in [tags] {
+      if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok-08" in [tags] {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-grok"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-grok-08"
           }
         }
       }
       mutate {
-        id => "2002-c2imera-legacy-dce-received-mutate"
+        id => "2002-c2imera-legacy-dce-received-mutate-06"
         add_field => { "[event][action]" => "dce-received" }
       }
 
@@ -293,9 +293,9 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-mutate-06"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dce-received-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dce-received-mutate-06", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -304,7 +304,7 @@ filter {
     # TOPIC 6: Warnings & Errors
     else if [log][level] in ["WARNING", "ERROR"] or [app_message] =~ /^Error -/ {
       mutate {
-        id => "2002-c2imera-legacy-error-copy"
+        id => "2002-c2imera-legacy-error-copy-mutate-07"
         copy => { "[app_message]" => "[event][reason]" }
       }
 
@@ -312,30 +312,30 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-error-copy"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-error-copy-mutate-07"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-error-copy", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-error-copy-mutate-07", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
 
       if [app_message] =~ /No DataObject found on/ {
         grok {
-          id => "2002-c2imera-legacy-dataobject-missing-grok"
+          id => "2002-c2imera-legacy-dataobject-missing-grok-09"
           match => { "app_message" => "No DataObject found on %{DATA:[c2imera][data_object][id]};" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok-09"]
         }
 
-        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok" in [tags] {
+        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok-09" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-grok"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-grok-09"
             }
           }
         }
         mutate {
-          id => "2002-c2imera-legacy-dataobject-missing-mutate"
+          id => "2002-c2imera-legacy-dataobject-missing-mutate-08"
           add_field => { "[event][action]" => "data-object-missing" }
         }
 
@@ -343,31 +343,31 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-mutate"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-mutate-08"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dataobject-missing-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dataobject-missing-mutate-08", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
       }
       else if [app_message] =~ /^Error -/ {
         grok {
-          id => "2002-c2imera-legacy-apperror-grok"
+          id => "2002-c2imera-legacy-apperror-grok-10"
           match => { "app_message" => "Error - %{DATA:[event][reason]} \(ID:%{DATA:[error][id]}\)" }
           overwrite => [ "[event][reason]" ]
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok-10"]
         }
 
-        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok" in [tags] {
+        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok-10" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-grok"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-grok-10"
             }
           }
         }
         mutate {
-          id => "2002-c2imera-legacy-apperror-mutate"
+          id => "2002-c2imera-legacy-apperror-mutate-09"
           add_field => { "[event][action]" => "application-error" }
         }
 
@@ -375,9 +375,9 @@ filter {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-mutate"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-mutate-09"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-apperror-mutate", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-apperror-mutate-09", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -387,7 +387,7 @@ filter {
     # TOPIC 7: Scribe Processor
     else if [app_message] =~ /^Using normal scribe processor/ {
       mutate {
-        id => "2002-c2imera-legacy-scribe-mutate"
+        id => "2002-c2imera-legacy-scribe-mutate-10"
         add_field => { "[event][action]" => "scribe-processor-status" }
         copy => { "[app_message]" => "[event][reason]" }
       }
@@ -396,25 +396,25 @@ filter {
         mutate {
           add_field => {
             "[error][source_config]"    => "2002-c2imera-legacy.conf"
-            "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-mutate"
+            "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-mutate-10"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scribe-mutate", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scribe-mutate-10", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
 
       if [legacy_class_info] {
         grok {
-          id => "2002-c2imera-legacy-scribe-grok"
+          id => "2002-c2imera-legacy-scribe-grok-11"
           match => { "legacy_class_info" => "%{JAVACLASS:[log][logger]} %{DATA:[log][origin][function]}" }
-          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok"]
+          tag_on_failure => ["_grokparsefailure", "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok-11"]
         }
 
-        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok" in [tags] {
+        if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok-11" in [tags] {
           mutate {
             add_field => {
               "[error][source_config]"    => "2002-c2imera-legacy.conf"
-              "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-grok"
+              "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-grok-11"
             }
           }
         }
@@ -423,7 +423,7 @@ filter {
 
     # Cleanup Legacy Details
     mutate {
-      id => "2002-c2imera-legacy-cleanup"
+      id => "2002-c2imera-legacy-cleanup-mutate-11"
       remove_field => ["legacy_class_info"]
     }
 
@@ -431,9 +431,9 @@ filter {
       mutate {
         add_field => {
           "[error][source_config]"    => "2002-c2imera-legacy.conf"
-          "[error][source_plugin_id]" => "2002-c2imera-legacy-cleanup"
+          "[error][source_plugin_id]" => "2002-c2imera-legacy-cleanup-mutate-11"
         }
-        add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-cleanup", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-cleanup-mutate-11", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

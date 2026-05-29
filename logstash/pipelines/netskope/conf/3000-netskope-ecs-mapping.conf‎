@@ -1,7 +1,7 @@
 filter {
   # rename fields to ECS standards v1
   mutate {
-    id => "rename_v1"
+    id => "3000-netskope-rename_v1-mutate-01"
     rename => {
       "_id"                          => "[netskope][id]"
       "access_method"                => "[netskope][access_method]"
@@ -98,16 +98,16 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
-        "[error][source_plugin_id]" => "rename_v1"
+        "[error][source_plugin_id]" => "3000-netskope-rename_v1-mutate-01"
       }
-      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__rename_v1", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__3000-netskope-rename_v1-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
 
   # rename fields to ECS standards for v2
   mutate {
-    id => "rename_v2"
+    id => "3000-netskope-rename_v2-mutate-02"
     rename => {
       "activity"                    => "[event][action]"
       "alert"                       => "[event][category]"
@@ -201,16 +201,16 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
-        "[error][source_plugin_id]" => "rename_v2"
+        "[error][source_plugin_id]" => "3000-netskope-rename_v2-mutate-02"
       }
-      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__rename_v2", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__3000-netskope-rename_v2-mutate-02", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
 
   # rename temps that would clash with same name fields already assigned as strings in above rename
   mutate {
-    id => "3000-netskope-temp-mapping"
+    id => "3000-netskope-temp-mapping-mutate-03"
     rename => {
       "[temp][user]"    => "[user]"
       "[temp][os]"      => "[os]"
@@ -223,9 +223,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "3000-netskope-ecs-mapping.conf"
-        "[error][source_plugin_id]" => "3000-netskope-temp-mapping"
+        "[error][source_plugin_id]" => "3000-netskope-temp-mapping-mutate-03"
       }
-      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__3000-netskope-temp-mapping", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__3000-netskope-ecs-mapping__mutate__3000-netskope-temp-mapping-mutate-03", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

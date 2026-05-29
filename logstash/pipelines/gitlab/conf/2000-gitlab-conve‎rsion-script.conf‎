@@ -2,7 +2,7 @@ filter {
   # convert to object if a string comes through for custom_message
   if [gitlab][details][custom_message] {
     ruby {
-      id => "2000-gitlab-custom-message-conversion"
+      id => "2000-gitlab-custom-message-conversion-ruby-01"
       code => '
         if event.get("[gitlab][details][custom_message]").is_a?(String)
           action = event.get("[gitlab][details][custom_message]")
@@ -10,16 +10,16 @@ filter {
           event.set("[gitlab][details][custom_message][action]", action)
         end
       '
-      tag_on_exception => "_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion"
+      tag_on_exception => "_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01"
     }
 
-    if ("_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    if ("_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
       mutate {
         add_field => {
           "[error][source_config]"    => "2000-gitlab-conversion-script.conf"
-          "[error][source_plugin_id]" => "2000-gitlab-custom-message-conversion"
+          "[error][source_plugin_id]" => "2000-gitlab-custom-message-conversion-ruby-01"
         }
-        add_tag => ["_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion", "_logstash_attributed_ruby_exception"]
+        add_tag => ["_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01", "_logstash_attributed_ruby_exception"]
         remove_tag => ["ruby_exception", "_rubyexception"]
       }
     }

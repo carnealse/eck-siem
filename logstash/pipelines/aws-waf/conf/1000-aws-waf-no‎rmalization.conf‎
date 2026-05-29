@@ -94,16 +94,16 @@ if [event][original] {
   }
 
   json {
-    id => "json_processor"
+    id => "1000-aws-waf-json_processor-json-01"
     source => "message"
-    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-aws-waf-normalization__json__json_processor"]
+    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-aws-waf-normalization__json__1000-aws-waf-json_processor-json-01"]
   }
 
-  if "_logstash_failure__1000-aws-waf-normalization__json__json_processor" in [tags] {
+  if "_logstash_failure__1000-aws-waf-normalization__json__1000-aws-waf-json_processor-json-01" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-aws-waf-normalization.conf"
-        "[error][source_plugin_id]" => "json_processor"
+        "[error][source_plugin_id]" => "1000-aws-waf-json_processor-json-01"
       }
     }
   }
@@ -127,17 +127,17 @@ if [event][original] {
   }
 
   date {
-    id => "timestamp_date_match"
+    id => "1000-aws-waf-timestamp_date_match-date-01"
     match => ["timestamp", "UNIX_MS", "UNIX"]
     target => "[@timestamp]"
-    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-aws-waf-normalization__date__timestamp_date_match"]
+    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-aws-waf-normalization__date__1000-aws-waf-timestamp_date_match-date-01"]
   }
 
-  if "_logstash_failure__1000-aws-waf-normalization__date__timestamp_date_match" in [tags] {
+  if "_logstash_failure__1000-aws-waf-normalization__date__1000-aws-waf-timestamp_date_match-date-01" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-aws-waf-normalization.conf"
-        "[error][source_plugin_id]" => "timestamp_date_match"
+        "[error][source_plugin_id]" => "1000-aws-waf-timestamp_date_match-date-01"
       }
     }
   }

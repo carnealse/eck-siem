@@ -16,36 +16,36 @@ filter {
   }
   if [gitlab][created_at] {
     date {
-      id => "2001-gitlab-date-created-at"
+      id => "2001-gitlab-date-created-at-date-01"
       match => ["[gitlab][created_at]", "UNIX_MS", "ISO8601", "UNIX"]
       target => "@timestamp"
       remove_field => ["[gitlab][created_at]"]
-      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at"]
+      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at-date-01"]
     }
 
-    if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at" in [tags] {
+    if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at-date-01" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2001-gitlab-main-parse.conf"
-          "[error][source_plugin_id]" => "2001-gitlab-date-created-at"
+          "[error][source_plugin_id]" => "2001-gitlab-date-created-at-date-01"
         }
       }
     }
   }
   if [gitlab][@timestamp] {
     date {
-      id => "2001-gitlab-date-timestamp"
+      id => "2001-gitlab-date-timestamp-date-02"
       match => ["[gitlab][@timestamp]", "UNIX_MS", "ISO8601", "UNIX"]
       target => "@timestamp"
       remove_field => ["[gitlab][@timestamp]"]
-      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp"]
+      tag_on_failure => ["_dateparsefailure", "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp-date-02"]
     }
 
-    if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp" in [tags] {
+    if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp-date-02" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "2001-gitlab-main-parse.conf"
-          "[error][source_plugin_id]" => "2001-gitlab-date-timestamp"
+          "[error][source_plugin_id]" => "2001-gitlab-date-timestamp-date-02"
         }
       }
     }

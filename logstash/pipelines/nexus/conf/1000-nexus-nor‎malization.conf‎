@@ -5,16 +5,16 @@ filter {
     add_field => {
       "[event][original]" => "%{[message]}"
     }
-    id => "1000-nexus-preserve-original"
+    id => "1000-nexus-preserve-original-mutate-01"
   }
 
   if "_mutate_error" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-nexus-normalization.conf"
-        "[error][source_plugin_id]" => "1000-nexus-preserve-original"
+        "[error][source_plugin_id]" => "1000-nexus-preserve-original-mutate-01"
       }
-      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-preserve-original", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-preserve-original-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -23,39 +23,39 @@ filter {
   if [message] =~ /^(\s+)?\{.*\}(\s+)?$/ {
     mutate {
       add_field => { "isJson" => "true" }
-      id => "1000-nexus-detect-json"
+      id => "1000-nexus-detect-json-mutate-02"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-nexus-normalization.conf"
-          "[error][source_plugin_id]" => "1000-nexus-detect-json"
+          "[error][source_plugin_id]" => "1000-nexus-detect-json-mutate-02"
         }
-        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-json", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-json-mutate-02", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
   } else if !([message] =~ /^\{.*\}$/) {
     mutate {
       add_field => { "isJson" => "false" }
-      id => "1000-nexus-detect-non-json"
+      id => "1000-nexus-detect-non-json-mutate-03"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-nexus-normalization.conf"
-          "[error][source_plugin_id]" => "1000-nexus-detect-non-json"
+          "[error][source_plugin_id]" => "1000-nexus-detect-non-json-mutate-03"
         }
-        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-non-json", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-non-json-mutate-03", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
   }
 
   mutate {
-    id => "1000-nexus-update-tags"
+    id => "1000-nexus-update-tags-mutate-04"
     replace => {
       "tags" => ["logstash"]
     }
@@ -65,9 +65,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-nexus-normalization.conf"
-        "[error][source_plugin_id]" => "1000-nexus-update-tags"
+        "[error][source_plugin_id]" => "1000-nexus-update-tags-mutate-04"
       }
-      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-update-tags", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-update-tags-mutate-04", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
