@@ -6,7 +6,6 @@ filter {
     method => "SHA256"
   }
 
-  # Do not set data_stream_namespace here; that will be handled in the return pipeline
   mutate {
     id => "1000-aws-waf-normalization-mutate-01"
     add_field => {
