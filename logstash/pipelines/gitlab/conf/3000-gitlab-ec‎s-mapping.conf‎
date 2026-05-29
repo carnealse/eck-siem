@@ -28,7 +28,7 @@ filter {
 
   # add tag to ensure no pipelines remove event original
   mutate {
-    id => "3000-gitlab-ecs-mapping-mutate-01"
+    id => "3000-gitlab-preserve-original-tag-mutate-01"
     add_tag => ["preserve_original_event"]
   }
 
@@ -36,9 +36,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
-        "[error][source_plugin_id]" => "3000-gitlab-ecs-mapping-mutate-01"
+        "[error][source_plugin_id]" => "3000-gitlab-preserve-original-tag-mutate-01"
       }
-      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__3000-gitlab-ecs-mapping-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__3000-gitlab-preserve-original-tag-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

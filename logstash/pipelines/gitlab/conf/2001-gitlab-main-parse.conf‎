@@ -1,6 +1,6 @@
 filter {
   mutate {
-    id => "2001-gitlab-main-parse-mutate-01"
+    id => "2001-gitlab-rename-message-original-mutate-01"
     rename => { "message" => "[event][original]" }
   }
 
@@ -8,9 +8,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "2001-gitlab-main-parse.conf"
-        "[error][source_plugin_id]" => "2001-gitlab-main-parse-mutate-01"
+        "[error][source_plugin_id]" => "2001-gitlab-rename-message-original-mutate-01"
       }
-      add_tag => ["_logstash_failure__2001-gitlab-main-parse__mutate__2001-gitlab-main-parse-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__2001-gitlab-main-parse__mutate__2001-gitlab-rename-message-original-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
