@@ -8,40 +8,122 @@ filter {
 
   # Do not set data_stream_namespace here; that will be handled in the return pipeline
   mutate {
+    id => "1000-aws-waf-normalization-mutate-10"
     add_field => {
       "document_id" => "%{[@metadata][fingerprint]}"
     }
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-10"
+      }
+      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-10", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
 if [event][original] {
     mutate {
+      id => "1000-aws-waf-normalization-mutate-17"
       remove_field => ["[event][original]"]
+    }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+          "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-17"
+        }
+        add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-17", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
     }
 }
 
 #added to set original message into event.original
   mutate {
+    id => "1000-aws-waf-normalization-mutate-23"
     add_field => { "[event][original]" => "temp_value" }
   }
 
-  mutate {
-    copy => { "message" => "[event][original]" }
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-23"
+      }
+      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-23", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 
   mutate {
+    id => "1000-aws-waf-normalization-mutate-27"
+    copy => { "message" => "[event][original]" }
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-27"
+      }
+      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-27", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
+  mutate {
+    id => "1000-aws-waf-normalization-mutate-31"
     replace => {
       "tags" => ["aws_waf", "logstash", "preserve_event_original"]
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-31"
+      }
+      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-31", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
     }
   }
 
   json {
     id => "json_processor"
     source => "message"
+    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-aws-waf-normalization__json__json_processor"]
+  }
+
+  if "_logstash_failure__1000-aws-waf-normalization__json__json_processor" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "json_processor"
+      }
+    }
   }
 
   mutate {
+    id => "1000-aws-waf-normalization-mutate-42"
     rename => {
       "[@timestamp]"  => "[event][created]"
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "1000-aws-waf-normalization-mutate-42"
+      }
+      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-normalization-mutate-42", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
     }
   }
 
@@ -49,5 +131,15 @@ if [event][original] {
     id => "timestamp_date_match"
     match => ["timestamp", "UNIX_MS", "UNIX"]
     target => "[@timestamp]"
+    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-aws-waf-normalization__date__timestamp_date_match"]
+  }
+
+  if "_logstash_failure__1000-aws-waf-normalization__date__timestamp_date_match" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
+        "[error][source_plugin_id]" => "timestamp_date_match"
+      }
+    }
   }
 }

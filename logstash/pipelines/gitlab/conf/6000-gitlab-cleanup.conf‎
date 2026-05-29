@@ -1,6 +1,18 @@
 filter {
   # field clean up
   mutate {
+    id => "6000-gitlab-cleanup-mutate-3"
       remove_field => ["[host]", "[user_agent][original]", "[http]"]
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "6000-gitlab-cleanup.conf"
+        "[error][source_plugin_id]" => "6000-gitlab-cleanup-mutate-3"
+      }
+      add_tag => ["_logstash_failure__6000-gitlab-cleanup__mutate__6000-gitlab-cleanup-mutate-3", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 }

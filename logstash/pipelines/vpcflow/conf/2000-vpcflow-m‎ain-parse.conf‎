@@ -4,6 +4,18 @@ filter {
     code => '
       event.set("[_temp][message_token_count]", event.get("[event][original]").split(" ").length)
     '
+    tag_on_exception => "_logstash_failure__2000-vpcflow-main-parse__ruby__2000-vpcflow-ruby-token-count"
+  }
+
+  if ("_logstash_failure__2000-vpcflow-main-parse__ruby__2000-vpcflow-ruby-token-count" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+        "[error][source_plugin_id]" => "2000-vpcflow-ruby-token-count"
+      }
+      add_tag => ["_logstash_failure__2000-vpcflow-main-parse__ruby__2000-vpcflow-ruby-token-count", "_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception"]
+    }
   }
 
   if [_temp][message_token_count] == 14 {
@@ -12,6 +24,16 @@ filter {
         "[event][original]" => "%{[aws][vpcflow][version]} %{[aws][vpcflow][account_id]} %{[aws][vpcflow][interface_id]} %{[aws][vpcflow][srcaddr]} %{[aws][vpcflow][dstaddr]} %{[aws][vpcflow][srcport]} %{[aws][vpcflow][dstport]} %{[aws][vpcflow][protocol]} %{[aws][vpcflow][packets]} %{[aws][vpcflow][bytes]} %{[aws][vpcflow][start]} %{[aws][vpcflow][end]} %{[aws][vpcflow][action]} %{[aws][vpcflow][log_status]}"
       }
       id => "2000-vpcflow-dissect-14"
+      tag_on_failure => ["_dissectfailure", "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-14"]
+    }
+
+    if "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-14" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-vpcflow-dissect-14"
+        }
+      }
     }
   }
 
@@ -21,6 +43,16 @@ filter {
         "[event][original]" => "%{[aws][vpcflow][instance_id]} %{[aws][vpcflow][interface_id]} %{[aws][vpcflow][srcaddr]} %{[aws][vpcflow][dstaddr]} %{[aws][vpcflow][pkt_srcaddr]} %{[aws][vpcflow][pkt_dstaddr]}"
       }
       id => "2000-vpcflow-dissect-6"
+      tag_on_failure => ["_dissectfailure", "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-6"]
+    }
+
+    if "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-6" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-vpcflow-dissect-6"
+        }
+      }
     }
   }
 
@@ -30,6 +62,16 @@ filter {
         "[event][original]" => "%{[aws][vpcflow][version]} %{[aws][vpcflow][interface_id]} %{[aws][vpcflow][account_id]} %{[aws][vpcflow][vpc_id]} %{[aws][vpcflow][subnet_id]} %{[aws][vpcflow][instance_id]} %{[aws][vpcflow][srcaddr]} %{[aws][vpcflow][dstaddr]} %{[aws][vpcflow][srcport]} %{[aws][vpcflow][dstport]} %{[aws][vpcflow][protocol]} %{[aws][vpcflow][tcp_flags]} %{[aws][vpcflow][type]} %{[aws][vpcflow][pkt_srcaddr]} %{[aws][vpcflow][pkt_dstaddr]} %{[aws][vpcflow][action]} %{[aws][vpcflow][log_status]}"
       }
       id => "2000-vpcflow-dissect-17"
+      tag_on_failure => ["_dissectfailure", "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-17"]
+    }
+
+    if "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-17" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-vpcflow-dissect-17"
+        }
+      }
     }
   }
 
@@ -39,6 +81,16 @@ filter {
         "[event][original]" => "%{[aws][vpcflow][version]} %{[aws][vpcflow][vpc_id]} %{[aws][vpcflow][subnet_id]} %{[aws][vpcflow][instance_id]} %{[aws][vpcflow][interface_id]} %{[aws][vpcflow][account_id]} %{[aws][vpcflow][type]} %{[aws][vpcflow][srcaddr]} %{[aws][vpcflow][dstaddr]} %{[aws][vpcflow][srcport]} %{[aws][vpcflow][dstport]} %{[aws][vpcflow][pkt_srcaddr]} %{[aws][vpcflow][pkt_dstaddr]} %{[aws][vpcflow][protocol]} %{[aws][vpcflow][bytes]} %{[aws][vpcflow][packets]} %{[aws][vpcflow][start]} %{[aws][vpcflow][end]} %{[aws][vpcflow][action]} %{[aws][vpcflow][tcp_flags]} %{[aws][vpcflow][log_status]}"
       }
       id => "2000-vpcflow-dissect-21"
+      tag_on_failure => ["_dissectfailure", "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-21"]
+    }
+
+    if "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-21" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-vpcflow-dissect-21"
+        }
+      }
     }
   }
 
@@ -48,6 +100,16 @@ filter {
         "[event][original]" => "%{[aws][vpcflow][version]} %{[aws][vpcflow][account_id]} %{[aws][vpcflow][interface_id]} %{[aws][vpcflow][srcaddr]} %{[aws][vpcflow][dstaddr]} %{[aws][vpcflow][srcport]} %{[aws][vpcflow][dstport]} %{[aws][vpcflow][protocol]} %{[aws][vpcflow][packets]} %{[aws][vpcflow][bytes]} %{[aws][vpcflow][start]} %{[aws][vpcflow][end]} %{[aws][vpcflow][action]} %{[aws][vpcflow][log_status]} %{[aws][vpcflow][vpc_id]} %{[aws][vpcflow][subnet_id]} %{[aws][vpcflow][instance_id]} %{[aws][vpcflow][tcp_flags]} %{[aws][vpcflow][type]} %{[aws][vpcflow][pkt_srcaddr]} %{[aws][vpcflow][pkt_dstaddr]} %{[cloud][region]} %{[cloud][availability_zone]} %{[aws][vpcflow][sublocation][type]} %{[aws][vpcflow][sublocation][id]} %{[aws][vpcflow][pkt_src_service]} %{[aws][vpcflow][pkt_dst_service]} %{[network][direction]} %{[aws][vpcflow][traffic_path]}"
       }
       id => "2000-vpcflow-dissect-29"
+      tag_on_failure => ["_dissectfailure", "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-29"]
+    }
+
+    if "_logstash_failure__2000-vpcflow-main-parse__dissect__2000-vpcflow-dissect-29" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-vpcflow-dissect-29"
+        }
+      }
     }
   }
 
@@ -68,8 +130,17 @@ filter {
         match => {
           "[event][original]" => "%{DATA:[aws][vpcflow][account_id]} %{DATA:[aws][vpcflow][action]} %{DATA:[cloud][availability_zone]} %{NOTSPACE:[aws][vpcflow][extra]} %{DATA:[aws][vpcflow][srcaddr]} %{DATA:[aws][vpcflow][srcport]} %{NOTSPACE:[aws][vpcflow][start]} %{DATA:[aws][vpcflow][direction]} %{NOTSPACE:[aws][vpcflow][instance_id]} %{DATA:[aws][vpcflow][interface_id]} %{DATA:[aws][vpcflow][log_status]} %{NOTSPACE:[aws][vpcflow][packets]} %{DATA:[aws][vpcflow][bytes_field]} %{NOTSPACE:[aws][vpcflow][srcaddr_dup]} %{NOTSPACE:[aws][vpcflow][placeholder1]} %{NOTSPACE:[aws][vpcflow][dstaddr]} %{NOTSPACE:[aws][vpcflow][protocol]} %{DATA:[cloud][region]} %{NOTSPACE:[placeholder2]} %{NOTSPACE:[aws][vpcflow][dstaddr_dup]} %{NOTSPACE:[aws][vpcflow][dstport]} %{NOTSPACE:[aws][vpcflow][end]} %{NOTSPACE:[aws][placeholder3]} %{NOTSPACE:[aws][placeholder4]} %{NOTSPACE:[aws][vpcflow][subnet_id]} %{NOTSPACE:[aws][vpcflow][bytes]} %{NOTSPACE:[aws][placeholder5]} %{DATA:[aws][vpcflow][type]} %{NOTSPACE:[aws][vpcflow][tcp_flags]} %{NOTSPACE:[aws][vpcflow][vpc_id]} %{NOTSPACE:[aws][placeholder6]} %{NOTSPACE:[aws][placeholder7]} %{NOTSPACE:[aws][placeholder8]} %{NOTSPACE:[aws][placeholder9]} %{NOTSPACE:[aws][placeholder10]} %{NOTSPACE:[aws][placeholder11]} %{NOTSPACE:[aws][placeholder12]} %{NOTSPACE:[aws][placeholder13]} %{NOTSPACE:[aws][placeholder14]} %{NOTSPACE:[aws][placeholder15]}"
         }
-        tag_on_failure => ["_grokparsefailure"]
+        tag_on_failure => ["_grokparsefailure", "_logstash_failure__2000-vpcflow-main-parse__grok__2000-vpcflow-grok-40-lenient"]
         id => "2000-vpcflow-grok-40-lenient"
+      }
+
+      if "_logstash_failure__2000-vpcflow-main-parse__grok__2000-vpcflow-grok-40-lenient" in [tags] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-vpcflow-main-parse.conf"
+            "[error][source_plugin_id]" => "2000-vpcflow-grok-40-lenient"
+          }
+        }
       }
     }
   }

@@ -8,16 +8,49 @@ filter {
     id => "1000-nexus-preserve-original"
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-nexus-normalization.conf"
+        "[error][source_plugin_id]" => "1000-nexus-preserve-original"
+      }
+      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-preserve-original", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
   # check message type (json or not) and add a temp field that will be used for conditionals later on
   if [message] =~ /^(\s+)?\{.*\}(\s+)?$/ {
     mutate {
       add_field => { "isJson" => "true" }
       id => "1000-nexus-detect-json"
     }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-nexus-normalization.conf"
+          "[error][source_plugin_id]" => "1000-nexus-detect-json"
+        }
+        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-json", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
   } else if !([message] =~ /^\{.*\}$/) {
     mutate {
       add_field => { "isJson" => "false" }
       id => "1000-nexus-detect-non-json"
+    }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-nexus-normalization.conf"
+          "[error][source_plugin_id]" => "1000-nexus-detect-non-json"
+        }
+        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-non-json", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -25,6 +58,17 @@ filter {
     id => "1000-nexus-update-tags"
     replace => {
       "tags" => ["logstash"]
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-nexus-normalization.conf"
+        "[error][source_plugin_id]" => "1000-nexus-update-tags"
+      }
+      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-update-tags", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
     }
   }
 }

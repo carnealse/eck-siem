@@ -15,8 +15,31 @@ filter {
     }
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "gitlab_field_renames"
+      }
+      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__gitlab_field_renames", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
   # add tag to ensure no pipelines remove event original
   mutate {
+    id => "3000-gitlab-ecs-mapping-mutate-19"
     add_tag => ["preserve_original_event"]
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
+        "[error][source_plugin_id]" => "3000-gitlab-ecs-mapping-mutate-19"
+      }
+      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__3000-gitlab-ecs-mapping-mutate-19", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 }

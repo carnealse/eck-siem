@@ -7,13 +7,35 @@ filter {
   }
 
   mutate {
+    id => "1000-gitlab-normalization-mutate-9"
     add_tag => ["logstash"]
     add_field => {"[ecs][version]" => "8.0.0"}
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-gitlab-normalization.conf"
+        "[error][source_plugin_id]" => "1000-gitlab-normalization-mutate-9"
+      }
+      add_tag => ["_logstash_failure__1000-gitlab-normalization__mutate__1000-gitlab-normalization-mutate-9", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 
   json {
     id => "gitlab_json_parse"
     source => "message"
     target => "gitlab"
+    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-gitlab-normalization__json__gitlab_json_parse"]
+  }
+
+  if "_logstash_failure__1000-gitlab-normalization__json__gitlab_json_parse" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-gitlab-normalization.conf"
+        "[error][source_plugin_id]" => "gitlab_json_parse"
+      }
+    }
   }
 }

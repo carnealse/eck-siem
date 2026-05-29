@@ -4,9 +4,31 @@ filter {
     id => "1000-vpcflow-initial-tags"
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+        "[error][source_plugin_id]" => "1000-vpcflow-initial-tags"
+      }
+      add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-initial-tags", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
   mutate {
       add_field => { "[ecs][version]" => "8.0.0" }
       id => "1000-vpcflow-ecs-version"
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+        "[error][source_plugin_id]" => "1000-vpcflow-ecs-version"
+      }
+      add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-ecs-version", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 
   mutate {
@@ -14,14 +36,47 @@ filter {
       id => "1000-vpcflow-preserve-original"
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+        "[error][source_plugin_id]" => "1000-vpcflow-preserve-original"
+      }
+      add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-preserve-original", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
   mutate {
       add_field => { "[event][type]" => "connection" }
       id => "1000-vpcflow-event-type"
   }
 
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+        "[error][source_plugin_id]" => "1000-vpcflow-event-type"
+      }
+      add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-event-type", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
+
   mutate {
       add_field => { "[event][category]" => "network" }
       id => "1000-vpcflow-event-category"
+  }
+
+  if "_mutate_error" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+        "[error][source_plugin_id]" => "1000-vpcflow-event-category"
+      }
+      add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-event-category", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
   }
 
   if [event][original] =~ "version" or [event][original] =~ "instance-id" {
@@ -36,10 +91,32 @@ filter {
       ]
       id => "1000-vpcflow-strip-brackets"
     }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+          "[error][source_plugin_id]" => "1000-vpcflow-strip-brackets"
+        }
+        add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-strip-brackets", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
     if [event][original] =~ /, / {
       mutate { 
         split => { "[event][original]" => ", " } 
         id => "1000-vpcflow-split-comma"
+      }
+
+      if "_mutate_error" in [tags] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+            "[error][source_plugin_id]" => "1000-vpcflow-split-comma"
+          }
+          add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-split-comma", "_logstash_attributed_mutate_error"]
+          remove_tag => ["_mutate_error"]
+        }
       }
       split { 
         field => "[event][original]" 
@@ -49,6 +126,17 @@ filter {
     mutate {
       add_tag => ["split_message"]
       id => "1000-vpcflow-tag-split"
+    }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-vpcflow-normalization.conf"
+          "[error][source_plugin_id]" => "1000-vpcflow-tag-split"
+        }
+        add_tag => ["_logstash_failure__1000-vpcflow-normalization__mutate__1000-vpcflow-tag-split", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
     }
   }
 }

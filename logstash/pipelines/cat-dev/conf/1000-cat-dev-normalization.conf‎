@@ -4,6 +4,16 @@ filter {
       source => "message"
       target => "check_json"
       id => "1000-cat-dev-json"
+      tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-cat-dev-normalization__json__1000-cat-dev-json"]
+    }
+
+    if "_logstash_failure__1000-cat-dev-normalization__json__1000-cat-dev-json" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "1000-cat-dev-normalization.conf"
+          "[error][source_plugin_id]" => "1000-cat-dev-json"
+        }
+      }
     }
   }
 }

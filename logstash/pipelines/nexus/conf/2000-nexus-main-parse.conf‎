@@ -6,6 +6,16 @@ filter {
     json {
       id => "json_process"
       source => "message"
+      tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2000-nexus-main-parse__json__json_process"]
+    }
+
+    if "_logstash_failure__2000-nexus-main-parse__json__json_process" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "json_process"
+        }
+      }
     }
 
     # initial renames to ECS
@@ -43,6 +53,17 @@ filter {
         "[attributes][wasSuccessful]"            => "[nexus][attributes][was_successful]"
       }
     }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "initial_renames"
+        }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__initial_renames", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
   }
   ### END JSON ONLY PROCESSING ###
 
@@ -55,16 +76,49 @@ filter {
       id => "2000-nexus-convert-string"
     }
 
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-convert-string"
+        }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-convert-string", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
+
     # strip quotes from the message before dissect
     mutate {
       gsub => [ "message", '"', "" ]
       id => "2000-nexus-gsub-quotes"
     }
 
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-gsub-quotes"
+        }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-gsub-quotes", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
+
     # strip unseen leading and trailing spaces
     mutate {
       strip => ["message"]
       id => "2000-nexus-strip-whitespace"
+    }
+
+    if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_config]"    => "2000-nexus-main-parse.conf"
+          "[error][source_plugin_id]" => "2000-nexus-strip-whitespace"
+        }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-strip-whitespace", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
     }
 
     if !("HealthChecker" in [message]) {
@@ -83,12 +137,34 @@ filter {
             add_tag => ["nexus-service"]
             id => "2000-nexus-tag-service"
           }
+
+          if "_mutate_error" in [tags] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                "[error][source_plugin_id]" => "2000-nexus-tag-service"
+              }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-service", "_logstash_attributed_mutate_error"]
+              remove_tag => ["_mutate_error"]
+            }
+          }
         }
       } else {
         # no service-token, force fallthrough to non-service dissect
         mutate {
           add_tag => ["_dissectonefailure"]
           id => "2000-nexus-tag-force-nonservice"
+        }
+
+        if "_mutate_error" in [tags] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-nexus-main-parse.conf"
+              "[error][source_plugin_id]" => "2000-nexus-tag-force-nonservice"
+            }
+            add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-force-nonservice", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+          }
         }
       }
 
@@ -98,19 +174,50 @@ filter {
           mapping => {
             "message" => "%{[client][ip]} %{[nexus][unknown]} %{[user][email]} [%{[event][start]}] %{[http][request][method]} %{[url][path]} %{[tls][protocol]} %{[http][response][status_code]} %{[http][request][body][bytes]} %{[http][response][body][bytes]} %{[event][duration]} %{[observer][type]} [%{[http][request][id]}]"
           }
-          tag_on_failure => ["_dissecttwofailure"]
+          tag_on_failure => ["_dissecttwofailure", "_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice"]
           id => "2000-nexus-dissect-nonservice"
+        }
+
+        if "_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice" in [tags] {
+          mutate {
+            add_field => {
+              "[error][source_config]"    => "2000-nexus-main-parse.conf"
+              "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice"
+            }
+          }
         }
         if !("_dissecttwofailure" in [tags]) {
           mutate {
             add_tag => ["nexus-nonservice"]
             id => "2000-nexus-tag-nonservice"
           }
+
+          if "_mutate_error" in [tags] {
+            mutate {
+              add_field => {
+                "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                "[error][source_plugin_id]" => "2000-nexus-tag-nonservice"
+              }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-nonservice", "_logstash_attributed_mutate_error"]
+              remove_tag => ["_mutate_error"]
+            }
+          }
           # clean up placeholder dash captured in email field for unauthenticated requests
           if [user][email] == "-" {
             mutate {
               remove_field => ["[user][email]"]
               id => "2000-nexus-remove-empty-email"
+            }
+
+            if "_mutate_error" in [tags] {
+              mutate {
+                add_field => {
+                  "[error][source_config]"    => "2000-nexus-main-parse.conf"
+                  "[error][source_plugin_id]" => "2000-nexus-remove-empty-email"
+                }
+                add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-remove-empty-email", "_logstash_attributed_mutate_error"]
+                remove_tag => ["_mutate_error"]
+              }
             }
           }
         }
@@ -121,6 +228,17 @@ filter {
       mutate {
         add_tag => ["nexus-healthchecker"]
         id => "2000-nexus-tag-healthchecker"
+      }
+
+      if "_mutate_error" in [tags] {
+        mutate {
+          add_field => {
+            "[error][source_config]"    => "2000-nexus-main-parse.conf"
+            "[error][source_plugin_id]" => "2000-nexus-tag-healthchecker"
+          }
+          add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-healthchecker", "_logstash_attributed_mutate_error"]
+          remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
