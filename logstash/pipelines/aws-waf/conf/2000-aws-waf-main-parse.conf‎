@@ -7,7 +7,7 @@ filter {
   }
 
   mutate {
-    id => "top_level_renames"
+    id => "2000-aws-waf-top_level_renames-mutate-01"
     rename => {
       "[formatVersion]"                 => "[aws][waf][format_version]"
       "[webaclId]"                      => "[aws][waf][web_acl][id]"
@@ -33,9 +33,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-        "[error][source_plugin_id]" => "top_level_renames"
+        "[error][source_plugin_id]" => "2000-aws-waf-top_level_renames-mutate-01"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__top_level_renames", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-top_level_renames-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -43,7 +43,7 @@ filter {
   # handle unknown case of [http][request][id] already existing errors being logged
   if [http][request][id] {
     mutate {
-      id => "2000-aws-waf-main-parse-mutate-01"
+      id => "2000-aws-waf-remove-http-request-id-mutate-02"
       remove_field => ["[http][request][id]"]
     }
 
@@ -51,16 +51,16 @@ filter {
       mutate {
         add_field => {
           "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-          "[error][source_plugin_id]" => "2000-aws-waf-main-parse-mutate-01"
+          "[error][source_plugin_id]" => "2000-aws-waf-remove-http-request-id-mutate-02"
         }
-        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-main-parse-mutate-01", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-remove-http-request-id-mutate-02", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
   }
 
   mutate {
-    id => "sub_field_renames"
+    id => "2000-aws-waf-sub_field_renames-mutate-03"
     rename => {
       "[aws][waf][http][request][headers]"                            => "[temp][headers]"
       "[aws][waf][http][request][uri]"                                => "[http][request][url]"
@@ -79,15 +79,15 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-        "[error][source_plugin_id]" => "sub_field_renames"
+        "[error][source_plugin_id]" => "2000-aws-waf-sub_field_renames-mutate-03"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__sub_field_renames", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-sub_field_renames-mutate-03", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
 
   ruby {
-    id => "ruby_headers_array"
+    id => "2000-aws-waf-ruby_headers_array-ruby-01"
     code => '
       begin
         headers = event.get("[temp][headers]")
@@ -105,22 +105,22 @@ filter {
           event.tag("ruby_exception")
       end
     '
-    tag_on_exception => "_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_headers_array"
+    tag_on_exception => "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01"
   }
 
-  if ("_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_headers_array" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+  if ("_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-        "[error][source_plugin_id]" => "ruby_headers_array"
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_headers_array-ruby-01"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_headers_array", "_logstash_attributed_ruby_exception"]
+      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01", "_logstash_attributed_ruby_exception"]
       remove_tag => ["ruby_exception", "_rubyexception"]
     }
   }
 
   ruby {
-    id => "ruby_rulegrouplist_extract_all"
+    id => "2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
     code => '
       begin
         group = event.get("[temp][rule_group_list]")
@@ -150,22 +150,22 @@ filter {
         event.tag("ruby_exception")
       end
     '
-    tag_on_exception => "_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_rulegrouplist_extract_all"
+    tag_on_exception => "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
   }
 
-  if ("_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_rulegrouplist_extract_all" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+  if ("_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-        "[error][source_plugin_id]" => "ruby_rulegrouplist_extract_all"
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__ruby_rulegrouplist_extract_all", "_logstash_attributed_ruby_exception"]
+      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02", "_logstash_attributed_ruby_exception"]
       remove_tag => ["ruby_exception", "_rubyexception"]
     }
   }
 
   mutate {
-    id => "ruby_field_renames"
+    id => "2000-aws-waf-ruby_field_renames-mutate-04"
     rename => {
       "[aws][waf][rule_group_list][excludedRules]"                          => "[aws][waf][rule_group_list][terminating_rule][excluded_rules]"
       "[aws][waf][rule_group_list][terminating_rule][ruleId]"               => "[aws][waf][rule_group_list][terminating_rule][rule][id]"
@@ -188,9 +188,9 @@ filter {
     mutate {
       add_field => {
         "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
-        "[error][source_plugin_id]" => "ruby_field_renames"
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_field_renames-mutate-04"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__ruby_field_renames", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-ruby_field_renames-mutate-04", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

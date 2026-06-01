@@ -2,32 +2,32 @@ filter {
 # add v2 tag
   mutate {
     add_tag => ["netskope"]
-    id => "1000-netskope-initial-tag"
+    id => "1000-netskope-initial-tag-mutate-01"
   }
 
   if "_mutate_error" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"
-        "[error][source_plugin_id]" => "1000-netskope-initial-tag"
+        "[error][source_plugin_id]" => "1000-netskope-initial-tag-mutate-01"
       }
-      add_tag => ["_logstash_failure__1000-netskope-normalization__mutate__1000-netskope-initial-tag", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__1000-netskope-normalization__mutate__1000-netskope-initial-tag-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
 
 # process the message json
   json {
-    id => "json_process"
+    id => "1000-netskope-json_process-json-01"
     source => "message"
-    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-netskope-normalization__json__json_process"]
+    tag_on_failure => ["_jsonparsefailure", "_logstash_failure__1000-netskope-normalization__json__1000-netskope-json_process-json-01"]
   }
 
-  if "_logstash_failure__1000-netskope-normalization__json__json_process" in [tags] {
+  if "_logstash_failure__1000-netskope-normalization__json__1000-netskope-json_process-json-01" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"
-        "[error][source_plugin_id]" => "json_process"
+        "[error][source_plugin_id]" => "1000-netskope-json_process-json-01"
       }
     }
   }
@@ -35,15 +35,15 @@ filter {
 # process timestamp
   date {
     match => ["timestamp", "UNIX"]
-    id => "1000-netskope-date-timestamp"
-    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp"]
+    id => "1000-netskope-date-timestamp-date-01"
+    tag_on_failure => ["_dateparsefailure", "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp-date-01"]
   }
 
-  if "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp" in [tags] {
+  if "_logstash_failure__1000-netskope-normalization__date__1000-netskope-date-timestamp-date-01" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-netskope-normalization.conf"
-        "[error][source_plugin_id]" => "1000-netskope-date-timestamp"
+        "[error][source_plugin_id]" => "1000-netskope-date-timestamp-date-01"
       }
     }
   }

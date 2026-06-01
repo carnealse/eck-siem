@@ -26,7 +26,7 @@ filter {
   # =============================================================================
   if [message] =~ /"password"/ or [message] =~ /PASSWORD/ {
     mutate { 
-      id => "1000-c2imera-password-redaction"
+      id => "1000-c2imera-password-redaction-mutate-01"
       gsub => [ 
         "message", '"password"\s*:\s*"[^"]*"', '"password":"[REDACTED]"', 
         "message", 'PASSWORD\s*=\s*"[^"]*"', 'PASSWORD="[REDACTED]"' 
@@ -37,9 +37,9 @@ filter {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-c2imera-normalization.conf"
-          "[error][source_plugin_id]" => "1000-c2imera-password-redaction"
+          "[error][source_plugin_id]" => "1000-c2imera-password-redaction-mutate-01"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-password-redaction", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-password-redaction-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -48,16 +48,16 @@ filter {
   # Preserve the message before parsing as per ECS standards
   mutate { 
     replace => { "[event][original]" => "%{message}" } 
-    id => "1000-c2imera-preserve-original-message"
+    id => "1000-c2imera-preserve-original-message-mutate-02"
   }
 
   if "_mutate_error" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "1000-c2imera-normalization.conf"
-        "[error][source_plugin_id]" => "1000-c2imera-preserve-original-message"
+        "[error][source_plugin_id]" => "1000-c2imera-preserve-original-message-mutate-02"
       }
-      add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-preserve-original-message", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-preserve-original-message-mutate-02", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -70,16 +70,16 @@ filter {
   if [message] =~ /^\d{17}\s+[\w\.]+\s+(INFO|WARNING|FINE|ERROR|DEBUG)/ {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "java_lane" } 
-      id => "1000-c2imera-route-to-java"
+      id => "1000-c2imera-route-to-java-mutate-03"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-c2imera-normalization.conf"
-          "[error][source_plugin_id]" => "1000-c2imera-route-to-java"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-java-mutate-03"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-java", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-java-mutate-03", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -87,16 +87,16 @@ filter {
   else if [message] =~ /^\d{17}\s+(INFO|WARNING|ERROR):/ {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "legacy_lane" } 
-      id => "1000-c2imera-route-to-legacy"
+      id => "1000-c2imera-route-to-legacy-mutate-04"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-c2imera-normalization.conf"
-          "[error][source_plugin_id]" => "1000-c2imera-route-to-legacy"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-legacy-mutate-04"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-legacy", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-legacy-mutate-04", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -105,16 +105,16 @@ filter {
   else if [message] =~ /^[A-Z][a-z]{2}\s+\d+/ or [message] =~ /\bmsg=audit\(/ or [message] =~ /type=[A-Z_]+/ {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "audit_lane" } 
-      id => "1000-c2imera-route-to-audit"
+      id => "1000-c2imera-route-to-audit-mutate-05"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-c2imera-normalization.conf"
-          "[error][source_plugin_id]" => "1000-c2imera-route-to-audit"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-audit-mutate-05"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-audit", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-audit-mutate-05", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -122,16 +122,16 @@ filter {
   else {
     mutate { 
       add_field => { "[@metadata][log_lane]" => "unknown" } 
-      id => "1000-c2imera-route-to-unknown"
+      id => "1000-c2imera-route-to-unknown-mutate-06"
     }
 
     if "_mutate_error" in [tags] {
       mutate {
         add_field => {
           "[error][source_config]"    => "1000-c2imera-normalization.conf"
-          "[error][source_plugin_id]" => "1000-c2imera-route-to-unknown"
+          "[error][source_plugin_id]" => "1000-c2imera-route-to-unknown-mutate-06"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-unknown", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-unknown-mutate-06", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

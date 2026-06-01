@@ -2,23 +2,23 @@ filter {
 # field clean up
   mutate {
     remove_field => ["[message]","[timestamp]","[temp]"]
-    id => "6000-netskope-cleanup"
+    id => "6000-netskope-cleanup-mutate-01"
   }
 
   if "_mutate_error" in [tags] {
     mutate {
       add_field => {
         "[error][source_config]"    => "6000-netskope-cleanup.conf"
-        "[error][source_plugin_id]" => "6000-netskope-cleanup"
+        "[error][source_plugin_id]" => "6000-netskope-cleanup-mutate-01"
       }
-      add_tag => ["_logstash_failure__6000-netskope-cleanup__mutate__6000-netskope-cleanup", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_failure__6000-netskope-cleanup__mutate__6000-netskope-cleanup-mutate-01", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
 
 # recursively set empty fields to null
   ruby {
-    id => "6000-netskope-nullify-ruby"
+    id => "6000-netskope-nullify-ruby-01"
     code => "
       def recursively_nullify_empty_fields(obj)
         case obj
@@ -35,16 +35,16 @@ filter {
         event.set(key, recursively_nullify_empty_fields(value))
       end
     "
-    tag_on_exception => "_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby"
+    tag_on_exception => "_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby-01"
   }
 
-  if ("_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+  if ("_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
     mutate {
       add_field => {
         "[error][source_config]"    => "6000-netskope-cleanup.conf"
-        "[error][source_plugin_id]" => "6000-netskope-nullify-ruby"
+        "[error][source_plugin_id]" => "6000-netskope-nullify-ruby-01"
       }
-      add_tag => ["_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby", "_logstash_attributed_ruby_exception"]
+      add_tag => ["_logstash_failure__6000-netskope-cleanup__ruby__6000-netskope-nullify-ruby-01", "_logstash_attributed_ruby_exception"]
       remove_tag => ["ruby_exception", "_rubyexception"]
     }
   }
