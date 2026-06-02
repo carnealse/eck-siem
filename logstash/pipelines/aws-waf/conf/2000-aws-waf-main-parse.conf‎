@@ -30,12 +30,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
         "[error][source_plugin_id]" => "2000-aws-waf-top_level_renames-mutate-01"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-top_level_renames-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -48,12 +55,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
           "[error][source_plugin_id]" => "2000-aws-waf-remove-http-request-id-mutate-02"
         }
-        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-remove-http-request-id-mutate-02", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -76,12 +90,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
         "[error][source_plugin_id]" => "2000-aws-waf-sub_field_renames-mutate-03"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-sub_field_renames-mutate-03", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -109,13 +130,20 @@ filter {
   }
 
   if ("_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
         "[error][source_plugin_id]" => "2000-aws-waf-ruby_headers_array-ruby-01"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01"]
     }
   }
 
@@ -154,13 +182,20 @@ filter {
   }
 
   if ("_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
         "[error][source_plugin_id]" => "2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"]
     }
   }
 
@@ -185,12 +220,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-aws-waf-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-aws-waf-main-parse.conf"
         "[error][source_plugin_id]" => "2000-aws-waf-ruby_field_renames-mutate-04"
       }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-ruby_field_renames-mutate-04", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

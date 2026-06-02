@@ -15,11 +15,19 @@ filter {
     }
 
     if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok-01" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2002-c2imera-legacy.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2002-c2imera-legacy.conf"
           "[error][source_plugin_id]" => "2002-c2imera-legacy-header-grok-01"
         }
+        remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-header-grok-01"]
       }
     }
 
@@ -31,11 +39,19 @@ filter {
     }
 
     if "_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date-01" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2002-c2imera-legacy.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2002-c2imera-legacy.conf"
           "[error][source_plugin_id]" => "2002-c2imera-legacy-date-01"
         }
+        remove_tag => ["_logstash_failure__2002-c2imera-legacy__date__2002-c2imera-legacy-date-01"]
       }
     }
 
@@ -48,11 +64,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok-02" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-node-grok-02"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-node-grok-02"]
         }
       }
 
@@ -64,11 +88,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json-01" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-node-json-01"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__json__2002-c2imera-legacy-node-json-01"]
         }
       }
 
@@ -79,11 +111,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok-03" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-grok-03"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-grok-03"]
         }
       }
 
@@ -107,13 +147,20 @@ filter {
         }
 
         if ("_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-node-ruby-01"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01", "_logstash_attributed_ruby_exception"]
-            remove_tag => ["ruby_exception", "_rubyexception"]
+            add_tag => ["_logstash_attributed_ruby_exception"]
+            remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2002-c2imera-legacy__ruby__2002-c2imera-legacy-node-ruby-01"]
           }
         }
       }
@@ -125,12 +172,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-node-mutate-01"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-node-mutate-01", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -145,11 +199,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok-04" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-grok-04"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-userfilter-grok-04"]
         }
       }
       mutate {
@@ -159,12 +221,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-mutate-02"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-userfilter-mutate-02", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -179,11 +248,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok-05" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-grok-05"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scheduledjob-grok-05"]
         }
       }
       mutate {
@@ -192,12 +269,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-mutate-03"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scheduledjob-mutate-03", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -212,11 +296,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok-06" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-grok-06"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-filter-grok-06"]
         }
       }
       mutate {
@@ -225,12 +317,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-mutate-04"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-filter-mutate-04", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -244,11 +343,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok-07" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-grok-07"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-secctx-trusted-grok-07"]
         }
       }
       mutate {
@@ -257,12 +364,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-mutate-05"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-secctx-trusted-mutate-05", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -277,11 +391,19 @@ filter {
       }
 
       if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok-08" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-grok-08"
           }
+          remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dce-received-grok-08"]
         }
       }
       mutate {
@@ -290,12 +412,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-mutate-06"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dce-received-mutate-06", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -309,12 +438,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-error-copy-mutate-07"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-error-copy-mutate-07", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -327,11 +463,19 @@ filter {
         }
 
         if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok-09" in [tags] {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-grok-09"
             }
+            remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-dataobject-missing-grok-09"]
           }
         }
         mutate {
@@ -340,12 +484,19 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-mutate-08"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-dataobject-missing-mutate-08", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -359,11 +510,19 @@ filter {
         }
 
         if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok-10" in [tags] {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-grok-10"
             }
+            remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-apperror-grok-10"]
           }
         }
         mutate {
@@ -372,12 +531,19 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-mutate-09"
             }
-            add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-apperror-mutate-09", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
           }
         }
@@ -393,12 +559,19 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+        if ![error][source_config] {
+          mutate {
+            add_field => {
+              "[error][source_config]" => "2002-c2imera-legacy.conf"
+            }
+          }
+        }
+
         mutate {
           add_field => {
-            "[error][source_config]"    => "2002-c2imera-legacy.conf"
             "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-mutate-10"
           }
-          add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-scribe-mutate-10", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
         }
       }
@@ -411,11 +584,19 @@ filter {
         }
 
         if "_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok-11" in [tags] {
+          if ![error][source_config] {
+            mutate {
+              add_field => {
+                "[error][source_config]" => "2002-c2imera-legacy.conf"
+              }
+            }
+          }
+
           mutate {
             add_field => {
-              "[error][source_config]"    => "2002-c2imera-legacy.conf"
               "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-grok-11"
             }
+            remove_tag => ["_logstash_failure__2002-c2imera-legacy__grok__2002-c2imera-legacy-scribe-grok-11"]
           }
         }
       }
@@ -428,12 +609,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2002-c2imera-legacy.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2002-c2imera-legacy.conf"
           "[error][source_plugin_id]" => "2002-c2imera-legacy-cleanup-mutate-11"
         }
-        add_tag => ["_logstash_failure__2002-c2imera-legacy__mutate__2002-c2imera-legacy-cleanup-mutate-11", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

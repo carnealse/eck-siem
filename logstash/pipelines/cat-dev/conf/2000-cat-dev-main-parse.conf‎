@@ -129,13 +129,20 @@ filter {
   }
 
   if ("_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2000-cat-dev-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2000-cat-dev-main-parse.conf"
         "[error][source_plugin_id]" => "2000-cat-dev-ruby-ruby-01"
       }
-      add_tag => ["_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby-ruby-01", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-cat-dev-main-parse__ruby__2000-cat-dev-ruby-ruby-01"]
     }
   }
 }

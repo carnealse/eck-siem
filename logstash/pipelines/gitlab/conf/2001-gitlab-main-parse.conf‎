@@ -5,12 +5,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "2001-gitlab-main-parse.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "2001-gitlab-main-parse.conf"
         "[error][source_plugin_id]" => "2001-gitlab-rename-message-original-mutate-01"
       }
-      add_tag => ["_logstash_failure__2001-gitlab-main-parse__mutate__2001-gitlab-rename-message-original-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -24,11 +31,19 @@ filter {
     }
 
     if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at-date-01" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2001-gitlab-main-parse.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2001-gitlab-main-parse.conf"
           "[error][source_plugin_id]" => "2001-gitlab-date-created-at-date-01"
         }
+        remove_tag => ["_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-created-at-date-01"]
       }
     }
   }
@@ -42,11 +57,19 @@ filter {
     }
 
     if "_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp-date-02" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "2001-gitlab-main-parse.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "2001-gitlab-main-parse.conf"
           "[error][source_plugin_id]" => "2001-gitlab-date-timestamp-date-02"
         }
+        remove_tag => ["_logstash_failure__2001-gitlab-main-parse__date__2001-gitlab-date-timestamp-date-02"]
       }
     }
   }

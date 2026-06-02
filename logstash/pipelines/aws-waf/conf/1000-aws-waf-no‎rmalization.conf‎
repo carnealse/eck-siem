@@ -14,12 +14,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-document-id-mutate-01"
       }
-      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-document-id-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -31,12 +38,19 @@ if [event][original] {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-aws-waf-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-aws-waf-normalization.conf"
           "[error][source_plugin_id]" => "1000-aws-waf-remove-event-original-mutate-02"
         }
-        add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-remove-event-original-mutate-02", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -49,12 +63,19 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-add-event-original-placeholder-mutate-03"
       }
-      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-add-event-original-placeholder-mutate-03", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -65,12 +86,19 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-copy-event-original-mutate-04"
       }
-      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-copy-event-original-mutate-04", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -83,12 +111,19 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-replace-tags-mutate-05"
       }
-      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-replace-tags-mutate-05", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -100,11 +135,19 @@ if [event][original] {
   }
 
   if "_logstash_failure__1000-aws-waf-normalization__json__1000-aws-waf-json_processor-json-01" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-json_processor-json-01"
       }
+      remove_tag => ["_logstash_failure__1000-aws-waf-normalization__json__1000-aws-waf-json_processor-json-01"]
     }
   }
 
@@ -116,12 +159,19 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-rename-timestamp-mutate-06"
       }
-      add_tag => ["_logstash_failure__1000-aws-waf-normalization__mutate__1000-aws-waf-rename-timestamp-mutate-06", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -134,11 +184,19 @@ if [event][original] {
   }
 
   if "_logstash_failure__1000-aws-waf-normalization__date__1000-aws-waf-timestamp_date_match-date-01" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-aws-waf-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-aws-waf-normalization.conf"
         "[error][source_plugin_id]" => "1000-aws-waf-timestamp_date_match-date-01"
       }
+      remove_tag => ["_logstash_failure__1000-aws-waf-normalization__date__1000-aws-waf-timestamp_date_match-date-01"]
     }
   }
 }

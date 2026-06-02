@@ -16,12 +16,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-gitlab-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-gitlab-gitlab_field_renames-mutate-01"
       }
-      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__3000-gitlab-gitlab_field_renames-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -33,12 +40,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-gitlab-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-gitlab-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-gitlab-preserve-original-tag-mutate-02"
       }
-      add_tag => ["_logstash_failure__3000-gitlab-ecs-mapping__mutate__3000-gitlab-preserve-original-tag-mutate-02", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

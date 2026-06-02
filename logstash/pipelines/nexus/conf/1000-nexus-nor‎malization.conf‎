@@ -9,12 +9,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-nexus-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-nexus-normalization.conf"
         "[error][source_plugin_id]" => "1000-nexus-preserve-original-mutate-01"
       }
-      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-preserve-original-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -27,12 +34,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-nexus-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-nexus-normalization.conf"
           "[error][source_plugin_id]" => "1000-nexus-detect-json-mutate-02"
         }
-        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-json-mutate-02", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -43,12 +57,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-nexus-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-nexus-normalization.conf"
           "[error][source_plugin_id]" => "1000-nexus-detect-non-json-mutate-03"
         }
-        add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-detect-non-json-mutate-03", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -62,12 +83,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-nexus-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-nexus-normalization.conf"
         "[error][source_plugin_id]" => "1000-nexus-update-tags-mutate-04"
       }
-      add_tag => ["_logstash_failure__1000-nexus-normalization__mutate__1000-nexus-update-tags-mutate-04", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

@@ -15,12 +15,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-vpcflow-no-src-tag-mutate-01"
         }
-        add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__mutate__3000-vpcflow-no-src-tag-mutate-01", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -30,12 +37,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-vpcflow-remove-no-src-mutate-02"
         }
-        add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__mutate__3000-vpcflow-remove-no-src-mutate-02", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -57,12 +71,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-vpcflow-no-dst-tag-mutate-03"
         }
-        add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__mutate__3000-vpcflow-no-dst-tag-mutate-03", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -72,12 +93,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
           "[error][source_plugin_id]" => "3000-vpcflow-remove-no-dst-mutate-04"
         }
-        add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__mutate__3000-vpcflow-remove-no-dst-mutate-04", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -95,11 +123,19 @@ filter {
   }
 
   if "_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-timestamp-date-01" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-vpcflow-date-timestamp-date-01"
       }
+      remove_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-timestamp-date-01"]
     }
   }
 
@@ -111,11 +147,19 @@ filter {
   }
 
   if "_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-start-date-02" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-vpcflow-date-start-date-02"
       }
+      remove_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-start-date-02"]
     }
   }
 
@@ -127,11 +171,19 @@ filter {
   }
 
   if "_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-end-date-03" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-vpcflow-date-end-date-03"
       }
+      remove_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__date__3000-vpcflow-date-end-date-03"]
     }
   }
 
@@ -141,12 +193,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-vpcflow-cleanup-epochs-mutate-05"
       }
-      add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__mutate__3000-vpcflow-cleanup-epochs-mutate-05", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -185,13 +244,20 @@ filter {
   }
 
   if ("_logstash_failure__3000-vpcflow-ecs-mapping__ruby__3000-vpcflow-ruby-remove-dashes-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "3000-vpcflow-ecs-mapping.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "3000-vpcflow-ecs-mapping.conf"
         "[error][source_plugin_id]" => "3000-vpcflow-ruby-remove-dashes-ruby-01"
       }
-      add_tag => ["_logstash_failure__3000-vpcflow-ecs-mapping__ruby__3000-vpcflow-ruby-remove-dashes-ruby-01", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__3000-vpcflow-ecs-mapping__ruby__3000-vpcflow-ruby-remove-dashes-ruby-01"]
     }
   }
 }

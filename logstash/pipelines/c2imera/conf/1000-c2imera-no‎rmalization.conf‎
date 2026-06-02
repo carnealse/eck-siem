@@ -34,12 +34,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-c2imera-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-c2imera-normalization.conf"
           "[error][source_plugin_id]" => "1000-c2imera-password-redaction-mutate-01"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-password-redaction-mutate-01", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -52,12 +59,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "1000-c2imera-normalization.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "1000-c2imera-normalization.conf"
         "[error][source_plugin_id]" => "1000-c2imera-preserve-original-message-mutate-02"
       }
-      add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-preserve-original-message-mutate-02", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }
@@ -74,12 +88,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-c2imera-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-c2imera-normalization.conf"
           "[error][source_plugin_id]" => "1000-c2imera-route-to-java-mutate-03"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-java-mutate-03", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -91,12 +112,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-c2imera-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-c2imera-normalization.conf"
           "[error][source_plugin_id]" => "1000-c2imera-route-to-legacy-mutate-04"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-legacy-mutate-04", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -109,12 +137,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-c2imera-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-c2imera-normalization.conf"
           "[error][source_plugin_id]" => "1000-c2imera-route-to-audit-mutate-05"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-audit-mutate-05", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }
@@ -126,12 +161,19 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-c2imera-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-c2imera-normalization.conf"
           "[error][source_plugin_id]" => "1000-c2imera-route-to-unknown-mutate-06"
         }
-        add_tag => ["_logstash_failure__1000-c2imera-normalization__mutate__1000-c2imera-route-to-unknown-mutate-06", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
       }
     }

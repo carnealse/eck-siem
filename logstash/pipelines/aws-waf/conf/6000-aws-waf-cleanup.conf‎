@@ -6,12 +6,19 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+    if ![error][source_config] {
+      mutate {
+        add_field => {
+          "[error][source_config]" => "6000-aws-waf-cleanup.conf"
+        }
+      }
+    }
+
     mutate {
       add_field => {
-        "[error][source_config]"    => "6000-aws-waf-cleanup.conf"
         "[error][source_plugin_id]" => "6000-aws-waf-remove_fields-mutate-01"
       }
-      add_tag => ["_logstash_failure__6000-aws-waf-cleanup__mutate__6000-aws-waf-remove_fields-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
     }
   }

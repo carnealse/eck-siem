@@ -8,11 +8,19 @@ filter {
     }
 
     if "_logstash_failure__1000-cat-dev-normalization__json__1000-cat-dev-json-json-01" in [tags] {
+      if ![error][source_config] {
+        mutate {
+          add_field => {
+            "[error][source_config]" => "1000-cat-dev-normalization.conf"
+          }
+        }
+      }
+
       mutate {
         add_field => {
-          "[error][source_config]"    => "1000-cat-dev-normalization.conf"
           "[error][source_plugin_id]" => "1000-cat-dev-json-json-01"
         }
+        remove_tag => ["_logstash_failure__1000-cat-dev-normalization__json__1000-cat-dev-json-json-01"]
       }
     }
   }
