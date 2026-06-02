@@ -16,18 +16,11 @@ filter {
         }
       }
 
-      if [error][source_plugin_id] {
-        mutate {
-          update => {
-            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 1000-cat-dev-json-json-01"
-          }
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "1000-cat-dev-json-json-01"
         }
-      } else {
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "1000-cat-dev-json-json-01"
-          }
-        }
+        remove_tag => ["_logstash_failure__1000-cat-dev-normalization__json__1000-cat-dev-json-json-01"]
       }
     }
   }

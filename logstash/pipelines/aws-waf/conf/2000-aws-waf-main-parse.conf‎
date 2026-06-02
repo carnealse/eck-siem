@@ -38,22 +38,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-top_level_renames-mutate-01"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-top_level_renames-mutate-01", "_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "2000-aws-waf-top_level_renames-mutate-01"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-aws-waf-top_level_renames-mutate-01"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-top_level_renames-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
-      }
     }
   }
 
@@ -73,22 +63,12 @@ filter {
         }
       }
 
-      if [error][source_plugin_id] {
-        mutate {
-          update => {
-            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-remove-http-request-id-mutate-02"
-          }
-        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-remove-http-request-id-mutate-02", "_logstash_attributed_mutate_error"]
-        remove_tag => ["_mutate_error"]
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-aws-waf-remove-http-request-id-mutate-02"
         }
-      } else {
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-aws-waf-remove-http-request-id-mutate-02"
-          }
-        add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-remove-http-request-id-mutate-02", "_logstash_attributed_mutate_error"]
+        add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
-        }
       }
     }
   }
@@ -118,22 +98,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-sub_field_renames-mutate-03"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-sub_field_renames-mutate-03", "_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "2000-aws-waf-sub_field_renames-mutate-03"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-aws-waf-sub_field_renames-mutate-03"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-sub_field_renames-mutate-03", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
-      }
     }
   }
 
@@ -168,22 +138,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-ruby_headers_array-ruby-01"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_headers_array-ruby-01"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-aws-waf-ruby_headers_array-ruby-01"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
-      }
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_headers_array-ruby-01"]
     }
   }
 
@@ -230,22 +190,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02", "_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception"]
-      }
+      add_tag => ["_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-aws-waf-main-parse__ruby__2000-aws-waf-ruby_rulegrouplist_extract_all-ruby-02"]
     }
   }
 
@@ -278,22 +228,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-aws-waf-ruby_field_renames-mutate-04"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-ruby_field_renames-mutate-04", "_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "2000-aws-waf-ruby_field_renames-mutate-04"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-aws-waf-ruby_field_renames-mutate-04"
-        }
-      add_tag => ["_logstash_failure__2000-aws-waf-main-parse__mutate__2000-aws-waf-ruby_field_renames-mutate-04", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
-      }
     }
   }
 

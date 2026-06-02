@@ -22,22 +22,12 @@ filter {
         }
       }
 
-      if [error][source_plugin_id] {
-        mutate {
-          update => {
-            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-gitlab-custom-message-conversion-ruby-01"
-          }
-        add_tag => ["_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01", "_logstash_attributed_ruby_exception"]
-        remove_tag => ["ruby_exception", "_rubyexception"]
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-gitlab-custom-message-conversion-ruby-01"
         }
-      } else {
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-gitlab-custom-message-conversion-ruby-01"
-          }
-        add_tag => ["_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01", "_logstash_attributed_ruby_exception"]
-        remove_tag => ["ruby_exception", "_rubyexception"]
-        }
+        add_tag => ["_logstash_attributed_ruby_exception"]
+        remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01"]
       }
     }
   }

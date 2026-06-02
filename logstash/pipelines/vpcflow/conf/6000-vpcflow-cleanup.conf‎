@@ -20,22 +20,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 6000-vpcflow-cleanup-mutate-01"
-        }
-      add_tag => ["_logstash_failure__6000-vpcflow-cleanup__mutate__6000-vpcflow-cleanup-mutate-01", "_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "6000-vpcflow-cleanup-mutate-01"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "6000-vpcflow-cleanup-mutate-01"
-        }
-      add_tag => ["_logstash_failure__6000-vpcflow-cleanup__mutate__6000-vpcflow-cleanup-mutate-01", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
-      }
     }
   }
 
@@ -56,22 +46,12 @@ filter {
       }
     }
 
-    if [error][source_plugin_id] {
-      mutate {
-        update => {
-          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 6000-vpcflow-dataset-tag-mutate-02"
-        }
-      add_tag => ["_logstash_failure__6000-vpcflow-cleanup__mutate__6000-vpcflow-dataset-tag-mutate-02", "_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "6000-vpcflow-dataset-tag-mutate-02"
       }
-    } else {
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "6000-vpcflow-dataset-tag-mutate-02"
-        }
-      add_tag => ["_logstash_failure__6000-vpcflow-cleanup__mutate__6000-vpcflow-dataset-tag-mutate-02", "_logstash_attributed_mutate_error"]
+      add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
-      }
     }
   }
 }

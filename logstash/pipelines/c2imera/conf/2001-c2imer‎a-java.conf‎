@@ -23,18 +23,11 @@ filter {
         }
       }
 
-      if [error][source_plugin_id] {
-        mutate {
-          update => {
-            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-header-grok-01"
-          }
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2001-c2imera-java-header-grok-01"
         }
-      } else {
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2001-c2imera-java-header-grok-01"
-          }
-        }
+        remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-header-grok-01"]
       }
     }
 
@@ -54,18 +47,11 @@ filter {
         }
       }
 
-      if [error][source_plugin_id] {
-        mutate {
-          update => {
-            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-date-01"
-          }
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2001-c2imera-java-date-01"
         }
-      } else {
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2001-c2imera-java-date-01"
-          }
-        }
+        remove_tag => ["_logstash_failure__2001-c2imera-java__date__2001-c2imera-java-date-01"]
       }
     }
 
@@ -86,18 +72,11 @@ filter {
           }
         }
 
-        if [error][source_plugin_id] {
-          mutate {
-            update => {
-              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-ssm-grok-02"
-            }
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2001-c2imera-java-ssm-grok-02"
           }
-        } else {
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-grok-02"
-            }
-          }
+          remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-ssm-grok-02"]
         }
       }
 
@@ -122,18 +101,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-ssm-kv-01"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-kv-01"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-ssm-kv-01"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__kv__2001-c2imera-java-ssm-kv-01"]
           }
         }
 
@@ -188,22 +160,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-ssm-renames-mutate-01"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-renames-mutate-01", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames-mutate-01"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames-mutate-01"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-renames-mutate-01", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -222,22 +184,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-ssm-reload-split-mutate-02"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-split-mutate-02", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split-mutate-02"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split-mutate-02"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-split-mutate-02", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
         mutate {
@@ -254,22 +206,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-ssm-reload-rename-mutate-03"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-rename-mutate-03", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename-mutate-03"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename-mutate-03"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-ssm-reload-rename-mutate-03", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -293,18 +235,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-header-grok-03"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-grok-03"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-grok-03"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-header-grok-03"]
           }
         }
 
@@ -323,22 +258,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-useragent-rename-mutate-04"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-useragent-rename-mutate-04", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename-mutate-04"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename-mutate-04"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-useragent-rename-mutate-04", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
           useragent {
@@ -363,22 +288,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-referer-rename-mutate-05"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-referer-rename-mutate-05", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename-mutate-05"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename-mutate-05"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-referer-rename-mutate-05", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -397,22 +312,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-header-add-mutate-06"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-add-mutate-06", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add-mutate-06"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add-mutate-06"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-add-mutate-06", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -431,22 +336,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-header-cleanup-mutate-07"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-cleanup-mutate-07", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup-mutate-07"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup-mutate-07"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-header-cleanup-mutate-07", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -466,18 +361,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-username-grok-04"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-auditor-username-grok-04"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-username-grok-04"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-username-grok-04"]
           }
         }
 
@@ -497,18 +385,11 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-outcome-grok-05"
-                }
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-grok-05"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-grok-05"
-                }
-              }
+              remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-outcome-grok-05"]
             }
           }
           mutate {
@@ -526,22 +407,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-outcome-mutate-08"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-outcome-mutate-08", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate-08"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate-08"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-outcome-mutate-08", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -561,18 +432,11 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-pii-grok-06"
-                }
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-grok-06"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-grok-06"
-                }
-              }
+              remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-auditor-pii-grok-06"]
             }
           }
           mutate {
@@ -589,22 +453,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-auditor-pii-mutate-09"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-pii-mutate-09", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate-09"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate-09"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-auditor-pii-mutate-09", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -629,18 +483,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-certstorejws-grok-07"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-certstorejws-grok-07"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-certstorejws-grok-07"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-certstorejws-grok-07"]
           }
         }
       }
@@ -663,22 +510,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-opfilter-copy-mutate-10"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-opfilter-copy-mutate-10", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy-mutate-10"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy-mutate-10"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-opfilter-copy-mutate-10", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
         grok {
@@ -696,18 +533,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-opfilter-grok-08"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-grok-08"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-grok-08"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-opfilter-grok-08"]
           }
         }
       }
@@ -731,18 +561,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-ping-grok-09"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-grok-09"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-grok-09"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-ping-grok-09"]
           }
         }
 
@@ -762,22 +585,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-ping-ruby-01"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01", "_logstash_attributed_ruby_exception"]
-              remove_tag => ["ruby_exception", "_rubyexception"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-ruby-01"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-ruby-01"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01", "_logstash_attributed_ruby_exception"]
-              remove_tag => ["ruby_exception", "_rubyexception"]
-              }
+              add_tag => ["_logstash_attributed_ruby_exception"]
+              remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-ping-ruby-01"]
             }
           }
         }
@@ -798,18 +611,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-ping-json-01"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-json-01"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-json-01"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__json__2001-c2imera-java-sync-ping-json-01"]
           }
         }
 
@@ -827,22 +633,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-ping-cleanup-mutate-11"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-ping-cleanup-mutate-11", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup-mutate-11"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup-mutate-11"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-ping-cleanup-mutate-11", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -878,18 +674,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-grok-10"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-sync-grok-10"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-sync-grok-10"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-sync-grok-10"]
           }
         }
 
@@ -918,22 +707,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-reporter-ruby-02"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02", "_logstash_attributed_ruby_exception"]
-              remove_tag => ["ruby_exception", "_rubyexception"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-ruby-02"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-ruby-02"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02", "_logstash_attributed_ruby_exception"]
-              remove_tag => ["ruby_exception", "_rubyexception"]
-              }
+              add_tag => ["_logstash_attributed_ruby_exception"]
+              remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2001-c2imera-java__ruby__2001-c2imera-java-sync-reporter-ruby-02"]
             }
           }
           mutate {
@@ -950,22 +729,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-reporter-cleanup-mutate-12"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-reporter-cleanup-mutate-12", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup-mutate-12"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup-mutate-12"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-reporter-cleanup-mutate-12", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -985,22 +754,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-type-strip-mutate-13"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-type-strip-mutate-13", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip-mutate-13"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip-mutate-13"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-type-strip-mutate-13", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1020,22 +779,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-activating-mutate-14"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-activating-mutate-14", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating-mutate-14"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating-mutate-14"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-activating-mutate-14", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1054,22 +803,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-sync-deactivating-mutate-15"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-deactivating-mutate-15", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating-mutate-15"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating-mutate-15"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-sync-deactivating-mutate-15", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1094,18 +833,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-lastsync-grok-11"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-grok-11"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-grok-11"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-lastsync-grok-11"]
           }
         }
         mutate {
@@ -1122,22 +854,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-lastsync-mutate-16"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-lastsync-mutate-16", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate-16"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate-16"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-lastsync-mutate-16", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -1161,18 +883,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-queryutils-grok-12"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-grok-12"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-grok-12"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-queryutils-grok-12"]
           }
         }
         mutate {
@@ -1189,22 +904,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-queryutils-mutate-17"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-queryutils-mutate-17", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate-17"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate-17"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-queryutils-mutate-17", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -1235,18 +940,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-requesttimer-grok-13"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-grok-13"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-grok-13"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-requesttimer-grok-13"]
           }
         }
 
@@ -1266,22 +964,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-requesttimer-started-mutate-18"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-started-mutate-18", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started-mutate-18"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started-mutate-18"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-started-mutate-18", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1300,22 +988,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-requesttimer-completed-mutate-19"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-completed-mutate-19", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed-mutate-19"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed-mutate-19"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-completed-mutate-19", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1336,22 +1014,12 @@ filter {
               }
             }
 
-            if [error][source_plugin_id] {
-              mutate {
-                update => {
-                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-requesttimer-convert-mutate-20"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-convert-mutate-20", "_logstash_attributed_mutate_error"]
-              remove_tag => ["_mutate_error"]
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert-mutate-20"
               }
-            } else {
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert-mutate-20"
-                }
-              add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-requesttimer-convert-mutate-20", "_logstash_attributed_mutate_error"]
+              add_tag => ["_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
-              }
             }
           }
         }
@@ -1376,18 +1044,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-dataobject-grok-14"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-grok-14"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-grok-14"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-dataobject-grok-14"]
           }
         }
         mutate {
@@ -1404,22 +1065,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-dataobject-mutate-21"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-dataobject-mutate-21", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate-21"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate-21"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-dataobject-mutate-21", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
@@ -1443,18 +1094,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-syncdeterminator-grok-15"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-grok-15"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-grok-15"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-syncdeterminator-grok-15"]
           }
         }
       }
@@ -1472,22 +1116,12 @@ filter {
           }
         }
 
-        if [error][source_plugin_id] {
-          mutate {
-            update => {
-              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-syncdeterminator-strip-mutate-22"
-            }
-          add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-syncdeterminator-strip-mutate-22", "_logstash_attributed_mutate_error"]
-          remove_tag => ["_mutate_error"]
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip-mutate-22"
           }
-        } else {
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip-mutate-22"
-            }
-          add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-syncdeterminator-strip-mutate-22", "_logstash_attributed_mutate_error"]
+          add_tag => ["_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
-          }
         }
       }
     }
@@ -1510,18 +1144,11 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-userservice-grok-16"
-              }
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-grok-16"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-userservice-grok-16"
-              }
-            }
+            remove_tag => ["_logstash_failure__2001-c2imera-java__grok__2001-c2imera-java-userservice-grok-16"]
           }
         }
         mutate {
@@ -1538,22 +1165,12 @@ filter {
             }
           }
 
-          if [error][source_plugin_id] {
-            mutate {
-              update => {
-                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2001-c2imera-java-userservice-mutate-23"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-userservice-mutate-23", "_logstash_attributed_mutate_error"]
-            remove_tag => ["_mutate_error"]
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate-23"
             }
-          } else {
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate-23"
-              }
-            add_tag => ["_logstash_failure__2001-c2imera-java__mutate__2001-c2imera-java-userservice-mutate-23", "_logstash_attributed_mutate_error"]
+            add_tag => ["_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
-            }
           }
         }
       }
