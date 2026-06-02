@@ -9,6 +9,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-c2imera-ecs-mapping-mutate-01"
@@ -18,6 +19,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

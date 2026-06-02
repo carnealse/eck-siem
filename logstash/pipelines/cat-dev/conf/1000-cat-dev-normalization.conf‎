@@ -18,6 +18,7 @@ filter {
     }
   }
 
+
   if [error][source_plugin_id] {
     mutate {
       add_field => {

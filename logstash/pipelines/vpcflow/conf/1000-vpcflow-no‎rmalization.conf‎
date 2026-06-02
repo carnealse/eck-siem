@@ -5,6 +5,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-vpcflow-initial-tags-mutate-01"
@@ -20,6 +21,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-vpcflow-ecs-version-mutate-02"
@@ -35,6 +37,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-vpcflow-preserve-original-mutate-03"
@@ -50,6 +53,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-vpcflow-event-type-mutate-04"
@@ -65,6 +69,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-vpcflow-event-category-mutate-05"
@@ -88,6 +93,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-vpcflow-strip-brackets-mutate-06"
@@ -103,6 +109,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "1000-vpcflow-split-comma-mutate-07"
@@ -122,6 +129,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-vpcflow-tag-split-mutate-08"
@@ -131,6 +139,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

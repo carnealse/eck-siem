@@ -129,6 +129,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-node-mutate-01"
@@ -163,6 +164,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-userfilter-mutate-02"
@@ -196,6 +198,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-scheduledjob-mutate-03"
@@ -229,6 +232,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-filter-mutate-04"
@@ -261,6 +265,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-secctx-trusted-mutate-05"
@@ -294,6 +299,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-dce-received-mutate-06"
@@ -312,6 +318,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-error-copy-mutate-07"
@@ -343,6 +350,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2002-c2imera-legacy-dataobject-missing-mutate-08"
@@ -375,6 +383,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2002-c2imera-legacy-apperror-mutate-09"
@@ -395,6 +404,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2002-c2imera-legacy-scribe-mutate-10"
@@ -430,6 +440,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "2002-c2imera-legacy-cleanup-mutate-11"
@@ -439,6 +450,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

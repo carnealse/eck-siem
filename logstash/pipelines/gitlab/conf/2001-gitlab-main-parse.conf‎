@@ -5,6 +5,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "2001-gitlab-rename-message-original-mutate-01"
@@ -51,6 +52,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

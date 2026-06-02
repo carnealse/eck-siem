@@ -47,6 +47,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "6000-c2imera-cleanup-remove-fields-mutate-01"
@@ -55,6 +56,7 @@ filter {
       remove_tag => ["_mutate_error"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

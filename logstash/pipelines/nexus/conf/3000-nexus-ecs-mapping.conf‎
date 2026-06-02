@@ -9,6 +9,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-nexus-add_event_ingested-mutate-01"
@@ -43,6 +44,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-nexus-tag-main-mutate-02"
@@ -52,6 +54,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

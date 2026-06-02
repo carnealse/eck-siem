@@ -95,6 +95,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-netskope-rename_v1-mutate-01"
@@ -197,6 +198,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-netskope-rename_v2-mutate-02"
@@ -218,6 +220,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-netskope-temp-mapping-mutate-03"
@@ -232,6 +235,7 @@ filter {
     source => '[user_agent][original]'
     id => "3000-netskopeuseragent"
   }
+
 
   if [error][source_plugin_id] {
     mutate {

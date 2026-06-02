@@ -34,6 +34,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-c2imera-password-redaction-mutate-01"
@@ -51,6 +52,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-c2imera-preserve-original-message-mutate-02"
@@ -72,6 +74,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-c2imera-route-to-java-mutate-03"
@@ -88,6 +91,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-c2imera-route-to-legacy-mutate-04"
@@ -105,6 +109,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-c2imera-route-to-audit-mutate-05"
@@ -121,6 +126,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-c2imera-route-to-unknown-mutate-06"
@@ -130,6 +136,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

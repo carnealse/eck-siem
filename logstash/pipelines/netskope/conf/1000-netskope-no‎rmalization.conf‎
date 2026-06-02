@@ -6,6 +6,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-netskope-initial-tag-mutate-01"
@@ -48,6 +49,7 @@ filter {
       remove_tag => ["_dateparsefailure"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

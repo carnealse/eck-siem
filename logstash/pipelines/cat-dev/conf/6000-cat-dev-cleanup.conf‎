@@ -5,6 +5,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "6000-cat-dev-remove-check-json-mutate-01"
@@ -13,6 +14,7 @@ filter {
       remove_tag => ["_mutate_error"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

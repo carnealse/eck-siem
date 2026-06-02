@@ -124,6 +124,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-ssm-renames-mutate-01"
@@ -140,6 +141,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-split-mutate-02"
@@ -154,6 +156,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-ssm-reload-rename-mutate-03"
@@ -191,6 +194,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-auditor-useragent-rename-mutate-04"
@@ -213,6 +217,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-auditor-referer-rename-mutate-05"
@@ -229,6 +234,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-add-mutate-06"
@@ -245,6 +251,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-auditor-header-cleanup-mutate-07"
@@ -294,6 +301,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-auditor-outcome-mutate-08"
@@ -325,6 +333,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-auditor-pii-mutate-09"
@@ -367,6 +376,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-opfilter-copy-mutate-10"
@@ -453,6 +463,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-sync-ping-cleanup-mutate-11"
@@ -526,6 +537,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-sync-reporter-cleanup-mutate-12"
@@ -543,6 +555,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-sync-type-strip-mutate-13"
@@ -560,6 +573,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-sync-activating-mutate-14"
@@ -576,6 +590,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-sync-deactivating-mutate-15"
@@ -612,6 +627,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-lastsync-mutate-16"
@@ -647,6 +663,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-queryutils-mutate-17"
@@ -692,6 +709,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-started-mutate-18"
@@ -708,6 +726,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-completed-mutate-19"
@@ -726,6 +745,7 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
+
             mutate {
               add_field => {
                 "[error][source_plugin_id]" => "2001-c2imera-java-requesttimer-convert-mutate-20"
@@ -762,6 +782,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-dataobject-mutate-21"
@@ -798,6 +819,7 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
+
         mutate {
           add_field => {
             "[error][source_plugin_id]" => "2001-c2imera-java-syncdeterminator-strip-mutate-22"
@@ -832,6 +854,7 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
+
           mutate {
             add_field => {
               "[error][source_plugin_id]" => "2001-c2imera-java-userservice-mutate-23"
@@ -843,6 +866,7 @@ filter {
       }
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

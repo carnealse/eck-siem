@@ -14,6 +14,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-aws-waf-document-id-mutate-01"
@@ -30,6 +31,7 @@ if [event][original] {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-aws-waf-remove-event-original-mutate-02"
@@ -47,6 +49,7 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-aws-waf-add-event-original-placeholder-mutate-03"
@@ -62,6 +65,7 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-aws-waf-copy-event-original-mutate-04"
@@ -79,6 +83,7 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-aws-waf-replace-tags-mutate-05"
@@ -112,6 +117,7 @@ if [event][original] {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-aws-waf-rename-timestamp-mutate-06"
@@ -137,6 +143,7 @@ if [event][original] {
       remove_tag => ["_dateparsefailure"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

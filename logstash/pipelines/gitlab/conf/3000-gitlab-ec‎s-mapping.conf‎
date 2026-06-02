@@ -16,6 +16,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-gitlab-gitlab_field_renames-mutate-01"
@@ -32,6 +33,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-gitlab-preserve-original-tag-mutate-02"
@@ -40,6 +42,7 @@ filter {
       remove_tag => ["_mutate_error"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

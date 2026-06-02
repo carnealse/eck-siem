@@ -9,6 +9,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-nexus-preserve-original-mutate-01"
@@ -26,6 +27,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-nexus-detect-json-mutate-02"
@@ -41,6 +43,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "1000-nexus-detect-non-json-mutate-03"
@@ -59,6 +62,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "1000-nexus-update-tags-mutate-04"
@@ -67,6 +71,7 @@ filter {
       remove_tag => ["_mutate_error"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {

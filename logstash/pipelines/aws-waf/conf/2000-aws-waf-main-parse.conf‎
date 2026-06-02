@@ -30,6 +30,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "2000-aws-waf-top_level_renames-mutate-01"
@@ -47,6 +48,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "2000-aws-waf-remove-http-request-id-mutate-02"
@@ -74,6 +76,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "2000-aws-waf-sub_field_renames-mutate-03"
@@ -180,6 +183,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "2000-aws-waf-ruby_field_renames-mutate-04"
@@ -192,6 +196,7 @@ filter {
   useragent {
     source => '[user_agent][original]'
   }
+
 
   if [error][source_plugin_id] {
     mutate {

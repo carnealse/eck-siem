@@ -15,6 +15,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-vpcflow-no-src-tag-mutate-01"
@@ -29,6 +30,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-vpcflow-remove-no-src-mutate-02"
@@ -55,6 +57,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-vpcflow-no-dst-tag-mutate-03"
@@ -69,6 +72,7 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
+
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "3000-vpcflow-remove-no-dst-mutate-04"
@@ -140,6 +144,7 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
+
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "3000-vpcflow-cleanup-epochs-mutate-05"
@@ -191,6 +196,7 @@ filter {
       remove_tag => ["ruby_exception", "_rubyexception"]
     }
   }
+
 
   if [error][source_plugin_id] {
     mutate {
