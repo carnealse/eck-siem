@@ -10,24 +10,25 @@ filter {
           event.set("[gitlab][details][custom_message][action]", action)
         end
       '
-      tag_on_exception => "_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01"
+      tag_on_exception => "_rubyexception"
     }
 
-    if ("_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-gitlab-conversion-script.conf"
-          }
-        }
-      }
-
+    if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "2000-gitlab-custom-message-conversion-ruby-01"
         }
         add_tag => ["_logstash_attributed_ruby_exception"]
-        remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__2000-gitlab-conversion-script__ruby__2000-gitlab-custom-message-conversion-ruby-01"]
+        remove_tag => ["ruby_exception", "_rubyexception"]
+      }
+    }
+  }
+
+
+  if [error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "2000-gitlab-conversion-script.conf"
       }
     }
   }

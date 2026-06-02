@@ -1,5 +1,5 @@
 filter {
-  # This is broken into three message types: main nexus, service, and healthchecker messages. 
+  # This is broken into three message types: main nexus, service, and healthchecker messages.
   # Healthchecker is captured as is and is not broken into fields.
   mutate {
     add_field => {
@@ -9,13 +9,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-nexus-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -34,13 +27,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "1000-nexus-normalization.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -57,13 +43,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "1000-nexus-normalization.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -83,13 +62,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-nexus-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -97,6 +69,15 @@ filter {
       }
       add_tag => ["_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+    }
+  }
+
+
+  if [error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "1000-nexus-normalization.conf"
+      }
     }
   }
 }

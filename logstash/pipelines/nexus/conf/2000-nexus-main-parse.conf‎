@@ -6,23 +6,16 @@ filter {
     json {
       id => "2000-nexus-json_process-json-01"
       source => "message"
-      tag_on_failure => ["_jsonparsefailure", "_logstash_failure__2000-nexus-main-parse__json__2000-nexus-json_process-json-01"]
+      tag_on_failure => ["_jsonparsefailure"]
     }
 
-    if "_logstash_failure__2000-nexus-main-parse__json__2000-nexus-json_process-json-01" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-nexus-main-parse.conf"
-          }
-        }
-      }
-
+    if "_jsonparsefailure" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "2000-nexus-json_process-json-01"
         }
-        remove_tag => ["_logstash_failure__2000-nexus-main-parse__json__2000-nexus-json_process-json-01"]
+        add_tag => ["_logstash_attributed_json_parse_failure"]
+        remove_tag => ["_jsonparsefailure"]
       }
     }
 
@@ -63,13 +56,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-nexus-main-parse.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -92,13 +78,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-nexus-main-parse.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -116,13 +95,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-nexus-main-parse.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -140,13 +112,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "2000-nexus-main-parse.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -175,13 +140,6 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
-            if ![error][source_config] {
-              mutate {
-                add_field => {
-                  "[error][source_config]" => "2000-nexus-main-parse.conf"
-                }
-              }
-            }
 
             mutate {
               add_field => {
@@ -200,13 +158,6 @@ filter {
         }
 
         if "_mutate_error" in [tags] {
-          if ![error][source_config] {
-            mutate {
-              add_field => {
-                "[error][source_config]" => "2000-nexus-main-parse.conf"
-              }
-            }
-          }
 
           mutate {
             add_field => {
@@ -224,26 +175,10 @@ filter {
           mapping => {
             "message" => "%{[client][ip]} %{[nexus][unknown]} %{[user][email]} [%{[event][start]}] %{[http][request][method]} %{[url][path]} %{[tls][protocol]} %{[http][response][status_code]} %{[http][request][body][bytes]} %{[http][response][body][bytes]} %{[event][duration]} %{[observer][type]} [%{[http][request][id]}]"
           }
-          tag_on_failure => ["_dissecttwofailure", "_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice-dissect-01"]
+          tag_on_failure => ["_dissecttwofailure"]
           id => "2000-nexus-dissect-nonservice-dissect-01"
         }
 
-        if "_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice-dissect-01" in [tags] {
-          if ![error][source_config] {
-            mutate {
-              add_field => {
-                "[error][source_config]" => "2000-nexus-main-parse.conf"
-              }
-            }
-          }
-
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice-dissect-01"
-            }
-            remove_tag => ["_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice-dissect-01"]
-          }
-        }
         if !("_dissecttwofailure" in [tags]) {
           mutate {
             add_tag => ["nexus-nonservice"]
@@ -251,13 +186,6 @@ filter {
           }
 
           if "_mutate_error" in [tags] {
-            if ![error][source_config] {
-              mutate {
-                add_field => {
-                  "[error][source_config]" => "2000-nexus-main-parse.conf"
-                }
-              }
-            }
 
             mutate {
               add_field => {
@@ -275,13 +203,6 @@ filter {
             }
 
             if "_mutate_error" in [tags] {
-              if ![error][source_config] {
-                mutate {
-                  add_field => {
-                    "[error][source_config]" => "2000-nexus-main-parse.conf"
-                  }
-                }
-              }
 
               mutate {
                 add_field => {
@@ -291,6 +212,15 @@ filter {
                 remove_tag => ["_mutate_error"]
               }
             }
+          }
+        }
+        if "_dissecttwofailure" in [tags] {
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice-dissect-01"
+            }
+            add_tag => ["_logstash_attributed_dissect_failure"]
+            remove_tag => ["_dissecttwofailure"]
           }
         }
       }
@@ -303,13 +233,6 @@ filter {
       }
 
       if "_mutate_error" in [tags] {
-        if ![error][source_config] {
-          mutate {
-            add_field => {
-              "[error][source_config]" => "2000-nexus-main-parse.conf"
-            }
-          }
-        }
 
         mutate {
           add_field => {
@@ -322,4 +245,13 @@ filter {
     }
   }
   ### END HEALTHCHECKER AND SERVICE ONLY PROCESSING ###
+
+
+  if [error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "2000-nexus-main-parse.conf"
+      }
+    }
+  }
 }

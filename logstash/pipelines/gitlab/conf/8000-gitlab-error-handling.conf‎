@@ -1,9 +1,75 @@
 filter {
   # Restore generic failure tags after per-plugin attribution removes them to avoid false matches.
+
+  if "_logstash_attributed_aggregate_exception" in [tags] and !("_aggregateexception" in [tags]) {
+    mutate {
+      id => "8000-restore-aggregate-exception-tag"
+      add_tag => ["_aggregateexception"]
+      remove_tag => ["_logstash_attributed_aggregate_exception"]
+    }
+  }
+
+  if "_logstash_attributed_csv_parse_failure" in [tags] and !("_csvparsefailure" in [tags]) {
+    mutate {
+      id => "8000-restore-csv-parse-failure-tag"
+      add_tag => ["_csvparsefailure"]
+      remove_tag => ["_logstash_attributed_csv_parse_failure"]
+    }
+  }
+
+  if "_logstash_attributed_date_parse_failure" in [tags] and !("_dateparsefailure" in [tags]) {
+    mutate {
+      id => "8000-restore-date-parse-failure-tag"
+      add_tag => ["_dateparsefailure"]
+      remove_tag => ["_logstash_attributed_date_parse_failure"]
+    }
+  }
+
+  if "_logstash_attributed_dissect_failure" in [tags] and !("_dissectfailure" in [tags]) {
+    mutate {
+      id => "8000-restore-dissect-failure-tag"
+      add_tag => ["_dissectfailure"]
+      remove_tag => ["_logstash_attributed_dissect_failure"]
+    }
+  }
+
+  if "_logstash_attributed_geoip_lookup_failure" in [tags] and !("_geoip_lookup_failure" in [tags]) {
+    mutate {
+      id => "8000-restore-geoip-lookup-failure-tag"
+      add_tag => ["_geoip_lookup_failure"]
+      remove_tag => ["_logstash_attributed_geoip_lookup_failure"]
+    }
+  }
+
+  if "_logstash_attributed_grok_parse_failure" in [tags] and !("_grokparsefailure" in [tags]) {
+    mutate {
+      id => "8000-restore-grok-parse-failure-tag"
+      add_tag => ["_grokparsefailure"]
+      remove_tag => ["_logstash_attributed_grok_parse_failure"]
+    }
+  }
+
+  if "_logstash_attributed_kv_parse_failure" in [tags] and !("_grok_kv_parse_failure" in [tags]) {
+    mutate {
+      id => "8000-restore-kv-parse-failure-tag"
+      add_tag => ["_grok_kv_parse_failure"]
+      remove_tag => ["_logstash_attributed_kv_parse_failure"]
+    }
+  }
+
+  if "_logstash_attributed_json_parse_failure" in [tags] and !("_jsonparsefailure" in [tags]) {
+    mutate {
+      id => "8000-restore-json-parse-failure-tag"
+      add_tag => ["_jsonparsefailure"]
+      remove_tag => ["_logstash_attributed_json_parse_failure"]
+    }
+  }
+
   if "_logstash_attributed_mutate_error" in [tags] and !("_mutate_error" in [tags]) {
     mutate {
       id => "8000-gitlab-restore-mutate-error-tag"
       add_tag => ["_mutate_error"]
+      remove_tag => ["_logstash_attributed_mutate_error"]
     }
   }
 
@@ -11,9 +77,17 @@ filter {
     mutate {
       id => "8000-gitlab-restore-ruby-exception-tags"
       add_tag => ["_rubyexception", "ruby_exception"]
+      remove_tag => ["_logstash_attributed_ruby_exception"]
     }
   }
 
+  if "_logstash_attributed_xml_parse_failure" in [tags] and !("_xmlparsefailure" in [tags]) {
+    mutate {
+      id => "8000-restore-xml-parse-failure-tag"
+      add_tag => ["_xmlparsefailure"]
+      remove_tag => ["_logstash_attributed_xml_parse_failure"]
+    }
+  }
   if "_jsonparsefailure" in [tags] {
     if ![error][message] {
       mutate {
@@ -126,6 +200,24 @@ filter {
     }
   }
 
+  # count the number of plugin_ids and set the event status
+  if [error][source_plugin_id] {
+    ruby {
+      id   => "8000-gitlab-pipeline-error-count"
+      code => '
+        source = event.get("[error][source_plugin_id]")
+        err_count = source.is_a?(Array) ? source.length : (source.nil? ? 0 : 1)
+
+        if err_count == 1
+          event.set("[error][event_status]", "1 processing failure")
+        else
+          event.set("[error][event_status]", "#{err_count} processing failures")
+        end
+      '
+    }
+  }
+
+
   # Consolidate all filter errors under one tag and stamp pipeline metadata
   if "filter_error" in [tags] {
     mutate {
@@ -133,7 +225,6 @@ filter {
       add_tag => ["pipeline_processing_error"]
       replace => {
         "[error][source_pipeline]" => "gitlab"
-        "[error][event_status]"    => "processing_failure"
       }
     }
   }

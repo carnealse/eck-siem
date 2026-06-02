@@ -6,13 +6,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -31,13 +24,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -56,13 +42,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -80,13 +59,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -104,13 +76,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -128,13 +93,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -151,13 +109,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -174,13 +125,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -198,13 +142,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -222,13 +159,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -245,13 +175,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -268,13 +191,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -291,13 +207,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -314,13 +223,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -337,13 +239,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -360,13 +255,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -384,13 +272,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -409,13 +290,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -434,13 +308,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -459,13 +326,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -513,23 +373,16 @@ filter {
       source => "[source][ip]"
       target => "[source][geo]"
       id => "4000-vpcflow-geoip-src-geoip-01"
-      tag_on_failure => ["_geoip_lookup_failure", "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-src-geoip-01"]
+      tag_on_failure => ["_geoip_lookup_failure"]
     }
 
-    if "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-src-geoip-01" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
-
+    if "_geoip_lookup_failure" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "4000-vpcflow-geoip-src-geoip-01"
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-src-geoip-01"]
+        add_tag => ["_logstash_attributed_geoip_lookup_failure"]
+        remove_tag => ["_geoip_lookup_failure"]
       }
     }
     geoip {
@@ -537,23 +390,16 @@ filter {
       target => "[source][as]"
       default_database_type => "ASN"
       id => "4000-vpcflow-asn-src-geoip-02"
-      tag_on_failure => ["_geoip_lookup_failure", "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-src-geoip-02"]
+      tag_on_failure => ["_geoip_lookup_failure"]
     }
 
-    if "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-src-geoip-02" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
-
+    if "_geoip_lookup_failure" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "4000-vpcflow-asn-src-geoip-02"
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-src-geoip-02"]
+        add_tag => ["_logstash_attributed_geoip_lookup_failure"]
+        remove_tag => ["_geoip_lookup_failure"]
       }
     }
   }
@@ -563,23 +409,16 @@ filter {
       source => "[destination][ip]"
       target => "[destination][geo]"
       id => "4000-vpcflow-geoip-dst-geoip-03"
-      tag_on_failure => ["_geoip_lookup_failure", "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-dst-geoip-03"]
+      tag_on_failure => ["_geoip_lookup_failure"]
     }
 
-    if "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-dst-geoip-03" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
-
+    if "_geoip_lookup_failure" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "4000-vpcflow-geoip-dst-geoip-03"
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-dst-geoip-03"]
+        add_tag => ["_logstash_attributed_geoip_lookup_failure"]
+        remove_tag => ["_geoip_lookup_failure"]
       }
     }
     geoip {
@@ -587,23 +426,16 @@ filter {
       target => "[destination][as]"
       default_database_type => "ASN"
       id => "4000-vpcflow-asn-dst-geoip-04"
-      tag_on_failure => ["_geoip_lookup_failure", "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-dst-geoip-04"]
+      tag_on_failure => ["_geoip_lookup_failure"]
     }
 
-    if "_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-dst-geoip-04" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
-
+    if "_geoip_lookup_failure" in [tags] {
       mutate {
         add_field => {
           "[error][source_plugin_id]" => "4000-vpcflow-asn-dst-geoip-04"
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-dst-geoip-04"]
+        add_tag => ["_logstash_attributed_geoip_lookup_failure"]
+        remove_tag => ["_geoip_lookup_failure"]
       }
     }
   }
@@ -619,13 +451,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -643,13 +468,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -665,13 +483,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -694,13 +505,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -720,13 +524,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -753,24 +550,25 @@ filter {
         event.set("[aws][vpcflow][tcp_flags_array]", tcp_flags_array)
       end
     '
-    tag_on_exception => "_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01"
+    tag_on_exception => "_rubyexception"
   }
 
-  if ("_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01" in [tags] or "ruby_exception" in [tags] or "_rubyexception" in [tags]) {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "4000-vpcflow-enrichment.conf"
-        }
-      }
-    }
-
+  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
     mutate {
       add_field => {
         "[error][source_plugin_id]" => "4000-vpcflow-ruby-tcp-flags-ruby-01"
       }
       add_tag => ["_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01"]
+      remove_tag => ["ruby_exception", "_rubyexception"]
+    }
+  }
+
+
+  if [error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "4000-vpcflow-enrichment.conf"
+      }
     }
   }
 }

@@ -5,13 +5,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-vpcflow-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -28,13 +21,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-vpcflow-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -51,13 +37,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-vpcflow-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -74,13 +53,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-vpcflow-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -97,13 +69,6 @@ filter {
   }
 
   if "_mutate_error" in [tags] {
-    if ![error][source_config] {
-      mutate {
-        add_field => {
-          "[error][source_config]" => "1000-vpcflow-normalization.conf"
-        }
-      }
-    }
 
     mutate {
       add_field => {
@@ -128,13 +93,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "1000-vpcflow-normalization.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -145,19 +103,12 @@ filter {
       }
     }
     if [event][original] =~ /, / {
-      mutate { 
-        split => { "[event][original]" => ", " } 
+      mutate {
+        split => { "[event][original]" => ", " }
         id => "1000-vpcflow-split-comma-mutate-07"
       }
 
       if "_mutate_error" in [tags] {
-        if ![error][source_config] {
-          mutate {
-            add_field => {
-              "[error][source_config]" => "1000-vpcflow-normalization.conf"
-            }
-          }
-        }
 
         mutate {
           add_field => {
@@ -167,8 +118,8 @@ filter {
           remove_tag => ["_mutate_error"]
         }
       }
-      split { 
-        field => "[event][original]" 
+      split {
+        field => "[event][original]"
         id => "1000-vpcflow-split-field"
       }
     }
@@ -178,13 +129,6 @@ filter {
     }
 
     if "_mutate_error" in [tags] {
-      if ![error][source_config] {
-        mutate {
-          add_field => {
-            "[error][source_config]" => "1000-vpcflow-normalization.conf"
-          }
-        }
-      }
 
       mutate {
         add_field => {
@@ -192,6 +136,15 @@ filter {
         }
         add_tag => ["_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+      }
+    }
+  }
+
+
+  if [error][source_plugin_id] {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "1000-vpcflow-normalization.conf"
       }
     }
   }
