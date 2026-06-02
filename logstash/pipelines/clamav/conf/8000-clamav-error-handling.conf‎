@@ -88,19 +88,108 @@ filter {
       remove_tag => ["_logstash_attributed_xml_parse_failure"]
     }
   }
+  ###########################
+  # Finalize Error Handling #
+  ###########################
+
   if "_jsonparsefailure" in [tags] {
-    mutate {
-      add_tag => ["_jsonparsefailure"]
-      add_field => { "[error][message]" => "error parsing json" }
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-jsonparsefailure-add"
+        add_field => { "[error][message]" => "json parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-jsonparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+      }
     }
   }
 
-  if "_rubyexception" in [tags] {
-    mutate {
-      add_tag => ["_rubyexception"]
-      add_field => { "[error][message]" => "error in ruby code" }
+  if "_dateparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-dateparsefailure-add"
+        add_field => { "[error][message]" => "date parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-dateparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | date parsing failed" }
+      }
     }
   }
+
+  if "_mutate_error" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-mutate-error-add"
+        add_field => { "[error][message]" => "mutate error occurred" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-mutate-error-update"
+        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
+      }
+    }
+  }
+
+  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-rubyexception-add"
+        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-rubyexception-update"
+        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+      }
+    }
+  }
+
+  if "_geoip_lookup_failure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-geoip-lookup-failure-add"
+        add_field => { "[error][message]" => "geoip lookup failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-geoip-lookup-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | geoip lookup failed" }
+      }
+    }
+  }
+
+  if "_grokparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-grokparsefailure-add"
+        add_field => { "[error][message]" => "grok parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-grokparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok parsing failed" }
+      }
+    }
+  }
+
+  if "_grok_kv_parse_failure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-clamav-grok-kv-parse-failure-add"
+        add_field => { "[error][message]" => "grok kv parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-clamav-grok-kv-parse-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
+      }
+    }
+  }
+
   # count the number of plugin_ids and set the event status
   if [error][source_plugin_id] {
     ruby {
@@ -118,5 +207,23 @@ filter {
     }
   }
 
+  # Consolidate all filter errors under one tag and stamp pipeline metadata
+  if [error][source_plugin_id] {
+    mutate {
+      id => "8000-clamav-pipeline-error-consolidation"
+      add_tag => ["pipeline_processing_error"]
+      replace => {
+        "[error][source_pipeline]" => "clamav"
+      }
+    }
+  }
 
+  # Fallback generic error message if none was set
+  if "pipeline_processing_error" in [tags] and ![error][message] {
+    mutate {
+      id => "8000-clamav-generic-error-message"
+      add_field => { "[error][message]" => "clamav generic pipeline processing failure" }
+    }
+  }
 }
+

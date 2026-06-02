@@ -93,13 +93,11 @@ filter {
       mutate {
         id => "8000-aws-waf-jsonparsefailure-add"
         add_field => { "[error][message]" => "json parsing failed" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-jsonparsefailure-update"
         update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -109,13 +107,11 @@ filter {
       mutate {
         id => "8000-aws-waf-dateparsefailure-add"
         add_field => { "[error][message]" => "date parsing failed" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-dateparsefailure-update"
         update => { "[error][message]" => "%{[error][message]} | date parsing failed" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -125,13 +121,11 @@ filter {
       mutate {
         id => "8000-aws-waf-mutate-error-add"
         add_field => { "[error][message]" => "mutate error occurred" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-mutate-error-update"
         update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -141,13 +135,11 @@ filter {
       mutate {
         id => "8000-aws-waf-rubyexception-add"
         add_field => { "[error][message]" => "An exception occurred in the ruby code" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-rubyexception-update"
         update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -157,13 +149,11 @@ filter {
       mutate {
         id => "8000-aws-waf-geoip-lookup-failure-add"
         add_field => { "[error][message]" => "geoip lookup failed" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-geoip-lookup-failure-update"
         update => { "[error][message]" => "%{[error][message]} | geoip lookup failed" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -173,13 +163,11 @@ filter {
       mutate {
         id => "8000-aws-waf-grokparsefailure-add"
         add_field => { "[error][message]" => "grok parsing failed" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-grokparsefailure-update"
         update => { "[error][message]" => "%{[error][message]} | grok parsing failed" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -189,13 +177,11 @@ filter {
       mutate {
         id => "8000-aws-waf-grok-kv-parse-failure-add"
         add_field => { "[error][message]" => "grok kv parsing failed" }
-        add_tag => ["filter_error"]
       }
     } else {
       mutate {
         id => "8000-aws-waf-grok-kv-parse-failure-update"
         update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
-        add_tag => ["filter_error"]
       }
     }
   }
@@ -219,23 +205,12 @@ filter {
 
 
   # Consolidate all filter errors under one tag and stamp pipeline metadata
-  if "filter_error" in [tags] {
+  if [error][source_plugin_id] {
     mutate {
       id => "8000-aws-waf-pipeline-error-consolidation"
       add_tag => ["pipeline_processing_error"]
       replace => {
         "[error][source_pipeline]" => "aws-waf"
-      }
-    }
-  }
-
-  # Keep dashboard attribution fields present when a failure tag was not stamped at source.
-  if "pipeline_processing_error" in [tags] and ![error][source_plugin_id] {
-    mutate {
-      id => "8000-aws-waf-source-attribution-fallback"
-      add_field => {
-        "[error][source_config]"    => "unknown"
-        "[error][source_plugin_id]" => "unknown"
       }
     }
   }

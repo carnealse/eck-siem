@@ -88,6 +88,53 @@ filter {
       remove_tag => ["_logstash_attributed_xml_parse_failure"]
     }
   }
+
+  ###########################
+  # Finalize Error Handling #
+  ###########################
+
+  if "_jsonparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-cat-dev-jsonparsefailure-add"
+        add_field => { "[error][message]" => "json parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-cat-dev-jsonparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+      }
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-cat-dev-mutate-error-add"
+        add_field => { "[error][message]" => "mutate error occurred" }
+      }
+    } else {
+      mutate {
+        id => "8000-cat-dev-mutate-error-update"
+        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
+      }
+    }
+  }
+
+  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-cat-dev-rubyexception-add"
+        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+      }
+    } else {
+      mutate {
+        id => "8000-cat-dev-rubyexception-update"
+        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+      }
+    }
+  }
+
   # count the number of plugin_ids and set the event status
   if [error][source_plugin_id] {
     ruby {
@@ -106,45 +153,37 @@ filter {
   }
 
 
-  # Catch known failure tags
-  if "_jsonparsefailure" in [tags] or "_rubyexception" in [tags] or "_mutate_error" in [tags] or "ruby_exception" in [tags] {
+  # Consolidate all filter errors under one tag and stamp pipeline metadata
+  if [error][source_plugin_id] {
     mutate {
+      id => "8000-cat-dev-pipeline-error-consolidation"
       add_tag => ["pipeline_processing_error"]
-      add_field => {
-        "[error][source_pipeline]"  => "cat-dev"
+      replace => {
+        "[error][source_pipeline]" => "cat-dev"
       }
     }
   }
 
-  # Keep dashboard attribution fields present when a failure tag was not stamped at source.
-  if "pipeline_processing_error" in [tags] and ![error][source_plugin_id] {
-    mutate {
-      id => "8000-cat-dev-source-attribution-fallback"
-      add_field => {
-        "[error][source_config]"    => "unknown"
-        "[error][source_plugin_id]" => "unknown"
-      }
-    }
-  }
-
-  # Add an explicit error message field if one doesn't exist
+  # Fallback generic error message if none was set
   if "pipeline_processing_error" in [tags] and ![error][message] {
     mutate {
+      id => "8000-cat-dev-generic-error-message"
       add_field => { "[error][message]" => "cat-dev generic pipeline processing failure" }
     }
   }
 
-  # Routing
+  # Set routing path for 9000 output
   if "pipeline_processing_error" in [tags] {
     mutate {
-      add_field => { "[@metadata][routing_path]" => "error_index" }
+      id => "8000-cat-dev-routing-error"
+      replace => { "[@metadata][routing_path]" => "error_index" }
     }
   } else {
     mutate {
-      add_field => { "[@metadata][routing_path]" => "standard_index" }
+      id => "8000-cat-dev-routing-standard"
+      replace => { "[@metadata][routing_path]" => "standard_index" }
     }
   }
-
   mutate {
     add_field => {
       "[debug][routing_path]" => "%{[@metadata][routing_path]}"
