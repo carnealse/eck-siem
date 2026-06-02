@@ -101,4 +101,22 @@ filter {
       add_field => { "[error][message]" => "error in ruby code" }
     }
   }
+  # count the number of plugin_ids and set the event status
+  if [error][source_plugin_id] {
+    ruby {
+      id   => "8000-clamav-pipeline-error-count"
+      code => '
+        source = event.get("[error][source_plugin_id]")
+        err_count = source.is_a?(Array) ? source.length : (source.nil? ? 0 : 1)
+
+        if err_count == 1
+          event.set("[error][event_status]", "1 processing failure")
+        else
+          event.set("[error][event_status]", "#{err_count} processing failures")
+        end
+      '
+    }
+  }
+
+
 }

@@ -88,12 +88,29 @@ filter {
       remove_tag => ["_logstash_attributed_xml_parse_failure"]
     }
   }
+  # count the number of plugin_ids and set the event status
+  if [error][source_plugin_id] {
+    ruby {
+      id   => "8000-cat-dev-pipeline-error-count"
+      code => '
+        source = event.get("[error][source_plugin_id]")
+        err_count = source.is_a?(Array) ? source.length : (source.nil? ? 0 : 1)
+
+        if err_count == 1
+          event.set("[error][event_status]", "1 processing failure")
+        else
+          event.set("[error][event_status]", "#{err_count} processing failures")
+        end
+      '
+    }
+  }
+
+
   # Catch known failure tags
   if "_jsonparsefailure" in [tags] or "_rubyexception" in [tags] or "_mutate_error" in [tags] or "ruby_exception" in [tags] {
     mutate {
       add_tag => ["pipeline_processing_error"]
       add_field => {
-        "[error][event_status]"     => "processing_failure"
         "[error][source_pipeline]"  => "cat-dev"
       }
     }

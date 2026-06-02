@@ -200,6 +200,24 @@ filter {
     }
   }
 
+  # count the number of plugin_ids and set the event status
+  if [error][source_plugin_id] {
+    ruby {
+      id   => "8000-netskope-pipeline-error-count"
+      code => '
+        source = event.get("[error][source_plugin_id]")
+        err_count = source.is_a?(Array) ? source.length : (source.nil? ? 0 : 1)
+
+        if err_count == 1
+          event.set("[error][event_status]", "1 processing failure")
+        else
+          event.set("[error][event_status]", "#{err_count} processing failures")
+        end
+      '
+    }
+  }
+
+
   # Consolidate all filter errors under one tag and stamp pipeline metadata
   if "filter_error" in [tags] {
     mutate {
@@ -207,7 +225,6 @@ filter {
       add_tag => ["pipeline_processing_error"]
       replace => {
         "[error][source_pipeline]" => "netskope"
-        "[error][event_status]"    => "processing_failure"
       }
     }
   }
