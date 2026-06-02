@@ -14,12 +14,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-outcome-success-mutate-01"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-outcome-success-mutate-01"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-outcome-success-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-outcome-success-mutate-01"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-outcome-success-mutate-01", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -39,12 +49,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-outcome-failure-mutate-02"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-outcome-failure-mutate-02"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-outcome-failure-mutate-02", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-outcome-failure-mutate-02"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-outcome-failure-mutate-02", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -64,12 +84,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-clear-source-addr-mutate-03"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-clear-source-addr-mutate-03"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-clear-source-addr-mutate-03", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-clear-source-addr-mutate-03"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-clear-source-addr-mutate-03", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -88,12 +118,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-src-to-addr-mutate-04"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-src-to-addr-mutate-04"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-src-to-addr-mutate-04", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-src-to-addr-mutate-04"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-src-to-addr-mutate-04", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -112,12 +152,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-src-to-ip-mutate-05"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-src-to-ip-mutate-05"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-src-to-ip-mutate-05", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-src-to-ip-mutate-05"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-src-to-ip-mutate-05", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -136,12 +186,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-port-mutate-06"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-add-src-port-mutate-06"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-port-mutate-06", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-port-mutate-06"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-port-mutate-06", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -159,12 +219,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-port-mutate-07"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-int-src-port-mutate-07"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-port-mutate-07", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-port-mutate-07"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-port-mutate-07", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -182,12 +252,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-dst-to-addr-mutate-08"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-dst-to-addr-mutate-08"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-dst-to-addr-mutate-08", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-dst-to-addr-mutate-08"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-dst-to-addr-mutate-08", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -206,12 +286,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-dst-to-ip-mutate-09"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-dst-to-ip-mutate-09"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-dst-to-ip-mutate-09", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-dst-to-ip-mutate-09"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-dst-to-ip-mutate-09", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -230,12 +320,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-dst-port-mutate-10"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-add-dst-port-mutate-10"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-dst-port-mutate-10", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-dst-port-mutate-10"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-dst-port-mutate-10", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -253,12 +353,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-dst-port-mutate-11"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-int-dst-port-mutate-11"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-dst-port-mutate-11", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-dst-port-mutate-11"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-dst-port-mutate-11", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -276,12 +386,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-protocol-to-iana-mutate-12"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-protocol-to-iana-mutate-12"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-protocol-to-iana-mutate-12", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-protocol-to-iana-mutate-12"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-protocol-to-iana-mutate-12", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -299,12 +419,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-packets-mutate-13"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-add-src-packets-mutate-13"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-packets-mutate-13", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-packets-mutate-13"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-packets-mutate-13", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -322,12 +452,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-packets-mutate-14"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-int-src-packets-mutate-14"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-packets-mutate-14", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-packets-mutate-14"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-packets-mutate-14", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -345,12 +485,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-bytes-mutate-15"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-add-src-bytes-mutate-15"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-bytes-mutate-15", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-bytes-mutate-15"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-add-src-bytes-mutate-15", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -368,12 +518,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-bytes-mutate-16"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-int-src-bytes-mutate-16"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-bytes-mutate-16", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-bytes-mutate-16"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-int-src-bytes-mutate-16", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -392,12 +552,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-network-bytes-mutate-17"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-network-bytes-mutate-17"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-network-bytes-mutate-17", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-network-bytes-mutate-17"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-network-bytes-mutate-17", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -417,12 +587,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-network-packets-mutate-18"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-network-packets-mutate-18"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-network-packets-mutate-18", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-network-packets-mutate-18"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-network-packets-mutate-18", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -442,12 +622,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-type-ipv4-mutate-19"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-type-ipv4-mutate-19"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-type-ipv4-mutate-19", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-type-ipv4-mutate-19"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-type-ipv4-mutate-19", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -467,12 +657,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-type-ipv6-mutate-20"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-type-ipv6-mutate-20"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-type-ipv6-mutate-20", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-type-ipv6-mutate-20"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-type-ipv6-mutate-20", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -525,11 +725,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-geoip-src-geoip-01"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-geoip-src-geoip-01"
+          }
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-src-geoip-01"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-geoip-src-geoip-01"
+          }
+        }
       }
     }
     geoip {
@@ -549,11 +756,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-asn-src-geoip-02"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-asn-src-geoip-02"
+          }
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-src-geoip-02"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-asn-src-geoip-02"
+          }
+        }
       }
     }
   }
@@ -575,11 +789,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-geoip-dst-geoip-03"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-geoip-dst-geoip-03"
+          }
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-geoip-dst-geoip-03"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-geoip-dst-geoip-03"
+          }
+        }
       }
     }
     geoip {
@@ -599,11 +820,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-asn-dst-geoip-04"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-asn-dst-geoip-04"
+          }
         }
-        remove_tag => ["_logstash_failure__4000-vpcflow-enrichment__geoip__4000-vpcflow-asn-dst-geoip-04"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-asn-dst-geoip-04"
+          }
+        }
       }
     }
   }
@@ -627,12 +855,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-asn-renames-mutate-21"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-asn-renames-mutate-21"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-asn-renames-mutate-21", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-asn-renames-mutate-21"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-asn-renames-mutate-21", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -651,12 +889,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-related-ip-src-mutate-22"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-related-ip-src-mutate-22"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-related-ip-src-mutate-22", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-related-ip-src-mutate-22"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-related-ip-src-mutate-22", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
     mutate {
@@ -673,12 +921,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "4000-vpcflow-related-ip-dst-mutate-23"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-related-ip-dst-mutate-23"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-related-ip-dst-mutate-23", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "4000-vpcflow-related-ip-dst-mutate-23"
+          }
+        add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-related-ip-dst-mutate-23", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -702,12 +960,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-cloud-defaults-mutate-24"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-cloud-defaults-mutate-24"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-cloud-defaults-mutate-24", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-cloud-defaults-mutate-24"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-cloud-defaults-mutate-24", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -728,12 +996,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-cloud-ids-mutate-25"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-cloud-ids-mutate-25"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-cloud-ids-mutate-25", "_logstash_attributed_mutate_error"]
       remove_tag => ["_mutate_error"]
+      }
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-cloud-ids-mutate-25"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__mutate__4000-vpcflow-cloud-ids-mutate-25", "_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+      }
     }
   }
 
@@ -765,12 +1043,22 @@ filter {
       }
     }
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-ruby-tcp-flags-ruby-01"
+    if [error][source_plugin_id] {
+      mutate {
+        update => {
+          "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 4000-vpcflow-ruby-tcp-flags-ruby-01"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01", "_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception"]
       }
-      add_tag => ["_logstash_attributed_ruby_exception"]
-      remove_tag => ["ruby_exception", "_rubyexception", "_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01"]
+    } else {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-ruby-tcp-flags-ruby-01"
+        }
+      add_tag => ["_logstash_failure__4000-vpcflow-enrichment__ruby__4000-vpcflow-ruby-tcp-flags-ruby-01", "_logstash_attributed_ruby_exception"]
+      remove_tag => ["ruby_exception", "_rubyexception"]
+      }
     }
   }
 }

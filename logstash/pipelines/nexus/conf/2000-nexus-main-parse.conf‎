@@ -18,11 +18,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-nexus-json_process-json-01"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-json_process-json-01"
+          }
         }
-        remove_tag => ["_logstash_failure__2000-nexus-main-parse__json__2000-nexus-json_process-json-01"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-nexus-json_process-json-01"
+          }
+        }
       }
     }
 
@@ -71,12 +78,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-nexus-initial_renames-mutate-01"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-initial_renames-mutate-01"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-initial_renames-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-nexus-initial_renames-mutate-01"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-initial_renames-mutate-01", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
   }
@@ -100,12 +117,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-nexus-convert-string-mutate-02"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-convert-string-mutate-02"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-convert-string-mutate-02", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-nexus-convert-string-mutate-02"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-convert-string-mutate-02", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
 
@@ -124,12 +151,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-nexus-gsub-quotes-mutate-03"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-gsub-quotes-mutate-03"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-gsub-quotes-mutate-03", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-nexus-gsub-quotes-mutate-03"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-gsub-quotes-mutate-03", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
 
@@ -148,12 +185,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-nexus-strip-whitespace-mutate-04"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-strip-whitespace-mutate-04"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-strip-whitespace-mutate-04", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-nexus-strip-whitespace-mutate-04"
+          }
+        add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-strip-whitespace-mutate-04", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
 
@@ -183,12 +230,22 @@ filter {
               }
             }
 
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2000-nexus-tag-service-mutate-05"
-              }
-              add_tag => ["_logstash_attributed_mutate_error"]
+            if [error][source_plugin_id] {
+              mutate {
+                update => {
+                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-tag-service-mutate-05"
+                }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-service-mutate-05", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
+              }
+            } else {
+              mutate {
+                add_field => {
+                  "[error][source_plugin_id]" => "2000-nexus-tag-service-mutate-05"
+                }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-service-mutate-05", "_logstash_attributed_mutate_error"]
+              remove_tag => ["_mutate_error"]
+              }
             }
           }
         }
@@ -208,12 +265,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-nexus-tag-force-nonservice-mutate-06"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-tag-force-nonservice-mutate-06"
+              }
+            add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-force-nonservice-mutate-06", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-nexus-tag-force-nonservice-mutate-06"
+              }
+            add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-force-nonservice-mutate-06", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
       }
@@ -237,11 +304,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice-dissect-01"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-dissect-nonservice-dissect-01"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-nexus-main-parse__dissect__2000-nexus-dissect-nonservice-dissect-01"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-nexus-dissect-nonservice-dissect-01"
+              }
+            }
           }
         }
         if !("_dissecttwofailure" in [tags]) {
@@ -259,12 +333,22 @@ filter {
               }
             }
 
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2000-nexus-tag-nonservice-mutate-07"
-              }
-              add_tag => ["_logstash_attributed_mutate_error"]
+            if [error][source_plugin_id] {
+              mutate {
+                update => {
+                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-tag-nonservice-mutate-07"
+                }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-nonservice-mutate-07", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
+              }
+            } else {
+              mutate {
+                add_field => {
+                  "[error][source_plugin_id]" => "2000-nexus-tag-nonservice-mutate-07"
+                }
+              add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-nonservice-mutate-07", "_logstash_attributed_mutate_error"]
+              remove_tag => ["_mutate_error"]
+              }
             }
           }
           # clean up placeholder dash captured in email field for unauthenticated requests
@@ -283,12 +367,22 @@ filter {
                 }
               }
 
-              mutate {
-                add_field => {
-                  "[error][source_plugin_id]" => "2000-nexus-remove-empty-email-mutate-08"
-                }
-                add_tag => ["_logstash_attributed_mutate_error"]
+              if [error][source_plugin_id] {
+                mutate {
+                  update => {
+                    "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-remove-empty-email-mutate-08"
+                  }
+                add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-remove-empty-email-mutate-08", "_logstash_attributed_mutate_error"]
                 remove_tag => ["_mutate_error"]
+                }
+              } else {
+                mutate {
+                  add_field => {
+                    "[error][source_plugin_id]" => "2000-nexus-remove-empty-email-mutate-08"
+                  }
+                add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-remove-empty-email-mutate-08", "_logstash_attributed_mutate_error"]
+                remove_tag => ["_mutate_error"]
+                }
               }
             }
           }
@@ -311,12 +405,22 @@ filter {
           }
         }
 
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-nexus-tag-healthchecker-mutate-09"
-          }
-          add_tag => ["_logstash_attributed_mutate_error"]
+        if [error][source_plugin_id] {
+          mutate {
+            update => {
+              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-nexus-tag-healthchecker-mutate-09"
+            }
+          add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-healthchecker-mutate-09", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
+          }
+        } else {
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2000-nexus-tag-healthchecker-mutate-09"
+            }
+          add_tag => ["_logstash_failure__2000-nexus-main-parse__mutate__2000-nexus-tag-healthchecker-mutate-09", "_logstash_attributed_mutate_error"]
+          remove_tag => ["_mutate_error"]
+          }
         }
       }
     }

@@ -17,11 +17,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-c2imera-audit-main-grok-01"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-main-grok-01"
+          }
         }
-        remove_tag => ["_logstash_failure__2000-c2imera-audit__grok__2000-c2imera-audit-main-grok-01"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-c2imera-audit-main-grok-01"
+          }
+        }
       }
     }
 
@@ -41,11 +48,18 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-c2imera-audit-date-01"
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-date-01"
+          }
         }
-        remove_tag => ["_logstash_failure__2000-c2imera-audit__date__2000-c2imera-audit-date-01"]
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-c2imera-audit-date-01"
+          }
+        }
       }
     }
 
@@ -65,12 +79,22 @@ filter {
         }
       }
 
-      mutate {
-        add_field => {
-          "[error][source_plugin_id]" => "2000-c2imera-audit-copy-hostname-mutate-01"
-        }
-        add_tag => ["_logstash_attributed_mutate_error"]
+      if [error][source_plugin_id] {
+        mutate {
+          update => {
+            "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-copy-hostname-mutate-01"
+          }
+        add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-copy-hostname-mutate-01", "_logstash_attributed_mutate_error"]
         remove_tag => ["_mutate_error"]
+        }
+      } else {
+        mutate {
+          add_field => {
+            "[error][source_plugin_id]" => "2000-c2imera-audit-copy-hostname-mutate-01"
+          }
+        add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-copy-hostname-mutate-01", "_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+        }
       }
     }
 
@@ -95,11 +119,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-grok-02"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-topic1-grok-02"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-c2imera-audit__grok__2000-c2imera-audit-topic1-grok-02"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-grok-02"
+              }
+            }
           }
         }
 
@@ -119,12 +150,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-msg-mutate-02"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-cleanup-msg-mutate-02"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-cleanup-msg-mutate-02", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-msg-mutate-02"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-cleanup-msg-mutate-02", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
 
@@ -145,11 +186,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-kv-grok-03"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-kv-grok-03"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-c2imera-audit__grok__2000-c2imera-audit-kv-grok-03"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-kv-grok-03"
+              }
+            }
           }
         }
 
@@ -170,11 +218,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-kv-01"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-topic1-kv-01"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-c2imera-audit__kv__2000-c2imera-audit-topic1-kv-01"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-kv-01"
+              }
+            }
           }
         }
 
@@ -193,12 +248,22 @@ filter {
               }
             }
 
-            mutate {
-              add_field => {
-                "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-res-mutate-03"
-              }
-              add_tag => ["_logstash_attributed_mutate_error"]
+            if [error][source_plugin_id] {
+              mutate {
+                update => {
+                  "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-cleanup-res-mutate-03"
+                }
+              add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-cleanup-res-mutate-03", "_logstash_attributed_mutate_error"]
               remove_tag => ["_mutate_error"]
+              }
+            } else {
+              mutate {
+                add_field => {
+                  "[error][source_plugin_id]" => "2000-c2imera-audit-cleanup-res-mutate-03"
+                }
+              add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-cleanup-res-mutate-03", "_logstash_attributed_mutate_error"]
+              remove_tag => ["_mutate_error"]
+              }
             }
           }
         }
@@ -237,12 +302,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-renames-mutate-04"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-topic1-renames-mutate-04"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-topic1-renames-mutate-04", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-topic1-renames-mutate-04"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-topic1-renames-mutate-04", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
 
@@ -278,11 +353,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-grok-04"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-avc-grok-04"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-c2imera-audit__grok__2000-c2imera-audit-avc-grok-04"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-avc-grok-04"
+              }
+            }
           }
         }
 
@@ -305,11 +387,18 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-avc-kv-02"
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-avc-kv-02"
+              }
             }
-            remove_tag => ["_logstash_failure__2000-c2imera-audit__kv__2000-c2imera-avc-kv-02"]
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-avc-kv-02"
+              }
+            }
           }
         }
 
@@ -342,12 +431,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-renames-mutate-05"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-avc-renames-mutate-05"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-avc-renames-mutate-05", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-avc-renames-mutate-05"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-avc-renames-mutate-05", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
 
@@ -365,12 +464,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-avc-cleanup-mutate-06"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-avc-cleanup-mutate-06"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-avc-cleanup-mutate-06", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-avc-cleanup-mutate-06"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-avc-cleanup-mutate-06", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
       }
@@ -398,11 +507,18 @@ filter {
           }
         }
 
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-grok-05"
+        if [error][source_plugin_id] {
+          mutate {
+            update => {
+              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-systemd-grok-05"
+            }
           }
-          remove_tag => ["_logstash_failure__2000-c2imera-audit__grok__2000-c2imera-audit-systemd-grok-05"]
+        } else {
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-grok-05"
+            }
+          }
         }
       }
 
@@ -421,12 +537,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-set-mutate-07"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-systemd-action-set-mutate-07"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-action-set-mutate-07", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-set-mutate-07"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-action-set-mutate-07", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
         mutate {
@@ -443,12 +569,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-lowercase-mutate-08"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-systemd-action-lowercase-mutate-08"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-action-lowercase-mutate-08", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-action-lowercase-mutate-08"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-action-lowercase-mutate-08", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
       }
@@ -467,12 +603,22 @@ filter {
             }
           }
 
-          mutate {
-            add_field => {
-              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-deactivated-mutate-09"
-            }
-            add_tag => ["_logstash_attributed_mutate_error"]
+          if [error][source_plugin_id] {
+            mutate {
+              update => {
+                "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-systemd-deactivated-mutate-09"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-deactivated-mutate-09", "_logstash_attributed_mutate_error"]
             remove_tag => ["_mutate_error"]
+            }
+          } else {
+            mutate {
+              add_field => {
+                "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-deactivated-mutate-09"
+              }
+            add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-deactivated-mutate-09", "_logstash_attributed_mutate_error"]
+            remove_tag => ["_mutate_error"]
+            }
           }
         }
       }
@@ -495,12 +641,22 @@ filter {
           }
         }
 
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-final-mutate-10"
-          }
-          add_tag => ["_logstash_attributed_mutate_error"]
+        if [error][source_plugin_id] {
+          mutate {
+            update => {
+              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-systemd-final-mutate-10"
+            }
+          add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-final-mutate-10", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
+          }
+        } else {
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2000-c2imera-audit-systemd-final-mutate-10"
+            }
+          add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-systemd-final-mutate-10", "_logstash_attributed_mutate_error"]
+          remove_tag => ["_mutate_error"]
+          }
         }
       }
     }
@@ -529,12 +685,22 @@ filter {
           }
         }
 
-        mutate {
-          add_field => {
-            "[error][source_plugin_id]" => "2000-c2imera-audit-generic-syslog-mutate-11"
-          }
-          add_tag => ["_logstash_attributed_mutate_error"]
+        if [error][source_plugin_id] {
+          mutate {
+            update => {
+              "[error][source_plugin_id]" => "%{[error][source_plugin_id]} | 2000-c2imera-audit-generic-syslog-mutate-11"
+            }
+          add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-generic-syslog-mutate-11", "_logstash_attributed_mutate_error"]
           remove_tag => ["_mutate_error"]
+          }
+        } else {
+          mutate {
+            add_field => {
+              "[error][source_plugin_id]" => "2000-c2imera-audit-generic-syslog-mutate-11"
+            }
+          add_tag => ["_logstash_failure__2000-c2imera-audit__mutate__2000-c2imera-audit-generic-syslog-mutate-11", "_logstash_attributed_mutate_error"]
+          remove_tag => ["_mutate_error"]
+          }
         }
       }
     }
