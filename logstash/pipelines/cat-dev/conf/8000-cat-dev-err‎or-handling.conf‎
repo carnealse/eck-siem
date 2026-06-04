@@ -93,104 +93,6 @@ filter {
   # Finalize Error Handling #
   ###########################
 
-  if "_aggregateexception" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-aggregate-exception-add"
-        add_field => { "[error][message]" => "aggregate exception occurred" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-aggregate-exception-update"
-        update => { "[error][message]" => "%{[error][message]} | aggregate exception occurred" }
-      }
-    }
-  }
-
-  if "_csvparsefailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-csv-parse-failure-add"
-        add_field => { "[error][message]" => "csv parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-csv-parse-failure-update"
-        update => { "[error][message]" => "%{[error][message]} | csv parsing failed" }
-      }
-    }
-  }
-
-  if "_dateparsefailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-dateparsefailure-add"
-        add_field => { "[error][message]" => "date parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-dateparsefailure-update"
-        update => { "[error][message]" => "%{[error][message]} | date parsing failed" }
-      }
-    }
-  }
-
-  if "_dissectfailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-dissectfailure-add"
-        add_field => { "[error][message]" => "dissect parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-dissectfailure-update"
-        update => { "[error][message]" => "%{[error][message]} | dissect parsing failed" }
-      }
-    }
-  }
-
-  if "_geoip_lookup_failure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-geoip-lookup-failure-add"
-        add_field => { "[error][message]" => "geoip lookup failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-geoip-lookup-failure-update"
-        update => { "[error][message]" => "%{[error][message]} | geoip lookup failed" }
-      }
-    }
-  }
-
-  if "_grokparsefailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-grokparsefailure-add"
-        add_field => { "[error][message]" => "grok parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-grokparsefailure-update"
-        update => { "[error][message]" => "%{[error][message]} | grok parsing failed" }
-      }
-    }
-  }
-
-  if "_grok_kv_parse_failure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-grok-kv-parse-failure-add"
-        add_field => { "[error][message]" => "grok kv parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-grok-kv-parse-failure-update"
-        update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
-      }
-    }
-  }
-
   if "_jsonparsefailure" in [tags] {
     if ![error][message] {
       mutate {
@@ -201,20 +103,6 @@ filter {
       mutate {
         id => "8000-cat-dev-jsonparsefailure-update"
         update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
-      }
-    }
-  }
-
-  if "_kvparsefailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-kvparsefailure-add"
-        add_field => { "[error][message]" => "kv parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-kvparsefailure-update"
-        update => { "[error][message]" => "%{[error][message]} | kv parsing failed" }
       }
     }
   }
@@ -243,20 +131,6 @@ filter {
       mutate {
         id => "8000-cat-dev-rubyexception-update"
         update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
-      }
-    }
-  }
-
-  if "_xmlparsefailure" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-cat-dev-xmlparsefailure-add"
-        add_field => { "[error][message]" => "xml parsing failed" }
-      }
-    } else {
-      mutate {
-        id => "8000-cat-dev-xmlparsefailure-update"
-        update => { "[error][message]" => "%{[error][message]} | xml parsing failed" }
       }
     }
   }
