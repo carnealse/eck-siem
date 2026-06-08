@@ -17,11 +17,32 @@ filter {
   }
 
 
-  if [error][source_plugin_id] {
+  # required to check the [error][source_config] array as LS evaluation has limitations with arrays
+  ruby {
+    id => "6000-aws-waf-cleanup-source-config-fallback"
+    code => '
+      plugin_ids = event.get("[error][source_plugin_id]")
+      if plugin_ids
+        ids_array = plugin_ids.is_a?(Array) ? plugin_ids : [plugin_ids]
+        has_match = ids_array.any? { |id| id.to_s.start_with?("6000-aws-waf") }
+        if has_match
+          configs = event.get("[error][source_config]")
+          configs_array = configs.nil? ? [] : (configs.is_a?(Array) ? configs : [configs])
+          unless configs_array.include?("6000-aws-waf-cleanup.conf")
+            event.set("[_temp][config_boolean]", "true")
+          end
+        end
+      end
+    '
+  }
+
+  # paired with the ruby above to append the [error][source_config] and not just replace exisiting values
+  if [_temp][config_boolean] == "true" {
     mutate {
       add_field => {
         "[error][source_config]" => "6000-aws-waf-cleanup.conf"
       }
+      remove_field => ["[_temp]"]
     }
   }
 }
