@@ -40,7 +40,7 @@ if [event][original] {
         remove_tag => ["_mutate_error"]
       }
     }
-}
+  }
 
 #added to set original message into event.original
   mutate {
