@@ -1,5 +1,7 @@
 filter {
-  # Restore generic failure tags after per-plugin attribution removes them to avoid false matches.
+  #################################################################################################
+  # Restore generic failure tags after per-plugin attribution removes them to avoid false matches #
+  #################################################################################################
 
   if "_logstash_attributed_aggregate_exception" in [tags] and !("_aggregateexception" in [tags]) {
     mutate {
@@ -88,16 +90,35 @@ filter {
       remove_tag => ["_logstash_attributed_xml_parse_failure"]
     }
   }
-  if "_jsonparsefailure" in [tags] {
+
+  ###########################
+  # Finalize Error Handling #
+  ###########################
+
+  if "_aggregateexception" in [tags] {
     if ![error][message] {
       mutate {
-        id => "8000-gitlab-jsonparsefailure-add"
-        add_field => { "[error][message]" => "json parsing failed" }
+        id => "8000-gitlab-aggregate-exception-add"
+        add_field => { "[error][message]" => "aggregate exception occurred" }
       }
     } else {
       mutate {
-        id => "8000-gitlab-jsonparsefailure-update"
-        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+        id => "8000-gitlab-aggregate-exception-update"
+        update => { "[error][message]" => "%{[error][message]} | aggregate exception occurred" }
+      }
+    }
+  }
+
+  if "_csvparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-csv-parse-failure-add"
+        add_field => { "[error][message]" => "csv parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-csv-parse-failure-update"
+        update => { "[error][message]" => "%{[error][message]} | csv parsing failed" }
       }
     }
   }
@@ -116,30 +137,16 @@ filter {
     }
   }
 
-  if "_mutate_error" in [tags] {
+  if "_dissectfailure" in [tags] {
     if ![error][message] {
       mutate {
-        id => "8000-gitlab-mutate-error-add"
-        add_field => { "[error][message]" => "mutate error occurred" }
+        id => "8000-gitlab-dissectfailure-add"
+        add_field => { "[error][message]" => "dissect parsing failed" }
       }
     } else {
       mutate {
-        id => "8000-gitlab-mutate-error-update"
-        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
-      }
-    }
-  }
-
-  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
-    if ![error][message] {
-      mutate {
-        id => "8000-gitlab-rubyexception-add"
-        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
-      }
-    } else {
-      mutate {
-        id => "8000-gitlab-rubyexception-update"
-        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+        id => "8000-gitlab-dissectfailure-update"
+        update => { "[error][message]" => "%{[error][message]} | dissect parsing failed" }
       }
     }
   }
@@ -182,6 +189,76 @@ filter {
       mutate {
         id => "8000-gitlab-grok-kv-parse-failure-update"
         update => { "[error][message]" => "%{[error][message]} | grok kv parsing failed" }
+      }
+    }
+  }
+
+  if "_jsonparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-jsonparsefailure-add"
+        add_field => { "[error][message]" => "json parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-jsonparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | json parsing failed" }
+      }
+    }
+  }
+
+  if "_kvparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-kvparsefailure-add"
+        add_field => { "[error][message]" => "kv parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-kvparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | kv parsing failed" }
+      }
+    }
+  }
+
+  if "_mutate_error" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-mutate-error-add"
+        add_field => { "[error][message]" => "mutate error occurred" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-mutate-error-update"
+        update => { "[error][message]" => "%{[error][message]} | mutate error occurred" }
+      }
+    }
+  }
+
+  if "_rubyexception" in [tags] or "ruby_exception" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-rubyexception-add"
+        add_field => { "[error][message]" => "An exception occurred in the ruby code" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-rubyexception-update"
+        update => { "[error][message]" => "%{[error][message]} | An exception occurred in the ruby code" }
+      }
+    }
+  }
+
+  if "_xmlparsefailure" in [tags] {
+    if ![error][message] {
+      mutate {
+        id => "8000-gitlab-xmlparsefailure-add"
+        add_field => { "[error][message]" => "xml parsing failed" }
+      }
+    } else {
+      mutate {
+        id => "8000-gitlab-xmlparsefailure-update"
+        update => { "[error][message]" => "%{[error][message]} | xml parsing failed" }
       }
     }
   }
