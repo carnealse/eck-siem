@@ -1,6 +1,7 @@
 filter {
   if [terminatingRuleMatchDetails] and [terminatingRuleMatchDetails][0] {
     split {
+      id => "2000-aws-waf-terminating-rule-match-details-split-01"
       field => "[terminatingRuleMatchDetails]"
       target => "[aws][waf][terminating_rule][match_details]"
     }
