@@ -6,7 +6,13 @@ filter {
       if original.is_a?(Array)
         original = original.first
       end
-      count = original.to_s.strip.split(/\s+/).length
+      original = original.to_s
+      # Normalize non-ASCII whitespace (e.g. U+00A0 NBSP from Windows/S3/console) to ASCII space.
+      # Ruby \s does not treat NBSP as whitespace, which otherwise yields token count 1 and skips all dissect branches.
+      original = original.gsub(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/, " ")
+      original = original.strip.gsub(/[ \t]+/, " ")
+      event.set("[event][original]", original)
+      count = original.empty? ? 0 : original.split(" ").length
       event.set("[_temp][message_token_count]", count)
     '
     tag_on_exception => "_rubyexception"
