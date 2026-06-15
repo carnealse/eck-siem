@@ -2,7 +2,12 @@ filter {
   ruby {
     id => "2000-vpcflow-ruby-token-count-ruby-01"
     code => '
-      event.set("[_temp][message_token_count]", event.get("[event][original]").split(" ").length)
+      original = event.get("[event][original]")
+      if original.is_a?(Array)
+        original = original.first
+      end
+      count = original.to_s.strip.split(/\s+/).length
+      event.set("[_temp][message_token_count]", count)
     '
     tag_on_exception => "_rubyexception"
   }
@@ -150,6 +155,15 @@ filter {
     }
   }
 
+  if [_temp][message_token_count] not in [6, 14, 17, 21, 29, 40] {
+    mutate {
+      id => "2000-vpcflow-unknown-token-count"
+      add_tag => ["_unrecognized_vpcflow_format"]
+      add_field => {
+        "[error][source_plugin_id]" => "2000-vpcflow-unknown-token-count"
+      }
+    }
+  }
 
   # required to check the [error][source_config] array as LS evaluation has limitations with arrays
   ruby {

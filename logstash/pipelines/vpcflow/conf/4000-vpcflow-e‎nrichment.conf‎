@@ -87,35 +87,37 @@ filter {
     }
   }
 
-  mutate {
-    add_field => { "[source][port]" => "%{[aws][vpcflow][srcport]}" }
-    id => "4000-vpcflow-add-src-port-mutate-06"
-  }
-
-  if "_mutate_error" in [tags] {
-
+  if [aws][vpcflow][srcport] {
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-port-mutate-06"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+      add_field => { "[source][port]" => "%{[aws][vpcflow][srcport]}" }
+      id => "4000-vpcflow-add-src-port-mutate-06"
     }
-  }
 
-  mutate {
-    convert => { "[source][port]" => "integer" }
-    id => "4000-vpcflow-int-src-port-mutate-07"
-  }
+    if "_mutate_error" in [tags] {
 
-  if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-port-mutate-06"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
 
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-port-mutate-07"
+      convert => { "[source][port]" => "integer" }
+      id => "4000-vpcflow-int-src-port-mutate-07"
+    }
+
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-port-mutate-07"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
   }
 
@@ -153,35 +155,37 @@ filter {
     }
   }
 
-  mutate {
-    add_field => { "[destination][port]" => "%{[aws][vpcflow][dstport]}" }
-    id => "4000-vpcflow-add-dst-port-mutate-10"
-  }
-
-  if "_mutate_error" in [tags] {
-
+  if [aws][vpcflow][dstport] {
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-dst-port-mutate-10"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+      add_field => { "[destination][port]" => "%{[aws][vpcflow][dstport]}" }
+      id => "4000-vpcflow-add-dst-port-mutate-10"
     }
-  }
 
-  mutate {
-    convert => { "[destination][port]" => "integer" }
-    id => "4000-vpcflow-int-dst-port-mutate-11"
-  }
+    if "_mutate_error" in [tags] {
 
-  if "_mutate_error" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-dst-port-mutate-10"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
 
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-dst-port-mutate-11"
+      convert => { "[destination][port]" => "integer" }
+      id => "4000-vpcflow-int-dst-port-mutate-11"
+    }
+
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-dst-port-mutate-11"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
   }
 
@@ -201,67 +205,71 @@ filter {
     }
   }
 
-  mutate {
-    add_field => { "[source][packets]" => "%{[aws][vpcflow][packets]}" }
-    id => "4000-vpcflow-add-src-packets-mutate-13"
-  }
+  if [aws][vpcflow][packets] {
+    mutate {
+      add_field => { "[source][packets]" => "%{[aws][vpcflow][packets]}" }
+      id => "4000-vpcflow-add-src-packets-mutate-13"
+    }
 
-  if "_mutate_error" in [tags] {
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-packets-mutate-13"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
 
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-packets-mutate-13"
+      convert => { "[source][packets]" => "integer" }
+      id => "4000-vpcflow-int-src-packets-mutate-14"
+    }
+
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-packets-mutate-14"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
   }
 
-  mutate {
-    convert => { "[source][packets]" => "integer" }
-    id => "4000-vpcflow-int-src-packets-mutate-14"
-  }
-
-  if "_mutate_error" in [tags] {
-
+  if [aws][vpcflow][bytes] {
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-packets-mutate-14"
-      }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
+      add_field => { "[source][bytes]" => "%{[aws][vpcflow][bytes]}" }
+      id => "4000-vpcflow-add-src-bytes-mutate-15"
     }
-  }
 
-  mutate {
-    add_field => { "[source][bytes]" => "%{[aws][vpcflow][bytes]}" }
-    id => "4000-vpcflow-add-src-bytes-mutate-15"
-  }
+    if "_mutate_error" in [tags] {
 
-  if "_mutate_error" in [tags] {
-
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-add-src-bytes-mutate-15"
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-add-src-bytes-mutate-15"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
-  }
-
-  mutate {
-    convert => { "[source][bytes]" => "integer" }
-    id => "4000-vpcflow-int-src-bytes-mutate-16"
-  }
-
-  if "_mutate_error" in [tags] {
 
     mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "4000-vpcflow-int-src-bytes-mutate-16"
+      convert => { "[source][bytes]" => "integer" }
+      id => "4000-vpcflow-int-src-bytes-mutate-16"
+    }
+
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "4000-vpcflow-int-src-bytes-mutate-16"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
   }
 
