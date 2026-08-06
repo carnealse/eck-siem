@@ -1,5 +1,4 @@
 filter {
-  # Basic Housekeeping #
   fingerprint {
     id => "1000-meraki-fingerprint-01"
     source => "message"
@@ -10,13 +9,72 @@ filter {
     id => "1000-meraki-initial-tags-mutate-01"
     add_tag => ["logstash", "preserve_original_event"]
   }
+
+  if "_mutate_error" in [tags] {
+
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "1000-meraki-initial-tags-mutate-01"
+      }
+      add_tag => ["_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
   mutate {
     id => "1000-meraki-preserve-original-mutate-02"
     copy => { "[message]" => "[event][original]" }
   }
-  # break out the json #
+
+  if "_mutate_error" in [tags] {
+
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "1000-meraki-preserve-original-mutate-02"
+      }
+      add_tag => ["_logstash_attributed_mutate_error"]
+      remove_tag => ["_mutate_error"]
+    }
+  }
   json {
     id => "1000-meraki-json_process-json-01"
-    source =>  "[message]"
+    source => "[message]"
+    tag_on_failure => ["_jsonparsefailure"]
+  }
+
+  if "_jsonparsefailure" in [tags] {
+    mutate {
+      add_field => {
+        "[error][source_plugin_id]" => "1000-meraki-json_process-json-01"
+      }
+      add_tag => ["_logstash_attributed_json_parse_failure"]
+      remove_tag => ["_jsonparsefailure"]
+    }
+  }
+
+  ruby {
+    id => "1000-meraki-normalization-source-config-fallback"
+    code => '
+      plugin_ids = event.get("[error][source_plugin_id]")
+      if plugin_ids
+        ids_array = plugin_ids.is_a?(Array) ? plugin_ids : [plugin_ids]
+        has_match = ids_array.any? { |id| id.to_s.start_with?("1000-meraki") }
+        if has_match
+          configs = event.get("[error][source_config]")
+          configs_array = configs.nil? ? [] : (configs.is_a?(Array) ? configs : [configs])
+          unless configs_array.include?("1000-meraki-normalization.conf")
+            event.set("[_temp][config_boolean]", "true")
+          end
+        end
+      end
+    '
+  }
+
+  if [_temp][config_boolean] == "true" {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "1000-meraki-normalization.conf"
+      }
+      remove_field => ["[_temp]"]
+    }
   }
 }

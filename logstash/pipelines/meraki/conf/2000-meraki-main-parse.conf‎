@@ -1,58 +1,98 @@
 filter {
-  # set the timestamp from occurredAt add_field or ts #
   if [occurredAt] {
     date {
       id => "2000-meraki-occurredAt-date-01"
       match => ["[occurredAt]", "ISO8601"]
+      tag_on_failure => ["_dateparsefailure"]
+    }
+
+    if "_dateparsefailure" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-meraki-occurredAt-date-01"
+        }
+        add_tag => ["_logstash_attributed_date_parse_failure"]
+        remove_tag => ["_dateparsefailure"]
+      }
     }
   } else if [ts] {
     date {
-      id => "2000-meraki-minFirstSeen-date-04"
+      id => "2000-meraki-ts-date-02"
       match => ["[ts]", "ISO8601"]
-      target
+      tag_on_failure => ["_dateparsefailure"]
+    }
+
+    if "_dateparsefailure" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-meraki-ts-date-02"
+        }
+        add_tag => ["_logstash_attributed_date_parse_failure"]
+        remove_tag => ["_dateparsefailure"]
+      }
     }
   }
-  # convert epochs to something nicer to read if they exist #
+
   if [alertData][minFirstSeen] or [alertData][maxLastSeen] {
     date {
-      id => "2000-meraki-minFirstSeen-date-02"
+      id => "2000-meraki-minFirstSeen-date-03"
       match => ["[alertData][minFirstSeen]", UNIX]
       target => "[alertData][minFirstSeen]"
+      tag_on_failure => ["_dateparsefailure"]
     }
+
+    if "_dateparsefailure" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-meraki-minFirstSeen-date-03"
+        }
+        add_tag => ["_logstash_attributed_date_parse_failure"]
+        remove_tag => ["_dateparsefailure"]
+      }
+    }
+
     date {
-      id => "2000-meraki-maxLastSeen-date-03"
+      id => "2000-meraki-maxLastSeen-date-04"
       match => ["[alertData][maxLastSeen]", UNIX]
       target => "[alertData][maxLastSeen]"
+      tag_on_failure => ["_dateparsefailure"]
+    }
 
-    }
-  }
-  # prestage meraki top level/objects and nested fields
-  mutate {
-    id => "2000-meraki-prestage-renames-mutate-03"
-    rename => {
-      "[alertData]"             => "[meraki][alert_data]"
-      "[alertTypeId]"           => "[meraki][alert_type][id]"
-      "[alertType]"             => "[meraki][alert_type][type]"
-      "[device]"                => "[meraki][device]"
-      "[destinations]"          => "[meraki][destinations]"
-      "[adminId]"               => "[meraki][admin][id]"
-      "[adminName]"             => "[meraki][admin][name]"
-      "[adminEmail]"            => "[meraki][admin][email]"
-      "[ssidName]"              => "[meraki][ssid][name]"
-      "[ssidNumber]"            => "[meraki][ssid][number]"
-      "[networkName]"           => "[meraki][network][name]"
-      "[networkId]"             => "[meraki][network][id]"
-      "[networkUrl]"            => "[meraki][network][url]"
-      "[oldValue]"              => "[meraki][changes][value][old]"
-      "[newValue]"              => "[meraki][changes][value][new]"
-    }
-  }
-  if [meraki][alert_data][changes][removeNodes] {
-    mutate {
-      id => "2000-meraki-rename-remove-nodes-mutate-04"
-      rename => {
-        "[meraki][alert_data][changes][removeNodes]"  => "[meraki][alert_data][changes][remove_nodes]"
+    if "_dateparsefailure" in [tags] {
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "2000-meraki-maxLastSeen-date-04"
+        }
+        add_tag => ["_logstash_attributed_date_parse_failure"]
+        remove_tag => ["_dateparsefailure"]
       }
+    }
+  }
+
+  ruby {
+    id => "2000-meraki-main-parse-source-config-fallback"
+    code => '
+      plugin_ids = event.get("[error][source_plugin_id]")
+      if plugin_ids
+        ids_array = plugin_ids.is_a?(Array) ? plugin_ids : [plugin_ids]
+        has_match = ids_array.any? { |id| id.to_s.start_with?("2000-meraki") }
+        if has_match
+          configs = event.get("[error][source_config]")
+          configs_array = configs.nil? ? [] : (configs.is_a?(Array) ? configs : [configs])
+          unless configs_array.include?("2000-meraki-main-parse.conf")
+            event.set("[_temp][config_boolean]", "true")
+          end
+        end
+      end
+    '
+  }
+
+  if [_temp][config_boolean] == "true" {
+    mutate {
+      add_field => {
+        "[error][source_config]" => "2000-meraki-main-parse.conf"
+      }
+      remove_field => ["[_temp]"]
     }
   }
 }
