@@ -1,41 +1,58 @@
 filter {
-  # set the timestamp from occurredAt add_field #
+  # set the timestamp from occurredAt add_field or ts #
   if [occurredAt] {
     date {
+      id => "2000-meraki-occurredAt-date-01"
       match => ["[occurredAt]", "ISO8601"]
-      id => "2000-meraki-date-occurredAt"
+    }
+  } else if [ts] {
+    date {
+      id => "2000-meraki-minFirstSeen-date-04"
+      match => ["[ts]", "ISO8601"]
+      target
     }
   }
   # convert epochs to something nicer to read if they exist #
   if [alertData][minFirstSeen] or [alertData][maxLastSeen] {
     date {
+      id => "2000-meraki-minFirstSeen-date-02"
       match => ["[alertData][minFirstSeen]", UNIX]
       target => "[alertData][minFirstSeen]"
-      id => "2000-meraki-date-minFirstSeen"
     }
     date {
+      id => "2000-meraki-maxLastSeen-date-03"
       match => ["[alertData][maxLastSeen]", UNIX]
       target => "[alertData][maxLastSeen]"
-      id => "2000-meraki-date-maxLastSeen"
+
     }
   }
   # prestage meraki top level/objects and nested fields
   mutate {
+    id => "2000-meraki-prestage-renames-mutate-03"
     rename => {
       "[alertData]"             => "[meraki][alert_data]"
       "[alertTypeId]"           => "[meraki][alert_type][id]"
       "[alertType]"             => "[meraki][alert_type][type]"
       "[device]"                => "[meraki][device]"
       "[destinations]"          => "[meraki][destinations]"
+      "[adminId]"               => "[meraki][admin][id]"
+      "[adminName]"             => "[meraki][admin][name]"
+      "[adminEmail]"            => "[meraki][admin][email]"
+      "[ssidName]"              => "[meraki][ssid][name]"
+      "[ssidNumber]"            => "[meraki][ssid][number]"
+      "[networkName]"           => "[meraki][network][name]"
+      "[networkId]"             => "[meraki][network][id]"
+      "[networkUrl]"            => "[meraki][network][url]"
+      "[oldValue]"              => "[meraki][changes][value][old]"
+      "[newValue]"              => "[meraki][changes][value][new]"
     }
-    id => "2000-meraki-prestage-renames"
   }
   if [meraki][alert_data][changes][removeNodes] {
     mutate {
+      id => "2000-meraki-rename-remove-nodes-mutate-04"
       rename => {
         "[meraki][alert_data][changes][removeNodes]"  => "[meraki][alert_data][changes][remove_nodes]"
       }
-      id => "2000-meraki-rename-remove-nodes"
     }
   }
 }
