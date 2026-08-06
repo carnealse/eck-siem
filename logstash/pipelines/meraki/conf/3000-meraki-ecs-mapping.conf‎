@@ -37,16 +37,16 @@ filter {
         "[meraki][alert_data][changes][removeNodes]" => "[meraki][alert_data][changes][remove_nodes]"
       }
     }
-  }
 
-  if "_mutate_error" in [tags] {
+    if "_mutate_error" in [tags] {
 
-    mutate {
-      add_field => {
-        "[error][source_plugin_id]" => "3000-meraki-rename-remove-nodes-mutate-02"
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "3000-meraki-rename-remove-nodes-mutate-02"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
       }
-      add_tag => ["_logstash_attributed_mutate_error"]
-      remove_tag => ["_mutate_error"]
     }
   }
   mutate {
@@ -185,6 +185,25 @@ filter {
       remove_tag => ["_mutate_error"]
     }
   }
+
+  if [user][id] {
+    mutate {
+      id => "3000-meraki-user-id-string-mutate-04"
+      convert => { "[user][id]" => "string" }
+    }
+
+    if "_mutate_error" in [tags] {
+
+      mutate {
+        add_field => {
+          "[error][source_plugin_id]" => "3000-meraki-user-id-string-mutate-04"
+        }
+        add_tag => ["_logstash_attributed_mutate_error"]
+        remove_tag => ["_mutate_error"]
+      }
+    }
+  }
+
   ruby {
     id => "3000-meraki-ecs-mapping-source-config-fallback"
     code => '
